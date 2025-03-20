@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flip Cards</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f3f3f3;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    #cards {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 5 colunas */
+        gap: 20px; /* Espaçamento entre os cartões */
+        max-width: 1200px; /* Largura máxima do container */
+    }
+
+    .card-container {
+        perspective: 1000px;
+    }
+
+    .card {
+        width: 150px;
+        height: 200px;
+        position: relative;
+        transform-style: preserve-3d;
+        transform: rotateY(0deg);
+        transition: transform 0.6s ease-in-out;
+    }
+
+    .card-container:hover .card {
+        transform: rotateY(180deg);
+    }
+
+    .card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .front {
+        background-color: #fff;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .back {
+        background-color: #4CAF50;
+        color: #fff;
+        transform: rotateY(180deg);
+        padding: 10px;
+        text-align: center;
+    }
+
+    /* Ajuste responsivo para telas menores */
+    @media (max-width: 768px) {
+        #cards {
+            grid-template-columns: repeat(2, 1fr); /* 2 colunas em telas menores */
+        }
+    }
+
+    @media (max-width: 480px) {
+        #cards {
+            grid-template-columns: 1fr; /* 1 coluna em telas muito pequenas */
+        }
+    }
+</style>
+
+</head>
+<body>
+<div>
+    <div id="cards">
+	
+	</div>
+</div>
+
+    <script>
+
+	const data = [
+    ["Good morning", "Bom dia"],
+    ["Good afternoon", "Boa tarde"],
+    ["Good evening", "Boa noite"],
+    ["Thank you", "Obrigado(a)"],
+    ["You're welcome", "De nada"],
+    ["Please", "Por favor"],
+    ["Excuse me", "Com licença"],
+    ["I'm sorry", "Desculpe-me"],
+    ["How are you?", "Como vai você?"],
+    ["I'm fine, thank you", "Estou bem, obrigado(a)"],
+    ["What's your name?", "Qual é o seu nome?"],
+    ["My name is...", "Meu nome é..."],
+    ["Nice to meet you", "Prazer em conhecê-lo(a)"],
+    ["See you later", "Até mais"],
+    ["Goodbye", "Adeus"],
+    ["I don't understand", "Eu não entendo"],
+    ["Can you help me?", "Você pode me ajudar?"],
+    ["Where is...?", "Onde fica...?"],
+    ["How much is it?", "Quanto custa?"],
+    ["I love you", "Eu te amo"],
+    ["Happy birthday", "Feliz aniversário"],
+    ["Congratulations", "Parabéns"],
+    ["Good luck", "Boa sorte"],
+    ["Cheers", "Saúde"],
+    ["Enjoy your meal", "Bom apetite"],
+    ["Have a nice day", "Tenha um bom dia"],
+    ["I miss you", "Estou com saudades de você"],
+    ["What's the time?", "Que horas são?"],
+    ["It's raining", "Está chovendo"],
+    ["What do you think?", "O que você acha?"],
+    ["I agree", "Eu concordo"],
+    ["I disagree", "Eu discordo"],
+    ["That's interesting", "Isso é interessante"],
+    ["That's amazing", "Isso é incrível"],
+    ["You're right", "Você está certo(a)"],
+    ["You're wrong", "Você está errado(a)"],
+    ["It's beautiful", "É bonito"],
+    ["I'm hungry", "Estou com fome"],
+    ["I'm tired", "Estou cansado(a)"],
+    ["Can I have...?", "Posso ter...?"],
+    ["Where are you from?", "De onde você é?"],
+    ["I'm from...", "Eu sou de..."],
+    ["What do you do?", "O que você faz?"],
+    ["I'm a student", "Eu sou estudante"],
+    ["I'm a teacher", "Eu sou professor(a)"],
+    ["I'm an engineer", "Eu sou engenheiro(a)"],
+    ["I work at...", "Eu trabalho em..."],
+    ["How old are you?", "Quantos anos você tem?"],
+    ["I'm ... years old", "Eu tenho ... anos"],
+    ["Can I help you?", "Posso ajudá-lo(a)?"],
+    ["Call me later", "Me ligue mais tarde"],
+    ["I don't know", "Eu não sei"],
+    ["That's great", "Isso é ótimo"],
+    ["That's terrible", "Isso é terrível"],
+    ["Be careful", "Tenha cuidado"],
+    ["Take care", "Cuide-se"],
+    ["Can I use...?", "Posso usar...?"],
+    ["I need...", "Eu preciso de..."],
+    ["It doesn't matter", "Não importa"],
+    ["No problem", "Sem problema"],
+    ["Of course", "Claro"],
+    ["I like it", "Eu gosto disso"],
+    ["I don't like it", "Eu não gosto disso"],
+    ["It's too expensive", "É muito caro"],
+    ["It's cheap", "É barato"],
+    ["It’s far", "É longe"],
+    ["It’s near", "É perto"],
+    ["Let's go", "Vamos lá"],
+    ["Stop", "Pare"],
+    ["Wait a minute", "Espere um minuto"],
+    ["Come here", "Venha aqui"],
+    ["Leave me alone", "Deixe-me em paz"],
+    ["What time is it?", "Que horas são?"],
+    ["Where are we?", "Onde estamos?"],
+    ["Do you understand?", "Você entende?"],
+    ["I don’t think so", "Eu não acho"],
+    ["You’re welcome", "De nada"],
+    ["Don’t worry", "Não se preocupe"],
+    ["Go straight", "Siga em frente"],
+    ["Turn left", "Vire à esquerda"],
+    ["Turn right", "Vire à direita"],
+    ["How long will it take?", "Quanto tempo levará?"],
+    ["Can I pay by card?", "Posso pagar com cartão?"],
+    ["I’m thirsty", "Estou com sede"],
+    ["I’m lost", "Estou perdido(a)"],
+    ["Help!", "Socorro!"],
+    ["I’m looking for...", "Estou procurando por..."],
+    ["I feel sick", "Estou me sentindo mal"],
+    ["Call the police", "Chame a polícia"],
+    ["Call a doctor", "Chame um médico"],
+    ["This is delicious", "Isso é delicioso"],
+    ["I’ll take it", "Eu vou levar isso"],
+    ["How far is it?", "Quão longe é?"],
+    ["See you tomorrow", "Até amanhã"],
+    ["What is this?", "O que é isso?"],
+    ["What’s happening?", "O que está acontecendo?"],
+    ["I’m sorry I’m late", "Desculpe, estou atrasado(a)"],
+    ["It’s okay", "Está tudo bem"],
+    ["Do you speak English?", "Você fala inglês?"],
+    ["I speak a little", "Eu falo um pouco"],
+    ["Repeat, please", "Repita, por favor"],
+    ["I didn’t hear you", "Eu não ouvi você"],
+    ["Watch out!", "Cuidado!"],
+    ["What do you need?", "O que você precisa?"],
+    ["I need help", "Preciso de ajuda"],
+    ["I’ll be right back", "Eu volto já"],
+    ["See you soon", "Te vejo em breve"],
+    ["I’ll call you later", "Te ligo mais tarde"],
+    ["Tell me more", "Me conte mais"],
+    ["I have an idea", "Eu tenho uma ideia"],
+    ["That’s enough", "Já chega"],
+    ["Why not?", "Por que não?"],
+    ["Follow me", "Siga-me"],
+    ["Can I join you?", "Posso me juntar a você?"],
+    ["Don’t touch it", "Não toque nisso"],
+    ["I don’t mind", "Eu não me importo"],
+    ["Let me think", "Deixe-me pensar"],
+    ["Let’s meet tomorrow", "Vamos nos encontrar amanhã"],
+    ["I need to go", "Eu preciso ir"],
+    ["Stay here", "Fique aqui"],
+    ["It’s urgent", "É urgente"],
+    ["Don’t mention it", "Não precisa agradecer"],
+    ["It’s my fault", "Foi minha culpa"],
+    ["It doesn’t work", "Não funciona"],
+    ["What do you recommend?", "O que você recomenda?"],
+    ["Let’s start", "Vamos começar"],
+    ["What should I do?", "O que devo fazer?"],
+    ["Is it true?", "É verdade?"],
+    ["That’s not fair", "Isso não é justo"],
+    ["What a surprise!", "Que surpresa!"],
+    ["I can’t believe it", "Eu não acredito"],
+    ["What’s wrong?", "O que há de errado?"],
+    ["Everything is fine", "Está tudo bem"],
+    ["It’s not your fault", "Não é sua culpa"],
+    ["Be patient", "Seja paciente"],
+    ["Let’s celebrate", "Vamos comemorar"],
+    ["I’m excited", "Estou empolgado(a)"],
+    ["Don’t give up", "Não desista"],
+    ["I’m impressed", "Estou impressionado(a)"],
+    ["You’re amazing", "Você é incrível"],
+    ["It’s fantastic", "É fantástico"],
+    ["I need more time", "Preciso de mais tempo"],
+    ["Let’s take a break", "Vamos fazer uma pausa"]
+];
+
+
+
+        const cardsContainer = document.getElementById("cards");
+
+        data.forEach(([word, explanation]) => {
+            const cardContainer = document.createElement("div");
+            cardContainer.classList.add("card-container");
+
+            cardContainer.innerHTML = `
+                <div class="card">
+                    <div class="card-face front">${word}</div>
+                    <div class="card-face back">${explanation}</div>
+                </div>
+            `;
+
+            cardsContainer.appendChild(cardContainer);
+        });
+    </script>
+
+</body>
+</html>
