@@ -4,22 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App Guitar Arms</title>
+	<!-- Desenvolvedor: Alexandre Menezes Ferreira -->
+	<!-- Data:11/05/2025 -->
+	<!-- Ferramentas de Apoio: Microsoft Copilot e Notepad++ -->
+	<!-- Descrição: Monte acordes de violão e guitarra facilmente de forma digital -->
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
         }
         .container {
-            max-width: 90%;
-            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .string {
+            background-color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .marked {
+            background-color: yellow;
+        }
+        .labels {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            left: -40px;
+            top: 10px;
+        }
+        .label {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
         }
         table {
             margin-top: 20px;
             border-collapse: collapse;
-            width: 100%;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
+            width: 80%;
         }
         th, td {
             border: 1px solid black;
@@ -29,13 +57,58 @@
         th {
             background-color: #ddd;
         }
-        @media (max-width: 600px) {
-            table {
-                font-size: 12px;
-            }
-            th, td {
-                padding: 5px;
-            }
+    </style>
+</head>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Braço do Violão</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .fretboard {
+            display: grid;
+            grid-template-columns: repeat(21, 50px); /* 21 casas */
+            grid-template-rows: repeat(6, 50px); /* 6 cordas */
+            gap: 5px;
+            background-color: #c19a6b;
+            padding: 10px;
+            border-radius: 10px;
+            position: relative;
+        }
+        .string {
+            background-color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .marked {
+            background-color: yellow;
+        }
+        .labels {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            left: -40px;
+            top: 10px;
+        }
+        .label {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -45,6 +118,77 @@
         <h2>Braço do Violão</h2>
         <p>Clique em uma casa para marcar a nota.</p>
 
+        <div style="display: flex; align-items: center;">
+            <div class="labels">
+                <div class="label">E</div>
+                <div class="label">A</div>
+                <div class="label">D</div>
+                <div class="label">G</div>
+                <div class="label">B</div>
+                <div class="label">E</div>
+            </div>
+
+           
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const fretboard = document.getElementById("fretboard");
+
+            <!-- const stringNotes = [ -->
+                <!-- ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C"], -->
+                <!-- ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F"], -->
+                <!-- ["D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#"], -->
+                <!-- ["G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#"], -->
+                <!-- ["B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G"], -->
+                <!-- ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C"] -->
+            <!-- ]; -->
+			const stringNotes = [
+    ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C"],
+    ["B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G"],
+    ["G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#"],
+    ["D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#"],
+    ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F"],
+    ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C"]
+];
+
+            for (let string = 6; string >= 1; string--) {
+                for (let fret = 1; fret <= 21; fret++) {
+                    const div = document.createElement("div");
+                    div.classList.add("string");
+                    div.textContent = stringNotes[6 - string][fret - 1]; // Exibe a nota correspondente
+                    div.dataset.string = string;
+                    div.dataset.fret = fret;
+
+                    div.addEventListener("click", function () {
+                        this.classList.toggle("marked");
+                    });
+
+                    fretboard.appendChild(div);
+                }
+            }
+        });
+    </script>
+
+
+    <div class="container">
+        <h2>Braço do Violão</h2>
+        <p>Clique em uma casa para marcar a nota.</p>
+
+        <div style="display: flex; align-items: center;">
+            <div class="labels">
+                <div class="label">E</div>
+                <div class="label">A</div>
+                <div class="label">D</div>
+                <div class="label">G</div>
+                <div class="label">B</div>
+                <div class="label">E</div>
+            </div>
+
+            <div class="fretboard" id="fretboard"></div>
+        </div>
+
         <h3>Campo Harmônico Maior</h3>
         <table>
             <tr>
@@ -53,6 +197,10 @@
             <tr><td>I</td> <td>C</td> <td>G</td> <td>D</td> <td>A</td> <td>E</td></tr>
             <tr><td>II</td> <td>Dm</td> <td>Am</td> <td>Em</td> <td>Bm</td> <td>F#m</td></tr>
             <tr><td>III</td> <td>Em</td> <td>Bm</td> <td>F#m</td> <td>C#m</td> <td>G#m</td></tr>
+            <tr><td>IV</td> <td>F</td> <td>C</td> <td>G</td> <td>D</td> <td>A</td></tr>
+            <tr><td>V</td> <td>G</td> <td>D</td> <td>A</td> <td>E</td> <td>B</td></tr>
+            <tr><td>VI</td> <td>Am</td> <td>Em</td> <td>Bm</td> <td>F#m</td> <td>C#m</td></tr>
+            <tr><td>VII</td> <td>Bdim</td> <td>F#dim</td> <td>C#dim</td> <td>G#dim</td> <td>D#dim</td></tr>
         </table>
 
         <h3>Campo Harmônico Menor</h3>
@@ -63,8 +211,32 @@
             <tr><td>I</td> <td>Am</td> <td>Em</td> <td>Bm</td> <td>F#m</td> <td>C#m</td></tr>
             <tr><td>II</td> <td>Bdim</td> <td>F#dim</td> <td>C#dim</td> <td>G#dim</td> <td>D#dim</td></tr>
             <tr><td>III</td> <td>C</td> <td>G</td> <td>D</td> <td>A</td> <td>E</td></tr>
+            <tr><td>IV</td> <td>Dm</td> <td>Am</td> <td>Em</td> <td>Bm</td> <td>F#m</td></tr>
+            <tr><td>V</td> <td>Em</td> <td>Bm</td> <td>F#m</td> <td>C#m</td> <td>G#m</td></tr>
+            <tr><td>VI</td> <td>F</td> <td>C</td> <td>G</td> <td>D</td> <td>A</td></tr>
+            <tr><td>VII</td> <td>G</td> <td>D</td> <td>A</td> <td>E</td> <td>B</td></tr>
         </table>
+
+        <h3>Campo Harmônico Diminuto</h3>
+        <table>
+            <tr><th>Grau</th> <th>Acorde</th></tr>
+            <tr><td>I</td> <td>Cdim</td></tr>
+            <tr><td>II</td> <td>Ddim</td></tr>
+            <tr><td>III</td> <td>Edim</td></tr>
+            <tr><td>IV</td> <td>Fdim</td></tr>
+            <tr><td>V</td> <td>Gdim</td></tr>
+            <tr><td>VI</td> <td>Abdim</td></tr>
+            <tr><td>VII</td> <td>Bbdim</td></tr>
+        </table>
+
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const fretboard = document.getElementById("fretboard");
+
+            const stringNotes = [
+                ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C"],
+                ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F"],
+
 </body>
-</html>
