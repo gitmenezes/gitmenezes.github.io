@@ -1,0 +1,32 @@
+  body {
+    background-color: rgb(0, 50, 100);
+  }
+
+  #texto {
+    vertical-align: center;
+    text-align: center;
+    height: 600px;
+    max-height: 50%;
+    width:"device-width, initial-scale=1.0";
+    background-color: none;
+    overflow-y: auto;
+    background-color:crimson;
+    color: aliceblue;
+    
+  }
+  #teclado {
+    font-style: oblique;
+    width:"device-width, initial-scale=1.0";
+    font-size: large;
+    text-align: center;
+  }
+  #txtrua {
+    text-align: center;
+    color: aliceblue;
+  }
+  input {
+    width:"device-width, initial-scale=1.0";
+  }
+footer {
+  color: aliceblue;
+}
