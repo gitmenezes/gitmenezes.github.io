@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendador de Tarefas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #toggleCompleted {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+        .task {
+            margin: 10px 0;
+            position: relative;
+            background-color: #fff;
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+        .task.started {
+            background-color: yellow;
+        }
+        .task.completed {
+            text-decoration: line-through;
+            display: none; /* Inicialmente oculta as tarefas concluídas */
+        }
+        .task.completed.visible { /* Classe para tornar as tarefas concluídas visíveis */
+            display: block;
+        }
+        .delete-btn {
+            margin-left: 10px;
+            color: red;
+            cursor: pointer;
+        }
+        .check-btn {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .start-time, .completed-time {
+            font-size: smaller;
+            color: gray;
+            margin-left: 10px;
+        }
+        /* Estilo para o ghost (elemento em movimento) */
+        .ghost {
+            opacity: 0.4;
+        }
+    </style>
+    <!-- Inclusão da biblioteca SortableJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+</head>
+<body>
+    <h1>Tarefas</h1>
+    <button id="toggleCompleted">Mostrar Concluídas</button> 
+    <input type="text" id="taskInput" placeholder="Digite uma tarefa">
+    <button onclick="addTask()">Incluir</button>
+
+    <div id="taskList"></div>
+
+    <script>
+        const taskList = document.getElementById('taskList');
+        const toggleCompletedButton = document.getElementById('toggleCompleted');
+        let showingCompleted = false; // Variável para controlar o estado de visibilidade
+
+        toggleCompletedButton.addEventListener('click', () => {
+            showingCompleted = !showingCompleted;
+            const completedTasks = document.querySelectorAll('.task.completed');
+            completedTasks.forEach(task => {
+                task.classList.toggle('visible', showingCompleted);
+            });
+            toggleCompletedButton.textContent = showingCompleted ? 'Ocultar Concluídas' : 'Mostrar Concluídas';
+        });
+
+        function saveTasks() {
+            const tasks = [];
+            const taskElements = document.querySelectorAll('.task');
+            taskElements.forEach(taskElement => {
+                const task = {
+                    text: taskElement.querySelector('span').textContent,
+                    completed: taskElement.classList.contains('completed'),
+                    completedTime: taskElement.getAttribute('data-completed-time'),
+                    startTime: taskElement.getAttribute('data-start-time')
+                };
+                tasks.push(task);
+            });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            // Limpa a lista para evitar duplicação de tarefas
+            taskList.innerHTML = "";
+            
+            const savedTasks = localStorage.getItem('tasks');
+            if (savedTasks) {
+                const tasks = JSON.parse(savedTasks);
+                tasks.forEach(task => {
+                    const taskElement = createTaskElement(task.text, task.completed, task.completedTime, task.startTime);
+                    taskList.appendChild(taskElement);
+                });
+            }
+        }
+
+        function createTaskElement(text, completed, completedTime, startTime) {
+            const taskElement = document.createElement('div');
+            taskElement.classList.add('task');
+            taskElement.innerHTML = `<span>${text}</span>`;
+
+            if (startTime) {
+                taskElement.classList.add('started');
+                taskElement.setAttribute('data-start-time', startTime);
+                taskElement.innerHTML += `<span class="start-time">Iniciado em: ${startTime}</span>`;
+            }
+
+            if (completed) {
+                taskElement.classList.add('completed');
+                taskElement.setAttribute('data-completed-time', completedTime);
+                taskElement.innerHTML += `<span class="completed-time">Concluído em: ${completedTime}</span>`;
+            }
+
+            const startBtn = document.createElement('button');
+            startBtn.textContent = 'Iniciar';
+            startBtn.addEventListener('click', function() {
+                startTask(taskElement);
+            });
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = 'Excluir';
+            deleteBtn.addEventListener('click', function() {
+                deleteTask(taskElement);
+            });
+
+            const checkBtn = document.createElement('button');
+            checkBtn.className = 'check-btn';
+            checkBtn.textContent = 'Check';
+            checkBtn.addEventListener('click', function() {
+                markTaskAsCompleted(taskElement);
+            });
+
+            taskElement.appendChild(startBtn);
+            taskElement.appendChild(deleteBtn);
+            taskElement.appendChild(checkBtn);
+
+            return taskElement;
+        }
+
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskText = taskInput.value.trim();
+            if (taskText === '') return;
+
+            const taskElement = createTaskElement(taskText, false, '', '');
+            taskList.appendChild(taskElement);
+            saveTasks();
+
+            taskInput.value = '';
+        }
+
+        function deleteTask(taskElement) {
+            const confirmation = confirm('Tem certeza que deseja excluir esta tarefa?');
+            if (confirmation) {
+                taskList.removeChild(taskElement);
+                saveTasks();
+            }
+        }
+
+        function markTaskAsCompleted(taskElement) {
+            if (!taskElement.classList.contains('completed')) {
+                const now = new Date();
+                const dateTimeString = now.toLocaleString();
+
+                taskElement.classList.add('completed');
+                taskElement.classList.remove('started');
+                taskElement.setAttribute('data-completed-time', dateTimeString);
+
+                const completedTimeSpan = document.createElement('span');
+                completedTimeSpan.className = 'completed-time';
+                completedTimeSpan.textContent = `Concluído em: ${dateTimeString}`;
+                taskElement.appendChild(completedTimeSpan);
+
+                const checkBtn = taskElement.querySelector('.check-btn');
+                checkBtn.disabled = true;
+
+                saveTasks();
+            }
+        }
+
+        function startTask(taskElement) {
+            if (!taskElement.getAttribute('data-start-time')) {
+                const now = new Date();
+                const dateTimeString = now.toLocaleString();
+
+                taskElement.classList.add('started');
+                taskElement.setAttribute('data-start-time', dateTimeString);
+                const startTimeSpan = document.createElement('span');
+                startTimeSpan.className = 'start-time';
+                startTimeSpan.textContent = `Iniciado em: ${dateTimeString}`;
+                // Insere após o texto da tarefa
+                taskElement.insertBefore(startTimeSpan, taskElement.children[1]);
+
+                saveTasks();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTasks();
+
+            // Inicializa o SortableJS para permitir o drag and drop das tarefas
+            new Sortable(taskList, {
+                animation: 150,
+                ghostClass: 'ghost',
+                onEnd: () => {
+                    saveTasks(); // Salva a nova ordem após o reordenamento
+                }
+            });
+        });
+    </script>
+</body>
+</html>
