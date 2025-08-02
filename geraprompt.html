@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Prompt para IA</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      border-radius: 12px;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    select, textarea, button {
+      width: 100%;
+      margin-top: 5px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005bb5;
+    }
+    #output {
+      margin-top: 20px;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+    }
+    #copiado {
+      color: green;
+      font-weight: bold;
+      display: none;
+      transition: opacity 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🧠 Gerador de Prompt para IA Generativa</h2>
+	
+	<label for="criar">Oque quer criar?</label>
+	<select id="criar">
+		<option value='video'>video</option>
+		<option value='imagem'>imagem</option>
+	</select>
+	
+    <label for="estilo">Estilo:</label>
+    <select id="estilo">
+      <option value="Realista">Realista</option>
+	  <option value="3DRender">3D Render</option>
+	  <option value="Cartoon3d">Cartoon3D</option>
+      <option value="Surreal">Surreal</option>
+      <option value="Cyberpunk">Cyberpunk</option>
+      <option value="Anime">Anime</option>
+      <option value="Aquarela">Aquarela</option>
+      <option value="Pintura a Óleo">Pintura a Óleo</option>
+      <option value="Expressionismo">Expressionismo</option>
+      <option value="Pintura Digital">Pintura Digital</option>
+      <option value="Minimalista">Minimalista</option>
+      <option value="Conceitual">Conceitual</option>
+      <option value="Pop Art">Pop Art</option>
+      <option value="Art Deco">Art Deco</option>
+      <option value="Futurista">Futurista</option>
+      <option value="Steampunk">Steampunk</option>
+      <option value="Barroco">Barroco</option>
+      <option value="Impressionista">Impressionista</option>
+      <option value="Cubista">Cubista</option>
+      <option value="Gótico">Gótico</option>
+      <option value="Fantasia">Fantasia</option>
+      <option value="Sci-Fi">Sci-Fi</option>
+      <option value="Vintage">Vintage</option>
+      <option value="Retro">Retro</option>
+      <option value="Noir">Noir</option>
+      <option value="Street Art">Street Art</option>
+      <option value="Pixel Art">Pixel Art</option>
+      <option value="Monocromático">Monocromático</option>
+      <option value="Preto e Branco">Preto e Branco</option>
+      <option value="Colagem">Colagem</option>
+      <option value="Cartoon">Cartoon</option>
+      <option value="Mangá">Mangá</option>
+      <option value="Grafite">Grafite</option>
+      <option value="Arte Abstrata">Arte Abstrata</option>
+      <option value="Hiper-realista">Hiper-realista</option>
+      <option value="Fotomanipulação">Fotomanipulação</option>
+      <option value="Arte Tribal">Arte Tribal</option>
+      <option value="Mosaico">Mosaico</option>
+      <option value="Arte Renascentista">Arte Renascentista</option>
+      <option value="Arte Egípcia">Arte Egípcia</option>
+      <option value="Arte Africana">Arte Africana</option>
+      <option value="Arte Oriental">Arte Oriental</option>
+      <option value="Arte Psicodélica">Arte Psicodélica</option>
+      <option value="Arte Zen">Arte Zen</option>
+      <option value="Arte Inuit">Arte Inuit</option>
+      <option value="Arte Naïf">Arte Naïf</option>
+      <option value="Arte Brut">Arte Brut</option>
+      <option value="Low Poly">Low Poly</option>
+      <option value="Isométrico">Isométrico</option>
+      <option value="Linha Clara">Linha Clara</option>
+    </select>
+
+    <label for="formato">Formato para rede social:</label>
+    <select id="formato">
+      <option value="Instagram (1080x1080)">Instagram (1080x1080)</option>
+      <option value="Facebook (1200x630)">Facebook (1200x630)</option>
+      <option value="TikTok (1080x1920)">TikTok (1080x1920)</option>
+      <option value="LinkedIn (1200x627)">LinkedIn (1200x627)</option>
+      <option value="YouTube (1280x720)">YouTube (1280x720)</option>
+      <option value="Pinterest (1000x1500)">Pinterest (1000x1500)</option>
+      <option value="Twitter/X (1024x512)">Twitter/X (1024x512)</option>
+      <option value="Threads (1080x1080)">Threads (1080x1080)</option>
+      <option value="WhatsApp (800x800)">WhatsApp (800x800)</option>
+      <option value="Kwai (1080x1920)">Kwai (1080x1920)</option>
+    </select>
+
+    <label for="descricao">Descrição da imagem pretendida:</label>
+    <textarea id="descricao" rows="4" placeholder="Descreva a imagem com detalhes..."></textarea>
+
+    <label for="podeTer">Pode ter:</label>
+    <textarea id="podeTer" rows="2" placeholder="Elementos que podem estar presentes na imagem..."></textarea>
+
+    <label for="naoPodeTer">Não pode ter:</label>
+    <textarea id="naoPodeTer" rows="2" placeholder="Elementos que devem ser evitados na imagem..."></textarea>
+
+    <button onclick="gerarPrompt()">🎨 Gerar Prompt</button>
+    <button onclick="copiarPrompt()">📋 Copiar Prompt</button>
+    <p id="copiado">✅ Prompt copiado!</p>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function gerarPrompt() {
+	  const criar = document.getElementById("criar").value;
+      const estilo = document.getElementById("estilo").value;
+      const formato = document.getElementById("formato").value;
+      const descricao = document.getElementById("descricao").value.trim();
+      const podeTer = document.getElementById("podeTer").value.trim();
+      const naoPodeTer = document.getElementById("naoPodeTer").value.trim();
+
+      if (!descricao) {
+        alert("Por favor, descreva a imagem.");
+        return;
+      }
+
+      let prompt = `Act criar ${criar} no estilo "${estilo}" com dimensões apropriadas para "${formato}".\n`;
+      prompt += `${criar} deve representar: ${descricao}.\n`;
+      if (podeTer) prompt += `Pode conter: ${podeTer}.\n`;
+      if (naoPodeTer) prompt += `Não deve conter: ${naoPodeTer}.`;
+
+      document.getElementById("output").innerText = prompt;
+    }
+
+    function copiarPrompt() {
+      const prompt = document.getElementById("output").innerText;
+      navigator.clipboard.writeText(prompt)
+        .then(() => {
+          const aviso = document.getElementById("copiado");
+          aviso.style.display = "block";
+          aviso.style.opacity = "1";
+          setTimeout(() => {
+            aviso.style.opacity = "0";
+            aviso.style.display = "none";
+          }, 2000);
+        })
+        .catch(err => {
+          alert("Erro ao copiar: " + err);
+        });
+    }
+  </script>
+</body>
+</html>
