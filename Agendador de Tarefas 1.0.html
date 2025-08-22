@@ -1,223 +1,257 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendador de Tarefas</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        #toggleCompleted {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-        }
-        .task {
-            margin: 10px 0;
-            position: relative;
-            background-color: #fff;
-            padding: 5px;
-            border: 1px solid #ddd;
-        }
-        .task.started {
-            background-color: yellow;
-        }
-        .task.completed {
-            text-decoration: line-through;
-            display: none; /* Inicialmente oculta as tarefas concluídas */
-        }
-        .task.completed.visible { /* Classe para tornar as tarefas concluídas visíveis */
-            display: block;
-        }
-        .delete-btn {
-            margin-left: 10px;
-            color: red;
-            cursor: pointer;
-        }
-        .check-btn {
-            margin-left: 10px;
-            cursor: pointer;
-        }
-        .start-time, .completed-time {
-            font-size: smaller;
-            color: gray;
-            margin-left: 10px;
-        }
-        /* Estilo para o ghost (elemento em movimento) */
-        .ghost {
-            opacity: 0.4;
-        }
-    </style>
-    <!-- Inclusão da biblioteca SortableJS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Prompt para IA</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      border-radius: 12px;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    select, textarea, button {
+      width: 100%;
+      margin-top: 5px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005bb5;
+    }
+    #output {
+      margin-top: 20px;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+    }
+    #copiado {
+      color: green;
+      font-weight: bold;
+      display: none;
+      transition: opacity 0.5s ease;
+    }
+  </style>
 </head>
 <body>
-    <h1>Tarefas</h1>
-    <button id="toggleCompleted">Mostrar Concluídas</button> 
-    <input type="text" id="taskInput" placeholder="Digite uma tarefa">
-    <button onclick="addTask()">Incluir</button>
+  <div class="container">
+    <h2>🧠 Gerador de Prompt para IA Generativa</h2>
+	
+	<label for="criar">Oque quer criar?</label>
+	<select id="criar">
+		<option value='video'>video</option>
+		<option value='imagem'>imagem</option>
+	</select>
+	
+    <label for="estilo">Estilo:</label>
+    <select id="estilo">
+      <option value="Realista">Realista</option>
+	  <option value="3DRender">3D Render</option>
+	  <option value="Cartoon3d">Cartoon3D</option>
+      <option value="Surreal">Surreal</option>
+      <option value="Cyberpunk">Cyberpunk</option>
+      <option value="Anime">Anime</option>
+      <option value="Aquarela">Aquarela</option>
+      <option value="Pintura a Óleo">Pintura a Óleo</option>
+      <option value="Expressionismo">Expressionismo</option>
+      <option value="Pintura Digital">Pintura Digital</option>
+      <option value="Minimalista">Minimalista</option>
+      <option value="Conceitual">Conceitual</option>
+      <option value="Pop Art">Pop Art</option>
+      <option value="Art Deco">Art Deco</option>
+      <option value="Futurista">Futurista</option>
+      <option value="Steampunk">Steampunk</option>
+      <option value="Barroco">Barroco</option>
+      <option value="Impressionista">Impressionista</option>
+      <option value="Cubista">Cubista</option>
+      <option value="Gótico">Gótico</option>
+      <option value="Fantasia">Fantasia</option>
+      <option value="Sci-Fi">Sci-Fi</option>
+      <option value="Vintage">Vintage</option>
+      <option value="Retro">Retro</option>
+      <option value="Noir">Noir</option>
+      <option value="Street Art">Street Art</option>
+      <option value="Pixel Art">Pixel Art</option>
+      <option value="Monocromático">Monocromático</option>
+      <option value="Preto e Branco">Preto e Branco</option>
+      <option value="Colagem">Colagem</option>
+      <option value="Cartoon">Cartoon</option>
+      <option value="Mangá">Mangá</option>
+      <option value="Grafite">Grafite</option>
+      <option value="Arte Abstrata">Arte Abstrata</option>
+      <option value="Hiper-realista">Hiper-realista</option>
+      <option value="Fotomanipulação">Fotomanipulação</option>
+      <option value="Arte Tribal">Arte Tribal</option>
+      <option value="Mosaico">Mosaico</option>
+      <option value="Arte Renascentista">Arte Renascentista</option>
+      <option value="Arte Egípcia">Arte Egípcia</option>
+      <option value="Arte Africana">Arte Africana</option>
+      <option value="Arte Oriental">Arte Oriental</option>
+      <option value="Arte Psicodélica">Arte Psicodélica</option>
+      <option value="Arte Zen">Arte Zen</option>
+      <option value="Arte Inuit">Arte Inuit</option>
+      <option value="Arte Naïf">Arte Naïf</option>
+      <option value="Arte Brut">Arte Brut</option>
+      <option value="Low Poly">Low Poly</option>
+      <option value="Isométrico">Isométrico</option>
+      <option value="Linha Clara">Linha Clara</option>
+    </select>
+	<label for="paleta">Paleta de Cores</label>
+	<select id="paleta">
+	  <option value="Cyberpunk Glow">Cyberpunk Glow</option>
+	  <option value="Minimal Neutrals">Minimal Neutrals</option>
+	  <option value="Sunset Gradient">Sunset Gradient</option>
+	  <option value="Earthy Tones">Earthy Tones</option>
+	  <option value="Pastel Dream">Pastel Dream</option>
+	  <option value="Bold Contrast">Bold Contrast</option>
+	  <option value="Ocean Breeze">Ocean Breeze</option>
+	  <option value="Vintage Vibes">Vintage Vibes</option>
+	  <option value="Tech Blue">Tech Blue</option>
+	  <option value="Neon Pop">Neon Pop</option>
+	  <option value="Muted Elegance">Muted Elegance</option>
+	  <option value="Warm Clay">Warm Clay</option>
+	  <option value="Fresh Mint">Fresh Mint</option>
+	  <option value="Golden Hour">Golden Hour</option>
+	  <option value="Lavender Fields">Lavender Fields</option>
+	  <option value="Monochrome Gray">Monochrome Gray</option>
+	  <option value="Tropical Splash">Tropical Splash</option>
+	  <option value="Rose Gold">Rose Gold</option>
+	  <option value="Forest Whisper">Forest Whisper</option>
+	  <option value="Deep Space">Deep Space</option>
+	</select>
 
-    <div id="taskList"></div>
+    <label for="formato">Formato para rede social:</label>
+    <select id="formato">
+      <option value="Instagram (1080x1080)">Instagram (1080x1080)</option>
+      <option value="Facebook (1200x630)">Facebook (1200x630)</option>
+      <option value="TikTok (1080x1920)">TikTok (1080x1920)</option>
+      <option value="LinkedIn (1200x627)">LinkedIn (1200x627)</option>
+      <option value="YouTube (1280x720)">YouTube (1280x720)</option>
+      <option value="Pinterest (1000x1500)">Pinterest (1000x1500)</option>
+      <option value="Twitter/X (1024x512)">Twitter/X (1024x512)</option>
+      <option value="Threads (1080x1080)">Threads (1080x1080)</option>
+      <option value="WhatsApp (800x800)">WhatsApp (800x800)</option>
+	  <option value="WhatsAppTutorial (800x2400)">WhatsAppTutorial (800x2400)</option>
+      <option value="Kwai (1080x1920)">Kwai (1080x1920)</option>
+    </select>
+	<label for="angulo">Ângulo de Câmera:</label>
+    <select id="angulo">
+      <optgroup label="🎬 Vídeo">
+        <option value="Eye-Level">Eye-Level (neutro)</option>
+        <option value="High Angle">High Angle (vulnerável)</option>
+        <option value="Low Angle">Low Angle (imponente)</option>
+        <option value="Bird’s Eye View">Bird’s Eye View (vista aérea)</option>
+        <option value="Worm’s Eye View">Worm’s Eye View (de baixo)</option>
+        <option value="Dutch Angle">Dutch Angle (inclinado/tenso)</option>
+        <option value="Tilt Up">Tilt Up (movimento vertical para cima)</option>
+        <option value="Tilt Down">Tilt Down (movimento vertical para baixo)</option>
+        <option value="Pan Left">Pan Left (movimento horizontal à esquerda)</option>
+        <option value="Pan Right">Pan Right (movimento horizontal à direita)</option>
+        <option value="Tracking Shot">Tracking Shot (acompanha o personagem)</option>
+        <option value="Dolly Zoom">Dolly Zoom (efeito dramático)</option>
+        <option value="POV">POV (ponto de vista do personagem)</option>
+        <option value="Over-the-Shoulder">Over-the-Shoulder (sobre o ombro)</option>
+        <option value="Plano Subjetivo">Plano Subjetivo</option>
+        <option value="Plano Objetivo">Plano Objetivo</option>
+      </optgroup>
+      <optgroup label="📸 Fotografia">
+        <option value="Eye-Level Foto">Eye-Level (natural)</option>
+        <option value="High Angle Foto">High Angle (suaviza o rosto)</option>
+        <option value="Low Angle Foto">Low Angle (dramático)</option>
+        <option value="Bird’s Eye View Foto">Bird’s Eye View (flat lay)</option>
+        <option value="Worm’s Eye View Foto">Worm’s Eye View (contra o céu)</option>
+        <option value="Plano Geral">Plano Geral (paisagem)</option>
+        <option value="Plano Médio">Plano Médio (retrato com contexto)</option>
+        <option value="Plano Americano">Plano Americano (moda/editorial)</option>
+        <option value="Close-Up">Close-Up (expressões)</option>
+        <option value="Extreme Close-Up">Extreme Close-Up (detalhes)</option>
+        <option value="Inclinado">Inclinado (conceitual)</option>
+        <option value="Contra-Luz">Contra-Luz / Silhueta</option>
+        <option value="Simetria">Simetria / Assimetria</option>
+      </optgroup>
+    </select>
+    <label for="descricao">Descrição da imagem pretendida:</label>
+    <textarea id="descricao" rows="4" placeholder="Descreva a imagem com detalhes..."></textarea>
 
-    <script>
-        const taskList = document.getElementById('taskList');
-        const toggleCompletedButton = document.getElementById('toggleCompleted');
-        let showingCompleted = false; // Variável para controlar o estado de visibilidade
+    <label for="podeTer">Pode ter:</label>
+    <textarea id="podeTer" rows="2" placeholder="Elementos que podem estar presentes na imagem..."></textarea>
 
-        toggleCompletedButton.addEventListener('click', () => {
-            showingCompleted = !showingCompleted;
-            const completedTasks = document.querySelectorAll('.task.completed');
-            completedTasks.forEach(task => {
-                task.classList.toggle('visible', showingCompleted);
-            });
-            toggleCompletedButton.textContent = showingCompleted ? 'Ocultar Concluídas' : 'Mostrar Concluídas';
+    <label for="naoPodeTer">Não pode ter:</label>
+    <textarea id="naoPodeTer" rows="2" placeholder="Elementos que devem ser evitados na imagem..."></textarea>
+
+    <button onclick="gerarPrompt()">🎨 Gerar Prompt</button>
+    <button onclick="copiarPrompt()">📋 Copiar Prompt</button>
+    <p id="copiado">✅ Prompt copiado!</p>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function gerarPrompt() {
+	  const criar = document.getElementById("criar").value;
+      const estilo = document.getElementById("estilo").value;
+      const formato = document.getElementById("formato").value;
+      const descricao = document.getElementById("descricao").value.trim();
+      const podeTer = document.getElementById("podeTer").value.trim();
+      const naoPodeTer = document.getElementById("naoPodeTer").value.trim();
+	  const paleta = document.getElementById("paleta").value;
+	   const angulo = document.getElementById("angulo").value;
+
+      if (!descricao) {
+        alert("Por favor, descreva a imagem.");
+        return;
+      }
+
+      let prompt = `Act criar ${criar} no estilo "${estilo}", utilize a paleta de cores ${paleta} com dimensões apropriadas para "${formato}", o ângulo da câmera deve ser "${angulo}".\n`;
+      prompt += `${criar} deve representar: ${descricao}.\n`;
+      if (podeTer) prompt += `Pode conter: ${podeTer}.\n`;
+      if (naoPodeTer) prompt += `Não deve conter: ${naoPodeTer}.`;
+
+      document.getElementById("output").innerText = prompt;
+    }
+
+    function copiarPrompt() {
+      const prompt = document.getElementById("output").innerText;
+      navigator.clipboard.writeText(prompt)
+        .then(() => {
+          const aviso = document.getElementById("copiado");
+          aviso.style.display = "block";
+          aviso.style.opacity = "1";
+          setTimeout(() => {
+            aviso.style.opacity = "0";
+            aviso.style.display = "none";
+          }, 2000);
+        })
+        .catch(err => {
+          alert("Erro ao copiar: " + err);
         });
-
-        function saveTasks() {
-            const tasks = [];
-            const taskElements = document.querySelectorAll('.task');
-            taskElements.forEach(taskElement => {
-                const task = {
-                    text: taskElement.querySelector('span').textContent,
-                    completed: taskElement.classList.contains('completed'),
-                    completedTime: taskElement.getAttribute('data-completed-time'),
-                    startTime: taskElement.getAttribute('data-start-time')
-                };
-                tasks.push(task);
-            });
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
-
-        function loadTasks() {
-            // Limpa a lista para evitar duplicação de tarefas
-            taskList.innerHTML = "";
-            
-            const savedTasks = localStorage.getItem('tasks');
-            if (savedTasks) {
-                const tasks = JSON.parse(savedTasks);
-                tasks.forEach(task => {
-                    const taskElement = createTaskElement(task.text, task.completed, task.completedTime, task.startTime);
-                    taskList.appendChild(taskElement);
-                });
-            }
-        }
-
-        function createTaskElement(text, completed, completedTime, startTime) {
-            const taskElement = document.createElement('div');
-            taskElement.classList.add('task');
-            taskElement.innerHTML = `<span>${text}</span>`;
-
-            if (startTime) {
-                taskElement.classList.add('started');
-                taskElement.setAttribute('data-start-time', startTime);
-                taskElement.innerHTML += `<span class="start-time">Iniciado em: ${startTime}</span>`;
-            }
-
-            if (completed) {
-                taskElement.classList.add('completed');
-                taskElement.setAttribute('data-completed-time', completedTime);
-                taskElement.innerHTML += `<span class="completed-time">Concluído em: ${completedTime}</span>`;
-            }
-
-            const startBtn = document.createElement('button');
-            startBtn.textContent = 'Iniciar';
-            startBtn.addEventListener('click', function() {
-                startTask(taskElement);
-            });
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-btn';
-            deleteBtn.textContent = 'Excluir';
-            deleteBtn.addEventListener('click', function() {
-                deleteTask(taskElement);
-            });
-
-            const checkBtn = document.createElement('button');
-            checkBtn.className = 'check-btn';
-            checkBtn.textContent = 'Check';
-            checkBtn.addEventListener('click', function() {
-                markTaskAsCompleted(taskElement);
-            });
-
-            taskElement.appendChild(startBtn);
-            taskElement.appendChild(deleteBtn);
-            taskElement.appendChild(checkBtn);
-
-            return taskElement;
-        }
-
-        function addTask() {
-            const taskInput = document.getElementById('taskInput');
-            const taskText = taskInput.value.trim();
-            if (taskText === '') return;
-
-            const taskElement = createTaskElement(taskText, false, '', '');
-            taskList.appendChild(taskElement);
-            saveTasks();
-
-            taskInput.value = '';
-        }
-
-        function deleteTask(taskElement) {
-            const confirmation = confirm('Tem certeza que deseja excluir esta tarefa?');
-            if (confirmation) {
-                taskList.removeChild(taskElement);
-                saveTasks();
-            }
-        }
-
-        function markTaskAsCompleted(taskElement) {
-            if (!taskElement.classList.contains('completed')) {
-                const now = new Date();
-                const dateTimeString = now.toLocaleString();
-
-                taskElement.classList.add('completed');
-                taskElement.classList.remove('started');
-                taskElement.setAttribute('data-completed-time', dateTimeString);
-
-                const completedTimeSpan = document.createElement('span');
-                completedTimeSpan.className = 'completed-time';
-                completedTimeSpan.textContent = `Concluído em: ${dateTimeString}`;
-                taskElement.appendChild(completedTimeSpan);
-
-                const checkBtn = taskElement.querySelector('.check-btn');
-                checkBtn.disabled = true;
-
-                saveTasks();
-            }
-        }
-
-        function startTask(taskElement) {
-            if (!taskElement.getAttribute('data-start-time')) {
-                const now = new Date();
-                const dateTimeString = now.toLocaleString();
-
-                taskElement.classList.add('started');
-                taskElement.setAttribute('data-start-time', dateTimeString);
-                const startTimeSpan = document.createElement('span');
-                startTimeSpan.className = 'start-time';
-                startTimeSpan.textContent = `Iniciado em: ${dateTimeString}`;
-                // Insere após o texto da tarefa
-                taskElement.insertBefore(startTimeSpan, taskElement.children[1]);
-
-                saveTasks();
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadTasks();
-
-            // Inicializa o SortableJS para permitir o drag and drop das tarefas
-            new Sortable(taskList, {
-                animation: 150,
-                ghostClass: 'ghost',
-                onEnd: () => {
-                    saveTasks(); // Salva a nova ordem após o reordenamento
-                }
-            });
-        });
-    </script>
+    }
+  </script>
 </body>
 </html>
