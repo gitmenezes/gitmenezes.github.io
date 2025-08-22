@@ -122,6 +122,29 @@
       <option value="Isométrico">Isométrico</option>
       <option value="Linha Clara">Linha Clara</option>
     </select>
+	<label for="paleta">Paleta de Cores</label>
+	<select id="paleta">
+	  <option value="Cyberpunk Glow">Cyberpunk Glow</option>
+	  <option value="Minimal Neutrals">Minimal Neutrals</option>
+	  <option value="Sunset Gradient">Sunset Gradient</option>
+	  <option value="Earthy Tones">Earthy Tones</option>
+	  <option value="Pastel Dream">Pastel Dream</option>
+	  <option value="Bold Contrast">Bold Contrast</option>
+	  <option value="Ocean Breeze">Ocean Breeze</option>
+	  <option value="Vintage Vibes">Vintage Vibes</option>
+	  <option value="Tech Blue">Tech Blue</option>
+	  <option value="Neon Pop">Neon Pop</option>
+	  <option value="Muted Elegance">Muted Elegance</option>
+	  <option value="Warm Clay">Warm Clay</option>
+	  <option value="Fresh Mint">Fresh Mint</option>
+	  <option value="Golden Hour">Golden Hour</option>
+	  <option value="Lavender Fields">Lavender Fields</option>
+	  <option value="Monochrome Gray">Monochrome Gray</option>
+	  <option value="Tropical Splash">Tropical Splash</option>
+	  <option value="Rose Gold">Rose Gold</option>
+	  <option value="Forest Whisper">Forest Whisper</option>
+	  <option value="Deep Space">Deep Space</option>
+	</select>
 
     <label for="formato">Formato para rede social:</label>
     <select id="formato">
@@ -134,9 +157,45 @@
       <option value="Twitter/X (1024x512)">Twitter/X (1024x512)</option>
       <option value="Threads (1080x1080)">Threads (1080x1080)</option>
       <option value="WhatsApp (800x800)">WhatsApp (800x800)</option>
+	  <option value="WhatsAppTutorial (800x2400)">WhatsAppTutorial (800x2400)</option>
       <option value="Kwai (1080x1920)">Kwai (1080x1920)</option>
     </select>
-
+	<label for="angulo">Ângulo de Câmera:</label>
+    <select id="angulo">
+      <optgroup label="🎬 Vídeo">
+        <option value="Eye-Level">Eye-Level (neutro)</option>
+        <option value="High Angle">High Angle (vulnerável)</option>
+        <option value="Low Angle">Low Angle (imponente)</option>
+        <option value="Bird’s Eye View">Bird’s Eye View (vista aérea)</option>
+        <option value="Worm’s Eye View">Worm’s Eye View (de baixo)</option>
+        <option value="Dutch Angle">Dutch Angle (inclinado/tenso)</option>
+        <option value="Tilt Up">Tilt Up (movimento vertical para cima)</option>
+        <option value="Tilt Down">Tilt Down (movimento vertical para baixo)</option>
+        <option value="Pan Left">Pan Left (movimento horizontal à esquerda)</option>
+        <option value="Pan Right">Pan Right (movimento horizontal à direita)</option>
+        <option value="Tracking Shot">Tracking Shot (acompanha o personagem)</option>
+        <option value="Dolly Zoom">Dolly Zoom (efeito dramático)</option>
+        <option value="POV">POV (ponto de vista do personagem)</option>
+        <option value="Over-the-Shoulder">Over-the-Shoulder (sobre o ombro)</option>
+        <option value="Plano Subjetivo">Plano Subjetivo</option>
+        <option value="Plano Objetivo">Plano Objetivo</option>
+      </optgroup>
+      <optgroup label="📸 Fotografia">
+        <option value="Eye-Level Foto">Eye-Level (natural)</option>
+        <option value="High Angle Foto">High Angle (suaviza o rosto)</option>
+        <option value="Low Angle Foto">Low Angle (dramático)</option>
+        <option value="Bird’s Eye View Foto">Bird’s Eye View (flat lay)</option>
+        <option value="Worm’s Eye View Foto">Worm’s Eye View (contra o céu)</option>
+        <option value="Plano Geral">Plano Geral (paisagem)</option>
+        <option value="Plano Médio">Plano Médio (retrato com contexto)</option>
+        <option value="Plano Americano">Plano Americano (moda/editorial)</option>
+        <option value="Close-Up">Close-Up (expressões)</option>
+        <option value="Extreme Close-Up">Extreme Close-Up (detalhes)</option>
+        <option value="Inclinado">Inclinado (conceitual)</option>
+        <option value="Contra-Luz">Contra-Luz / Silhueta</option>
+        <option value="Simetria">Simetria / Assimetria</option>
+      </optgroup>
+    </select>
     <label for="descricao">Descrição da imagem pretendida:</label>
     <textarea id="descricao" rows="4" placeholder="Descreva a imagem com detalhes..."></textarea>
 
@@ -161,13 +220,15 @@
       const descricao = document.getElementById("descricao").value.trim();
       const podeTer = document.getElementById("podeTer").value.trim();
       const naoPodeTer = document.getElementById("naoPodeTer").value.trim();
+	  const paleta = document.getElementById("paleta").value;
+	   const angulo = document.getElementById("angulo").value;
 
       if (!descricao) {
         alert("Por favor, descreva a imagem.");
         return;
       }
 
-      let prompt = `Act criar ${criar} no estilo "${estilo}" com dimensões apropriadas para "${formato}".\n`;
+      let prompt = `Act criar ${criar} no estilo "${estilo}", utilize a paleta de cores ${paleta} com dimensões apropriadas para "${formato}", o ângulo da câmera deve ser "${angulo}".\n`;
       prompt += `${criar} deve representar: ${descricao}.\n`;
       if (podeTer) prompt += `Pode conter: ${podeTer}.\n`;
       if (naoPodeTer) prompt += `Não deve conter: ${naoPodeTer}.`;
