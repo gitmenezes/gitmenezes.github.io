@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Prompts de Explicação</title>
+    <!-- Carrega o Tailwind CSS para estilização -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb; /* Fundo claro */
+        }
+        .card-style {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .card-style:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        .card-style.selected {
+            border: 3px solid #10b981; /* Borda verde esmeralda para seleção */
+            background-color: #ecfdf5; /* Fundo verde muito claro */
+            box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+        /* Custom scrollbar for the style list */
+        #style-list {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        #style-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        #style-list::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 md:p-10 rounded-xl shadow-2xl">
+
+        <!-- Header -->
+        <header class="mb-8 border-b pb-4">
+            <h1 class="text-3xl font-bold text-gray-800">Criador de Prompts de Explicação</h1>
+            <p class="text-gray-500 mt-1">Gere um prompt combinando seu conteúdo com um estilo de explicação criativo.</p>
+        </header>
+
+        <!-- Etapa 1: Conteúdo -->
+        <div class="mb-8 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-lg">
+            <h2 class="text-xl font-semibold text-blue-800 mb-2">1. Qual conteúdo você quer explicar?</h2>
+            <textarea id="content-input" rows="3" class="w-full p-3 border border-blue-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-400" placeholder="Ex: O que é a Teoria da Relatividade, como funciona a fotossíntese, a importância da reciclagem..."></textarea>
+        </div>
+
+        <!-- Etapa 2: Seleção de Estilo -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">2. Escolha o Estilo de Explicação:</h2>
+
+            <!-- Search and Filter -->
+            <input type="text" id="style-search" oninput="filterStyles()" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-gray-700" placeholder="Pesquisar por abreviação, expressão ou explicação...">
+
+            <!-- Style List Grid -->
+            <div id="style-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Cards serão injetados aqui pelo JavaScript -->
+            </div>
+        </div>
+
+        <!-- Etapa 3: Prompt Gerado -->
+        <div class="p-6 bg-emerald-100 rounded-lg border-2 border-emerald-400">
+            <h2 class="text-xl font-bold text-emerald-800 mb-3 flex items-center">
+                Prompt Gerado
+                <span id="selected-abrev" class="ml-3 text-sm bg-emerald-500 text-white font-mono px-2 py-1 rounded-full hidden"></span>
+            </h2>
+            <textarea id="generated-prompt" rows="4" readonly class="w-full p-3 mb-3 bg-white border border-emerald-300 rounded-lg font-mono text-gray-800 resize-none" placeholder="O seu prompt final aparecerá aqui depois que você selecionar um estilo."></textarea>
+            <button id="copy-button" onclick="copyPrompt()" class="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-50 disabled:bg-gray-400" disabled>
+                Copiar Prompt
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Dados extraídos da sua tabela (As primeiras 50 variações para manter a lista gerenciável)
+        const explanationStyles = [
+            { abrev: "ELI5", expressao: "Explain Like I'm 5", explicacao: "Explicação simples como para uma criança de 5 anos." },
+            { abrev: "BIDLT", expressao: "Break It Down Like I'm New To This", explicacao: "Divida em partes como se fosse minha primeira vez aprendendo." },
+            { abrev: "TMLIFT", expressao: "Teach Me Like I'm Learning It For The First Time", explicacao: "Ensine como se eu nunca tivesse ouvido falar disso." },
+            { abrev: "MSLBS", expressao: "Make It Sound Like a Bedtime Story", explicacao: "Conte como uma história suave e envolvente." },
+            { abrev: "EILYGY", expressao: "Explain It Like I'm Your Grandma", explicacao: "Explicação gentil e sem jargões técnicos." },
+            { abrev: "UAA10", expressao: "Use Analogies A 10-Year-Old Would Get", explicacao: "Use comparações simples e divertidas." },
+            { abrev: "PIACEV", expressao: "Pretend I'm A Curious Extraterrestrial Visitor", explicacao: "Explique como se eu fosse um alien curioso visitando a Terra." },
+            { abrev: "TTCSE", expressao: "Turn This Into A Comic Strip Explanation", explicacao: "Transforme em uma explicação estilo quadrinhos." },
+            { abrev: "ELIICR", expressao: "Explain It Like It's A Cooking Recipe", explicacao: "Explique como uma receita passo a passo." },
+            { abrev: "MITSF", expressao: "Make It TikTok-Friendly", explicacao: "Explicação curta, direta e moderna." },
+            { abrev: "GMTKV", expressao: "Give Me The Kindergarten Version", explicacao: "Versão extremamente simples e acessível." },
+            { abrev: "SILLY", expressao: "Say It Like I'm Little, Yet Yearning", explicacao: "Explicação infantil, mas curiosa." },
+            { abrev: "NODUMB", expressao: "No Dumb Questions Allowed", explicacao: "Explique sem julgamento, como se tudo fosse válido perguntar." },
+            { abrev: "JARGONOFF", expressao: "Turn Off The Jargon", explicacao: "Sem termos técnicos ou complicados." },
+            { abrev: "WIKIKID", expressao: "Like A Wikipedia Page For Kids", explicacao: "Explicação enciclopédica, mas infantil." },
+            { abrev: "PBSMODE", expressao: "Use The PBS Kids Tone", explicacao: "Tom educativo e amigável." },
+            { abrev: "YOUTUBESHORT", expressao: "Explain It Like A YouTube Short", explicacao: "Explicação rápida e visual." },
+            { abrev: "MEMEIFY", expressao: "Turn It Into A Meme", explicacao: "Use humor e formato de meme." },
+            { abrev: "GIFMODE", expressao: "Explain It Like A GIF", explicacao: "Use movimento ou etapas visuais." },
+            { abrev: "EMOJIFY", expressao: "Explain Using Only Emojis", explicacao: "Explicação visual com emojis." },
+            { abrev: "STORYME", expressao: "Tell Me A Story About It", explicacao: "Use narrativa para explicar." },
+            { abrev: "SONGIFY", expressao: "Turn It Into A Song", explicacao: "Explicação em forma de música." },
+            { abrev: "RHYMEIT", expressao: "Explain It In Rhyme", explicacao: "Use rimas para tornar divertido." },
+            { abrev: "DRAWIT", expressao: "Describe It Like You're Drawing It", explicacao: "Explicação visual, como se fosse um desenho." },
+            { abrev: "CARTOONME", expressao: "Explain It Like A Cartoon", explicacao: "Estilo animado e divertido." },
+            { abrev: "SIMPLIFY", expressao: "Just Simplify It", explicacao: "Corte tudo que é complicado." },
+            { abrev: "TWEETMODE", expressao: "Explain It Like A Tweet", explicacao: "Explicação com até 280 caracteres." },
+            { abrev: "GRANNYMODE", expressao: "Use Grandma Logic", explicacao: "Explicação com sabedoria simples." },
+            { abrev: "KIDLOGIC", expressao: "Use Kid Logic", explicacao: "Explicação com lógica infantil." },
+            { abrev: "DOGSPLAIN", expressao: "Explain It Like I'm A Dog", explicacao: "Explicação instintiva e divertida." },
+            { abrev: "CATMODE", expressao: "Explain It Like I'm A Cat", explicacao: "Explicação preguiçosa e curiosa." },
+            { abrev: "PIXARSTYLE", expressao: "Use Pixar Movie Logic", explicacao: "Explicação emocional e criativa." },
+            { abrev: "DISNEYFY", expressao: "Turn It Into A Disney Plot", explicacao: "Explicação mágica e encantadora." },
+            { abrev: "MINECRAFTIFY", expressao: "Explain It Like Minecraft", explicacao: "Use blocos e crafting como analogia." },
+            { abrev: "LEGOLOGIC", expressao: "Explain It Like LEGO", explicacao: "Explicação por montagem de peças." },
+            { abrev: "BUILDABEAR", expressao: "Build It Like A Bear Workshop", explicacao: "Explicação personalizada e fofa." },
+            { abrev: "TOYBOXMODE", expressao: "Use Toy Box Examples", explicacao: "Use brinquedos como analogia." },
+            { abrev: "SCHOOLYARD", expressao: "Explain It Like Recess Talk", explicacao: "Explicação informal e divertida." },
+            { abrev: "SNACKIFY", expressao: "Explain It Like A Snack Recipe", explicacao: "Explicação saborosa e simples." },
+            { abrev: "CANDYMODE", expressao: "Make It Sweet And Simple", explicacao: "Explicação doce e acessível." },
+            { abrev: "BUBBLEWRAP", expressao: "Wrap It In Bubble Logic", explicacao: "Explicação protegida e leve." },
+            { abrev: "NAPTIME", expressao: "Explain It Before I Fall Asleep", explicacao: "Explicação rápida e relaxante." },
+            { abrev: "RAINBOWMODE", expressao: "Use Rainbow Examples", explicacao: "Explicação colorida e variada." },
+            { abrev: "ZOOLOGIC", expressao: "Explain It With Animal Examples", explicacao: "Use animais como analogia." },
+            { abrev: "FABLEIFY", expressao: "Turn It Into A Fable", explicacao: "Explicação com moral e personagens." },
+            { abrev: "FAIRYTALE", expressao: "Explain It Like A Fairy Tale", explicacao: "Explicação mágica e encantada." },
+            { abrev: "SUPERHERO", expressao: "Explain It Like A Superpower", explicacao: "Use heróis como analogia." },
+            { abrev: "VILLAINMODE", expressao: "Explain It Like A Villain Would", explicacao: "Explicação dramática e exagerada." },
+            { abrev: "SIDEKICK", expressao: "Explain It Like I'm Your Sidekick", explicacao: "Explicação colaborativa e divertida." },
+            { abrev: "LEVEL1", expressao: "Give Me The Level 1 Version", explicacao: "Explicação básica, como em um jogo." },
+            { abrev: "LEVELUP", expressao: "Explain It Like I'm Leveling Up", explicacao: "Explicação progressiva, como em um jogo." },
+            { abrev: "BFFMODE", expressao: "Explain It Like You're My Best Friend", explicacao: "Tom íntimo e acolhedor." },
+            { abrev: "TEXTME", expressao: "Explain It Like A Text Message", explicacao: "Explicação rápida e informal." },
+            { abrev: "STICKYNOTE", expressao: "Put It On A Sticky Note", explicacao: "Explicação curta e memorável." },
+            { abrev: "POSTIT", expressao: "Explain It Like A Post-It Reminder", explicacao: "Versão resumida e prática." },
+            { abrev: "FLASHCARD", expressao: "Turn It Into A Flashcard", explicacao: "Explicação objetiva e educativa." },
+            { abrev: "CHEATCODE", expressao: "Explain It Like A Game Cheat Code", explicacao: "Explicação direta e funcional." },
+            { abrev: "HACKIT", expressao: "Give Me The Life Hack", explicacao: "Explicação prática e útil." }
+            // Adicione aqui as variações 59 a 100 se desejar.
+        ];
+
+        let selectedAbrev = null;
+        const promptTemplate = "Utilize o Framework de Tons e Estilos para IA Generativa [{ABREVIACAO}] para explicar o conteúdo: [{CONTEUDO}]";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStyles(explanationStyles);
+            document.getElementById('content-input').addEventListener('input', generatePrompt);
+        });
+
+        function renderStyles(styles) {
+            const listContainer = document.getElementById('style-list');
+            listContainer.innerHTML = ''; // Limpa a lista
+            if (styles.length === 0) {
+                listContainer.innerHTML = '<p class="text-center text-gray-500 col-span-full">Nenhum estilo encontrado para a pesquisa.</p>';
+                return;
+            }
+
+            styles.forEach(style => {
+                const isSelected = style.abrev === selectedAbrev;
+                const card = document.createElement('div');
+                card.className = `card-style p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-emerald-50 ${isSelected ? 'selected' : ''}`;
+                card.setAttribute('data-abrev', style.abrev);
+                card.onclick = () => selectStyle(style.abrev);
+                
+                card.innerHTML = `
+                    <p class="text-xs font-mono text-gray-500 mb-1">${style.abrev}</p>
+                    <h3 class="text-lg font-bold text-gray-800">${style.expressao}</h3>
+                    <p class="text-sm text-gray-600 mt-1">${style.explicacao}</p>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function filterStyles() {
+            const searchTerm = document.getElementById('style-search').value.toLowerCase();
+            const filtered = explanationStyles.filter(style => 
+                style.abrev.toLowerCase().includes(searchTerm) ||
+                style.expressao.toLowerCase().includes(searchTerm) ||
+                style.explicacao.toLowerCase().includes(searchTerm)
+            );
+            renderStyles(filtered);
+        }
+
+        function selectStyle(abrev) {
+            // Remove a seleção anterior
+            const previouslySelected = document.querySelector('.card-style.selected');
+            if (previouslySelected) {
+                previouslySelected.classList.remove('selected');
+                previouslySelected.classList.add('bg-gray-50', 'hover:bg-emerald-50');
+            }
+
+            // Define a nova seleção
+            selectedAbrev = abrev;
+            const newSelected = document.querySelector(`.card-style[data-abrev="${abrev}"]`);
+            if (newSelected) {
+                newSelected.classList.add('selected');
+                newSelected.classList.remove('bg-gray-50', 'hover:bg-emerald-50');
+            }
+
+            document.getElementById('selected-abrev').textContent = selectedAbrev;
+            document.getElementById('selected-abrev').classList.remove('hidden');
+
+            generatePrompt();
+        }
+
+        function generatePrompt() {
+            const content = document.getElementById('content-input').value.trim();
+            const promptArea = document.getElementById('generated-prompt');
+            const copyBtn = document.getElementById('copy-button');
+
+            if (!selectedAbrev || content === "") {
+                promptArea.value = "Selecione um estilo e insira o conteúdo para gerar o prompt.";
+                copyBtn.disabled = true;
+                return;
+            }
+
+            const finalPrompt = promptTemplate
+                .replace('{ABREVIACAO}', selectedAbrev)
+                .replace('{CONTEUDO}', content);
+            
+            promptArea.value = finalPrompt;
+            copyBtn.disabled = false;
+        }
+
+        function copyPrompt() {
+            const promptArea = document.getElementById('generated-prompt');
+            promptArea.select();
+            promptArea.setSelectionRange(0, 99999); // Para dispositivos móveis
+            document.execCommand('copy');
+            
+            const copyBtn = document.getElementById('copy-button');
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = 'Copiado! 🎉';
+            
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
