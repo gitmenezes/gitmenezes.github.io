@@ -1,174 +1,223 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="msvalidate.01" content="4CDB6784B2EEF37E65281A89184233BA" />
-    <meta name='description' content='Indicação de Cursos Gratis de Tecnologia, Download de Conteúdo'>
-    <title>@gitmenezes</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <title>@gitmenezes | Portfólio de Tecnologia</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="../gitmenezes.github.io/css/style.css">
     <style>
-        @import '~mdb-ui-kit/css/mdb.min.css';
+        /* Configuração de Fonte Inter */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        :root {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Cor de destaque principal */
+        .btn-primary {
+            background-color: #4f46e5; /* indigo-600 */
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+        /* Estilo para links de referência menores */
+        .ref-link {
+            transition: transform 0.1s ease;
+        }
+        .ref-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
     </style>
-    <!-- Clarity tracking code for https://gitmenezes.github.io/ --><script>    (function(c,l,a,r,i,t,y){        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i+"?ref=bwt";        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);    })(window, document, "clarity", "script", "n784eoznm4");</script>
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "n78t4rxreh");
-</script>	
 </head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Main Container: Centered and responsive max-width -->
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
 
+        <!-- Header/Hero Section (Profile and Mottos) -->
+        <header class="bg-white p-6 md:p-10 rounded-xl shadow-lg mb-10 border-t-4 border-indigo-600">
+            <div class="flex flex-col items-center text-center">
+                <!-- Profile Picture -->
+                <div class="relative mb-6">
+                    <img
+                        src="https://scontent.fcaw3-1.fna.fbcdn.net/v/t39.30808-1/574276923_25216744664586255_1837557459383387364_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=110&ccb=1-7&_nc_sid=1d2534&_nc_ohc=2Ki1Thf9HwAQ7kNvwHFQ67N&_nc_oc=Adl9UkbzupOjLkbP8Bw8UyskSd00xurGuiMVSgo2pmXyPB-SI7FJg7MQwuz5ZUoLrs&_nc_zt=24&_nc_ht=scontent.fcaw3-1.fna&_nc_gid=eqLyV7xBlApZV6DOHVMScQ&oh=00_AfhQsLIrKXxNu_VtYXBYYM6q1_6PE-KxBpqQDpoeajF4Bg&oe=690D22C5"
+                        onerror="this.onerror=null;this.src='https://placehold.co/128x128/9CA3AF/FFFFFF?text=AM';"
+                        alt="Foto de Perfil do Alexandre Menezes Ferreira"
+                        class="w-32 h-32 rounded-full object-cover ring-4 ring-indigo-500 shadow-xl"
+                    />
+                    <span class="absolute bottom-0 right-0 block h-6 w-6 rounded-full bg-green-500 ring-2 ring-white"></span>
+                </div>
 
-<body id="bod">
-<!--     <nav class="navbar navbar-dark bg-dark">
-        <a href="index.html">
-            <div><button type="button" class="btn btn-warning">Home</button></ a>
-                <a href="aprender.html"><button type="button" class="btn 
-    btn-warning">Aprender</ button></a>            <a href="tokenize.html"><button type="button" class="btn btn-warning">Sobre</
-    button></ a>                <a href="tokenize.html"><button type="button" class="btn 
-    btn-warning">Tokenização e contagem de palavras</button></a>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">Alexandre Menezes Ferreira</h1>
+                <p class="text-xl font-medium text-indigo-600 mb-4">@gitmenezes | Desenvolvedor & Entusiasta Tech</p>
+
+                <div class="mt-4 space-y-2 text-lg text-gray-600 italic">
+                    <p class="leading-relaxed">"Sejam bem vindos!"</p>
+                    <p class="leading-relaxed">"Se Deus permite, a gente segue..."</p>
+                    <p class="leading-relaxed font-semibold text-gray-700">"Não deixe para amanhã o que você pode aprender hoje!"</p>
+                </div>
             </div>
-    </nav> -->
-	
-    <div class="jumbotron">
+        </header>
 
-        <h1 class="display-6">Olá, mundo!</h1>
-        <p class="lead">Sejam bem vindos!</p>
-        <p class="lead">Se Deus permite, a gente segue...</p>
-        <p class='lead'>Não deixe para amanhã o que você pode aprender hoje!</p>
-        <hr class="my-7">
-		<p>
-        <h5>ELI5</h5>
-        <h6></h6>
-		</p>
-	    <a class="btn btn-primary btn-success" href="eli5.html"
-            role="button">ELI5</a>
-	    </p>
-	</p>
-	<p>
-        <h5>Pratique Inglês com Flip Cards</h5>
-        <h6></h6>
-		</p>
-	    <a class="btn btn-primary btn-success" href="geraprompt.html"
-            role="button">GerarPrompts para AI generativa</a>
-	    </p>
-	</p>
-	    <a class="btn btn-primary btn-success" href="flipcards.html"
-            role="button">Corpo Humano</a>
-	    </p>
-	    <a class="btn btn-primary btn-success" href="expressions.html"
-            role="button">Expressões</a>
-	    </p>
-	    <a class="btn btn-primary btn-success" href="domesticos.html"
-            role="button">Utensílios Domésticos</a>
-	    <a class="btn btn-primary btn-success" href="violao.html"
-            role="button">App Arms Guitar</a>
-	    <a class="btn btn-primary btn-success" href="appTD.html"
-            role="button">TDitalva</a>
-	    </p>
-	    <a class="btn btn-primary btn-success" href="Agendador de Tarefas 1.0.html"
-            role="button">Agendador de Tarefas 1.0 - O agendador armazena na memória do navegador de internet.</a>
-	    </p>
-        <p>
-        <p>
-        <p>
-        <h5>Bibliotecas e Referências Importantes</h5>
-        <h6></h6>
-        </p>
-        <a class="btn btn-primary btn-success" href="https://agilemanifesto.org/iso/ptbr/manifesto.html"
-            role="button">Man.Ágil</a>
-	 <a class="btn btn-primary btn-success" href="https://docs.python.org/pt-br/3/reference/index.html"
-            role="button">Python</a>
-        <a class="btn btn-primary btn-success" href="https://pandas.pydata.org/pandas-docs/stable/reference/index.html"
-            role="button">Pandas</a>
-        <a class="btn btn-primary btn-success" href="https://numpy.org/doc/stable/reference/" role="button">Numpy</a>
-        <a class="btn btn-primary btn-success" href="https://matplotlib.org/stable/contents.html#"
-            role="button">Matplotlib</a>
-        <a class="btn btn-primary btn-success" href="https://developer.mozilla.org/pt-BR/docs/Glossary/HTML"
-            role="button">HTML</a><br><br>
-        <a class="btn btn-primary btn-success" href="https://developer.mozilla.org/pt-BR/docs/Web/CSS/Reference"
-            role="button">CSS</a>
-        <a class="btn btn-primary btn-success" href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference"
-            role="button">JavaScript</a>
-	<a class="btn btn-primary btn-success" href="https://commonmark.org/help/"
-            role="button">Markdown</a><br><br>
-    <p><h1>Downloads</h1></p>
-    <div class="downloads"><a href="gitmenezes.github.io\docs\GoogleOP.pdf"
-            role="button"><h3>Google - Operadores de Pesquisa Avançados ✔</h3></a>
-    </div><br><br>
-        <p>
-        <h5>Plataformas de Cursos Grátis de Tecnologia</h5>
-        <hr>
-        <!--Cards1-->
-        <div class="card" style="width: 18rem;">
-            <img class="card-img-top">
-            <div class="card-body">
-                <h5 class="card-title">Curso em Vídeo</h5>
-                <p class="card-text">Estude gratuitamente e aprenda com conteúdo e professores de qualidade.</p>
-                <p class="card-text">Observação:<br>Os cursos são grátis, mas existe uma taxa para emissão dos
-                    certificados.</p>
-                <a href="https://www.cursoemvideo.com/" class="btn btn-primary">Visitar</a>
+        <!-- Section: Aplicativos e Ferramentas Próprias -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i data-lucide="rocket" class="w-6 h-6 mr-3 text-indigo-600"></i>
+                Aplicativos e Ferramentas Próprias
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- ELI5 -->
+                <a href="eli5.html" role="button" class="btn-primary flex justify-between items-center px-4 py-3 rounded-xl text-white font-semibold shadow-md hover:shadow-lg transition duration-150">
+                    <span>ELI5</span>
+                    <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                </a>
+                <!-- Gerar Prompts -->
+                <a href="geraprompt.html" role="button" class="btn-primary flex justify-between items-center px-4 py-3 rounded-xl text-white font-semibold shadow-md hover:shadow-lg transition duration-150">
+                    <span>Gerar Prompts para AI generativa</span>
+                    <i data-lucide="wand-2" class="w-5 h-5"></i>
+                </a>
+                <!-- Flip Cards (Corpo Humano) -->
+                <a href="flipcards.html" role="button" class="bg-indigo-500 hover:bg-indigo-600 flex justify-between items-center px-4 py-3 rounded-xl text-white font-semibold shadow-md hover:shadow-lg transition duration-150">
+                    <span>Pratique Inglês c/ Flip Cards (Corpo Humano)</span>
+                    <i data-lucide="brain" class="w-5 h-5"></i>
+                </a>
+                <!-- Expressões -->
+                <a href="expressions.html" role="button" class="bg-indigo-500 hover:bg-indigo-600 flex justify-between items-center px-4 py-3 rounded-xl text-white font-semibold shadow-md hover:shadow-lg transition duration-150">
+                    <span>Pratique Inglês c/ Flip Cards (Expressões)</span>
+                    <i data-lucide="speech" class="w-5 h-5"></i>
+                </a>
+                <!-- Utensílios Domésticos -->
+                <a href="domesticos.html" role="button" class="bg-indigo-500 hover:bg-indigo-600 flex justify-between items-center px-4 py-3 rounded-xl text-white font-semibold shadow-md hover:shadow-lg transition duration-150">
+                    <span>Pratique Inglês c/ Flip Cards (Utensílios Domésticos)</span>
+                    <i data-lucide="soup" class="w-5 h-5"></i>
+                </a>
+                <!-- Apps Diversos -->
+                <a href="violao.html" role="button" class="bg-indigo-700 hover:bg-indigo-800 flex justify-between items-center px-4 py-3 rounded-xl text-white font-semibold shadow-md hover:shadow-lg transition duration-150">
+                    <span>App Arms Guitar</span>
+                    <i data-lucide="guitar" class="w-5 h-5"></i>
+                </a>
+                <a href="appTD.html" role="button" class="bg-indigo-700 hover:bg-indigo-800 flex justify-between items-center px-4 py-3 rounded-xl text-white font-semibold shadow-md hover:shadow-lg transition duration-150">
+                    <span>TDitalva</span>
+                    <i data-lucide="app-window" class="w-5 h-5"></i>
+                </a>
+                <a href="Agendador de Tarefas 1.0.html" role="button" class="bg-indigo-700 hover:bg-indigo-800 flex justify-between items-center px-4 py-3 rounded-xl text-white font-semibold shadow-md hover:shadow-lg transition duration-150">
+                    <span>Agendador de Tarefas 1.0 (Memória Local)</span>
+                    <i data-lucide="calendar-check" class="w-5 h-5"></i>
+                </a>
             </div>
+        </section>
 
-        </div>
-        <!--Cards-->
-        <br>
-        <!--Cards2-->
-        <div class="card" style="width: 18rem;">
-            <img class="card-img-top">
-            <div class="card-body">
-                <h5 class="card-title">Recode.org</h5>
-                <p class="card-text">Empoderamento digital: esse é o objetivo da Recode.</p>
-                <p class="card-text">Observação:<br>Emissão de Certificados grátis. A plataforma utiliza metodologia
-                    diferenciada para conectar jovens e adultos a novas possibilidades de estudo, trabalho,
-                    empreendedorismo e cidadania.</p>
-                <a href="https://recode.org.br/" class="btn btn-primary">Visitar</a>
+        <!-- Section: Referências Técnicas -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i data-lucide="library" class="w-6 h-6 mr-3 text-indigo-600"></i>
+                Bibliotecas e Referências Importantes
+            </h2>
+            <div class="flex flex-wrap gap-2">
+                <!-- Links de Referência -->
+                <a href="https://agilemanifesto.org/iso/ptbr/manifesto.html" target="_blank" class="ref-link bg-green-100 text-green-800 hover:bg-green-200 px-3 py-1.5 rounded-full font-medium text-sm">Man. Ágil</a>
+                <a href="https://docs.python.org/pt-br/3/reference/index.html" target="_blank" class="ref-link bg-blue-100 text-blue-800 hover:bg-blue-200 px-3 py-1.5 rounded-full font-medium text-sm">Python Docs</a>
+                <a href="https://pandas.pydata.org/pandas-docs/stable/reference/index.html" target="_blank" class="ref-link bg-blue-100 text-blue-800 hover:bg-blue-200 px-3 py-1.5 rounded-full font-medium text-sm">Pandas</a>
+                <a href="https://numpy.org/doc/stable/reference/" target="_blank" class="ref-link bg-blue-100 text-blue-800 hover:bg-blue-200 px-3 py-1.5 rounded-full font-medium text-sm">Numpy</a>
+                <a href="https://matplotlib.org/stable/contents.html#" target="_blank" class="ref-link bg-blue-100 text-blue-800 hover:bg-blue-200 px-3 py-1.5 rounded-full font-medium text-sm">Matplotlib</a>
+                <a href="https://developer.mozilla.org/pt-BR/docs/Glossary/HTML" target="_blank" class="ref-link bg-pink-100 text-pink-800 hover:bg-pink-200 px-3 py-1.5 rounded-full font-medium text-sm">HTML (MDN)</a>
+                <a href="https://developer.mozilla.org/pt-BR/docs/Web/CSS/Reference" target="_blank" class="ref-link bg-pink-100 text-pink-800 hover:bg-pink-200 px-3 py-1.5 rounded-full font-medium text-sm">CSS (MDN)</a>
+                <a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference" target="_blank" class="ref-link bg-pink-100 text-pink-800 hover:bg-pink-200 px-3 py-1.5 rounded-full font-medium text-sm">JavaScript (MDN)</a>
+                <a href="https://commonmark.org/help/" target="_blank" class="ref-link bg-gray-100 text-gray-800 hover:bg-gray-200 px-3 py-1.5 rounded-full font-medium text-sm">Markdown</a>
             </div>
+        </section>
 
-        </div>
-        <!--Cards-->
-        <br>
-        <!--Cards3-->
-        <div class="card" style="width: 18rem;">
-            <img class="card-img-top">
-            <div class="card-body">
-                <h5 class="card-title">Escola Virtual.Gov – EV.G</h5>
-                <p class="card-text">Portal Único de Governo para a oferta de capacitação a distância.</p>
-                <p class="card-text">Observação:<br>Emissão de Certificados grátis. Cursos on-line e gratuitos de várias
-                    áreas de conhecimento para o desenvolvimento da Administração Pública e da Sociedade..</p>
-                <a href="https://www.escolavirtual.gov.br/" class="btn btn-primary">Visitar</a>
+        <!-- Section: Downloads -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i data-lucide="download" class="w-6 h-6 mr-3 text-indigo-600"></i>
+                Downloads de Conteúdo
+            </h2>
+            <div class="downloads space-y-3">
+                <a href="gitmenezes.github.io\docs\GoogleOP.pdf" target="_blank" class="block p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition duration-150">
+                    <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                        Google - Operadores de Pesquisa Avançados
+                        <i data-lucide="check-circle" class="w-5 h-5 ml-2 text-green-600"></i>
+                    </h3>
+                </a>
             </div>
+        </section>
 
-        </div>
-        <!--Cards-->
-        <!--Cards3-->
-        <div class="card" style="width: 18rem;">
-            <img class="card-img-top">
-            <div class="card-body">
-                <h5 class="card-title">DIGITAL INOVATTION ONE</h5>
-                <p class="card-text">Cursos com certificado para você aprender as tecnologias mais requisitadas pelo
-                    mercado no seu próprio ritmo e com os melhores especialistas.</p>
-                <p class="card-text">Observação:<br>Se você pensa em seguir carreira na área de tecnologia, você precisa
-                    conhecer as oportunidades oferecidas neste site!</p>
-                <a href="https://web.digitalinnovation.one/" class="btn btn-primary">Visitar</a>
+        <!-- Section: Plataformas de Cursos Grátis -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i data-lucide="graduation-cap" class="w-6 h-6 mr-3 text-indigo-600"></i>
+                Plataformas de Cursos Grátis de Tecnologia
+            </h2>
+            <!-- Cards Grid: Responsive 1 column on mobile, 2 on tablet/desktop -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Card 1: Curso em Vídeo -->
+                <div class="bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-5">
+                    <h5 class="text-xl font-bold text-gray-900 mb-2">Curso em Vídeo</h5>
+                    <p class="text-gray-600 mb-4">Estude gratuitamente e aprenda com conteúdo e professores de qualidade.</p>
+                    <div class="bg-yellow-50 p-3 rounded-lg text-sm text-yellow-800 mb-4">
+                        <p class="font-semibold">Observação:</p>
+                        <p>Os cursos são grátis, mas existe uma taxa para emissão dos certificados.</p>
+                    </div>
+                    <a href="https://www.cursoemvideo.com/" target="_blank" class="block w-full text-center py-2 btn-primary rounded-lg text-white font-medium hover:bg-indigo-700">
+                        Visitar
+                    </a>
+                </div>
+
+                <!-- Card 2: Recode.org -->
+                <div class="bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-5">
+                    <h5 class="text-xl font-bold text-gray-900 mb-2">Recode.org</h5>
+                    <p class="text-gray-600 mb-4">Empoderamento digital: esse é o objetivo da Recode.</p>
+                    <div class="bg-green-50 p-3 rounded-lg text-sm text-green-800 mb-4">
+                        <p class="font-semibold">Observação:</p>
+                        <p>Emissão de Certificados grátis. Metodologia diferenciada para novas possibilidades.</p>
+                    </div>
+                    <a href="https://recode.org.br/" target="_blank" class="block w-full text-center py-2 btn-primary rounded-lg text-white font-medium hover:bg-indigo-700">
+                        Visitar
+                    </a>
+                </div>
+
+                <!-- Card 3: Escola Virtual.Gov – EV.G -->
+                <div class="bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-5">
+                    <h5 class="text-xl font-bold text-gray-900 mb-2">Escola Virtual.Gov – EV.G</h5>
+                    <p class="text-gray-600 mb-4">Portal Único de Governo para a oferta de capacitação a distância.</p>
+                    <div class="bg-green-50 p-3 rounded-lg text-sm text-green-800 mb-4">
+                        <p class="font-semibold">Observação:</p>
+                        <p>Emissão de Certificados grátis. Cursos on-line e gratuitos de várias áreas.</p>
+                    </div>
+                    <a href="https://www.escolavirtual.gov.br/" target="_blank" class="block w-full text-center py-2 btn-primary rounded-lg text-white font-medium hover:bg-indigo-700">
+                        Visitar
+                    </a>
+                </div>
+
+                <!-- Card 4: DIGITAL INOVATTION ONE (DIO) -->
+                <div class="bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-5">
+                    <h5 class="text-xl font-bold text-gray-900 mb-2">DIGITAL INOVATTION ONE (DIO)</h5>
+                    <p class="text-gray-600 mb-4">Cursos com certificado para aprender as tecnologias mais requisitadas pelo mercado.</p>
+                    <div class="bg-yellow-50 p-3 rounded-lg text-sm text-yellow-800 mb-4">
+                        <p class="font-semibold">Observação:</p>
+                        <p>Se você pensa em seguir carreira na área de tecnologia, você precisa conhecer este site!</p>
+                    </div>
+                    <a href="https://web.digitalinnovation.one/" target="_blank" class="block w-full text-center py-2 btn-primary rounded-lg text-white font-medium hover:bg-indigo-700">
+                        Visitar
+                    </a>
+                </div>
             </div>
+        </section>
 
-        </div>
-
-        <footer style="text-align: center;">
-            <div class="card-footer text-muted">
-                <h6 class="card-title">&copy;2021-2024 - Alexandre Menezes Ferreira</h5>
-            </div>
+        <!-- Footer -->
+        <footer class="text-center mt-10 p-4 border-t border-gray-200 bg-white rounded-xl shadow-md">
+            <p class="text-sm text-gray-500">&copy;2021-2024 - Alexandre Menezes Ferreira</p>
         </footer>
+
+    </div>
+
+    <!-- Script para inicializar Lucide Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
-
 </html>
-
-
