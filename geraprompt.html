@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -67,10 +68,37 @@
 	<select id="criar">
 		<option value='video'>video</option>
 		<option value='imagem'>imagem</option>
+		<option value='podcast'>podcast</option>
+		<option value='script'>script</option>
 	</select>
+	<label for = "distancia">Escolha a Distância</label>
+		<select id="distancia">
+		<option value='extreme-close-up'>Muito próximo (extreme close-up)</option>
+		<option value='close-up'>Próximo (close-up)</option>
+		<option value='medium-shot'>Distância média (medium shot)</option>
+		<option value='long-shot'>Distante (long shot)</option>
+		<option value='extreme-long-shot'>Muito distante (extreme long shot)</option>
+		<option value='enquadramento-intimo'>Enquadramento íntimo</option>
+		<option value='enquadramento-pessoal'>Enquadramento pessoal</option>
+		<option value='enquadramento-social'>Enquadramento social</option>
+		<option value='enquadramento-publico'>Enquadramento público</option>
+		<option value='vista-microscopica'>Vista microscópica</option>
+		<option value='vista-telescopica'>Vista telescópica</option>
+		<option value='vista-macro'>Vista macro</option>
+		<option value='vista-panoramica'>Vista panorâmica</option>
+		<option value='vista-ampla'>Vista ampla</option>
+		<option value='vista-focal'>Vista focal (fundo desfocado)</option>
+		<option value='observador-distante'>Perspectiva de observador distante</option>
+		<option value='observador-proximo'>Perspectiva de observador próximo</option>
+		<option value='perspectiva-voyeuristica'>Perspectiva voyeurística</option>
+		<option value='perspectiva-cinematografica'>Perspectiva cinematográfica</option>
+		<option value='perspectiva-documental'>Perspectiva documental</option>
+	</select>
+
 	
     <label for="estilo">Estilo:</label>
     <select id="estilo">
+	<option value=""></option>
       <option value="Realista">Realista</option>
 	  <option value="3DRender">3D Render</option>
 	  <option value="Cartoon3d">Cartoon3D</option>
@@ -124,6 +152,7 @@
     </select>
 	<label for="paleta">Paleta de Cores</label>
 	<select id="paleta">
+	<option value=""></option>
 	  <option value="Cyberpunk Glow">Cyberpunk Glow</option>
 	  <option value="Minimal Neutrals">Minimal Neutrals</option>
 	  <option value="Sunset Gradient">Sunset Gradient</option>
@@ -148,6 +177,7 @@
 
     <label for="formato">Formato para rede social:</label>
     <select id="formato">
+	  <option value=""></option>
       <option value="Instagram (1080x1080)">Instagram (1080x1080)</option>
       <option value="Facebook (1200x630)">Facebook (1200x630)</option>
       <option value="TikTok (1080x1920)">TikTok (1080x1920)</option>
@@ -222,13 +252,14 @@
       const naoPodeTer = document.getElementById("naoPodeTer").value.trim();
 	  const paleta = document.getElementById("paleta").value;
 	   const angulo = document.getElementById("angulo").value;
+	   const distancia = document.getElementById("distancia").value;
 
       if (!descricao) {
         alert("Por favor, descreva a imagem.");
         return;
       }
 
-      let prompt = `Act criar ${criar} no estilo "${estilo}", utilize a paleta de cores ${paleta} com dimensões apropriadas para "${formato}", o ângulo da câmera deve ser "${angulo}".\n`;
+      let prompt = `Act criar ${criar} no estilo "${estilo}", utilize a paleta de cores ${paleta} com dimensões apropriadas para "${formato}", o ângulo da câmera deve ser "${angulo}".\n a Distância deverá ser de ${distancia}`;
       prompt += `${criar} deve representar: ${descricao}.\n`;
       if (podeTer) prompt += `Pode conter: ${podeTer}.\n`;
       if (naoPodeTer) prompt += `Não deve conter: ${naoPodeTer}.`;
