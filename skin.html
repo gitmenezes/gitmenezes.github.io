@@ -1,1 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Prompts UGC</title>
+    <!-- Carrega Tailwind CSS para estilização -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F5F2; /* Tom de areia muito claro */
+        }
+        .card {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #EAE3D9;
+            background-color: #FFFFFF;
+        }
+        .btn-generate {
+            transition: all 0.2s ease;
+            background-image: linear-gradient(to right, #D97706, #F59E0B); /* Tons dourados/quentes */
+        }
+        .btn-generate:hover {
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5);
+            transform: translateY(-2px);
+        }
+        .copy-button {
+            transition: background-color 0.2s;
+        }
+        /* Estilos para a cor do painel de resultado que reflete a "golden hour" */
+        .result-panel {
+            background-color: #FFFBEB; /* Fundo cremoso */
+            border-left: 5px solid #FBBF24; /* Linha amarela/dourada */
+        }
+        /* Custom scrollbar to match the aesthetic */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #FBBF24;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex items-start justify-center">
 
+    <div class="w-full max-w-4xl card p-6 md:p-10 rounded-xl">
+        <header class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2">✨ Gerador de Prompt UGC: Influenciador(a)</h1>
+            <p class="text-gray-600">Totalmente flexível. Deixe em "N/A" para omitir o detalhe, revertendo ao prompt básico original.</p>
+        </header>
+
+        <!-- GRUPO 1: CARACTERÍSTICAS DA PESSOA (3 COLUNAS) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            
+            <!-- Campo: Gênero -->
+            <div>
+                <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gênero</label>
+                <select id="gender" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="" selected>N/A</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Não-Binário">Não-Binário</option>
+                </select>
+            </div>
+
+            <!-- Campo: Idade -->
+            <div>
+                <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Idade (Aparência)</label>
+                <select id="age" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="" selected>N/A</option>
+                    <option value="0-5 (bebê ou criança pequena)">0-5 (Criança Pequena)</option>
+                    <option value="6-12 (criança)">6-12 (Criança)</option>
+                    <option value="13-17 (adolescente)">13-17 (Adolescente)</option>
+                    <option value="20s (jovem adulto)">18-25 (Jovem Adulto)</option>
+                    <option value="30s (adulto jovem)">26-35 (Adulto Jovem)</option>
+                    <option value="40s (adulto)">36-49 (Adulto)</option>
+                    <option value="50s-60s (sênior)">50-69 (Sênior)</option>
+                    <option value="70s-80s (idoso)">70+ (Idoso)</option>
+                </select>
+            </div>
+
+            <!-- Campo: Físico (20+ opções) -->
+            <div>
+                <label for="physique" class="block text-sm font-medium text-gray-700 mb-1">Físico e Estrutura</label>
+                <select id="physique" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="" selected>N/A</option>
+                    <optgroup label="Tipos de Corpo (Geral)">
+                        <option value="físico médio e saudável">Médio e Saudável</option>
+                        <option value="físico atlético e tonificado, com músculos definidos">Atlético e Tonificado (Definido)</option>
+                        <option value="físico atlético e forte">Atlético e Forte</option>
+                        <option value="físico curvilíneo e suave">Curvilíneo e Suave</option>
+                        <option value="físico magro e esguio">Magro e Esguio</option>
+                        <option value="físico plus size elegante">Plus Size Elegante</option>
+                        <option value="físico plus size acolhedor">Plus Size Acolhedor</option>
+                        <option value="físico andrógino e magro">Andrógino e Magro</option>
+                        <option value="físico robusto e alto">Robusto e Alto</option>
+                        <option value="físico baixo e com traços fortes">Baixo e com Traços Fortes</option>
+                    </optgroup>
+                    <optgroup label="Características Adicionais (Rosto/Postura)">
+                        <option value="rosto simétrico com mandíbula definida">Rosto com Mandíbula Definida</option>
+                        <option value="rosto redondo com bochechas salientes">Rosto Redondo e Bochechas</option>
+                        <option value="nariz pequeno e arrebitado">Nariz Pequeno e Arrebitado</option>
+                        <option value="lábios cheios e naturais">Lábios Cheios e Naturais</option>
+                        <option value="sorriso contagiante e dentes perfeitos">Sorriso Contagiante</option>
+                        <option value="postura relaxada e ombros soltos (UGC)">Postura Relaxada (UGC)</option>
+                        <option value="postura confiante e ereta">Postura Confiante e Ereta</option>
+                        <option value="expressão de riso espontâneo">Expressão de Riso Espontâneo</option>
+                        <option value="olhar direto e intenso para a câmera">Olhar Direto e Intenso</option>
+                    </optgroup>
+                    <optgroup label="Acessórios e Detalhes">
+                        <option value="óculos de aro fino e moderno">Com Óculos de Aro Fino</option>
+                        <option value="óculos escuros oversized">Com Óculos Escuros Oversized</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+        
+        <!-- GRUPO 2: CARACTERÍSTICAS VISUAIS BÁSICAS (3 COLUNAS) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            
+            <!-- Campo: Cor da Pele (50+ opções) -->
+            <div>
+                <label for="skinColor" class="block text-sm font-medium text-gray-700 mb-1">Cor da Pele</label>
+                <select id="skinColor" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="" selected>N/A</option>
+                    <optgroup label="Tons Escuros e Negros">
+                        <option value="pele negra azeviche e brilhante">Negra Azeviche e Brilhante</option>
+                        <option value="pele negra profunda e quente">Negra Profunda e Quente</option>
+                        <option value="pele negra ébano com subtons frios">Negra Ébano com Subtons Frios</option>
+                        <option value="pele negra chocolate intenso">Negra Chocolate Intenso</option>
+                        <option value="pele negra bronzeada e radiante">Negra Bronzeada e Radiante</option>
+                        <option value="pele negra com subtons avermelhados">Negra com Subtons Avermelhados</option>
+                        <option value="pele negra café com leite">Negra Café com Leite</option>
+                        <option value="pele negra cinzenta de beleza rara">Negra Cinzenta (Rara)</option>
+                        <option value="pele negra aveludada">Negra Aveludada</option>
+                        <option value="pele negra com brilho sutil">Negra com Brilho Sutil</option>
+                        <option value="pele negra acetinada">Negra Acetinada</option>
+                        <option value="pele negra com subtons oliva">Negra com Subtons Oliva</option>
+                        <option value="pele escura com cicatrizes suaves">Escura com Cicatrizes Suaves</option>
+                    </optgroup>
+                    <optgroup label="Tons Pardos e Morenos">
+                        <option value="pele morena escura com brilho">Morena Escura com Brilho</option>
+                        <option value="pele parda com tons dourados">Parda com Tons Dourados</option>
+                        <option value="pele morena oliva">Morena Oliva</option>
+                        <option value="pele morena média e suave">Morena Média e Suave</option>
+                        <option value="pele parda caramelo">Parda Caramelo</option>
+                        <option value="pele bronzeada pelo sol">Bronzeada pelo Sol</option>
+                        <option value="pele morena clara com subtons quentes">Morena Clara (Subtons Quentes)</option>
+                        <option value="pele morena rosada">Morena Rosada</option>
+                        <option value="pele bronzeada intensa (Tons do Mediterrâneo)">Bronzeada Intensa</option>
+                        <option value="pele com sardas discretas">Com Sardas Discretas</option>
+                        <option value="pele com manchas de sol sutis">Com Manchas de Sol Sutis</option>
+                        <option value="pele asiática clara e porcelana">Asiática Clara (Porcelana)</option>
+                        <option value="pele asiática bronzeada">Asiática Bronzeada</option>
+                        <option value="pele morena com tom avermelhado">Morena com Tom Avermelhado</option>
+                        <option value="pele parda com subtons cinzentos">Parda com Subtons Cinzentos</option>
+                    </optgroup>
+                    <optgroup label="Tons Claros e Pálidos">
+                        <option value="pele clara com sardas densas">Clara com Sardas Denses</option>
+                        <option value="pele clara rosada e suave">Clara Rosada e Suave</option>
+                        <option value="pele pálida com subtons azuis">Pálida com Subtons Azuis</option>
+                        <option value="pele cor de marfim">Cor de Marfim</option>
+                        <option value="pele porcelana translúcida">Porcelana Translúcida</option>
+                        <option value="pele clara com subtons amarelos">Clara (Subtons Amarelos)</option>
+                        <option value="pele clara avermelhada (Ruiva)">Clara Avermelhada</option>
+                        <option value="pele clara com acne suave e realista">Clara com Acne Suave (Realista)</option>
+                        <option value="pele pálida com brilho sutil">Pálida com Brilho Sutil</option>
+                        <option value="pele clara e bronzeada (Pós-férias)">Clara e Bronzeada</option>
+                    </optgroup>
+                    <optgroup label="Cores Fantasia e Estilizadas">
+                        <option value="pele metálica sutilmente dourada">Metálica Dourada</option>
+                        <option value="pele com maquiagem de brilho 'glitter' dourado">Com Brilho Glitter Dourado</option>
+                        <option value="pele com maquiagem neon">Com Maquiagem Neon</option>
+                        <option value="pele com efeito de filtro vintage">Efeito de Filtro Vintage</option>
+                        <option value="pele com textura suave de pintura a óleo">Textura de Pintura a Óleo</option>
+                        <option value="pele com tons de rosa suave (Fantasia)">Tons de Rosa Suave</option>
+                        <option value="pele com detalhes em aquarela">Detalhes em Aquarela</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <!-- Campo: Cor dos Olhos (50+ opções) -->
+            <div>
+                <label for="eyeColor" class="block text-sm font-medium text-gray-700 mb-1">Cor dos Olhos</label>
+                <select id="eyeColor" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="" selected>N/A</option>
+                    <optgroup label="Castanhos e Tons Quentes">
+                        <option value="olhos castanhos profundos e escuros">Castanhos Profundos e Escuros</option>
+                        <option value="olhos castanhos quentes e mel">Castanhos Quentes e Mel</option>
+                        <option value="olhos castanhos avelã (Hazel)">Avelã (Hazel)</option>
+                        <option value="olhos castanhos claros com anel verde">Castanhos Claros com Anel Verde</option>
+                        <option value="olhos cor de âmbar vibrante">Cor de Âmbar Vibrante</option>
+                        <option value="olhos castanhos escuros quase pretos">Castanhos Escuros (Quase Pretos)</option>
+                        <option value="olhos castanhos com pontos dourados">Castanhos com Pontos Dourados</option>
+                        <option value="olhos castanhos com borda preta (limbal ring)">Castanhos com Borda Preta</option>
+                        <option value="olhos cor de canela">Cor de Canela</option>
+                        <option value="olhos castanhos com heterocromia sutil">Heterocromia Sutil</option>
+                    </optgroup>
+                    <optgroup label="Azuis e Tons Claros">
+                        <option value="olhos azuis oceano profundo">Azuis Oceano Profundo</option>
+                        <option value="olhos azuis gelo">Azuis Gelo</option>
+                        <option value="olhos azuis vibrantes">Azuis Vibrantes</option>
+                        <option value="olhos azuis acinzentados">Azuis Acinzentados</option>
+                        <option value="olhos azuis turquesa brilhante">Azuis Turquesa Brilhante</option>
+                        <option value="olhos azuis com anel escuro">Azuis com Anel Escuro</option>
+                        <option value="olhos azuis elétricos">Azuis Elétricos</option>
+                        <option value="olhos azuis claros com subtons cinzentos">Azuis Claros com Cinza</option>
+                        <option value="olhos azuis com pigmentação irregular">Azuis com Pigmentação Irregular</option>
+                    </optgroup>
+                    <optgroup label="Verdes e Tons Raros">
+                        <option value="olhos verdes esmeralda intensos">Verdes Esmeralda Intensos</option>
+                        <option value="olhos verde floresta profundos">Verde Floresta Profundos</option>
+                        <option value="olhos verdes folha claros">Verdes Folha Claros</option>
+                        <option value="olhos verdes amarelados">Verdes Amarelados</option>
+                        <option value="olhos cinzas claros">Cinzas Claros</option>
+                        <option value="olhos cinzas azulados">Cinzas Azulados</option>
+                        <option value="olhos violeta (muito raro)">Violeta (Muito Raro)</option>
+                        <option value="olhos vermelhos suaves (Albino)">Vermelhos Suaves (Albino)</option>
+                        <option value="olhos cor de jade">Cor de Jade</option>
+                        <option value="olhos com pupila grande e marcada">Pupila Grande e Marcada</option>
+                    </optgroup>
+                    <optgroup label="Maquiagem e Estilo">
+                        <option value="olhos com maquiagem 'smokey eye' discreta">Smokey Eye Discreta</option>
+                        <option value="olhos com delineado gatinho clássico">Delineado Gatinho Clássico</option>
+                        <option value="olhos com rímel volumoso (sem cílios postiços)">Rímel Volumoso</option>
+                        <option value="olhos sem maquiagem, aparência 100% natural">Sem Maquiagem</option>
+                        <option value="olhos com sombra dourada sutil (golden hour)">Sombra Dourada Sutil</option>
+                        <option value="olhos com sardas na pálpebra inferior">Sardas na Pálpebra Inferior</option>
+                        <option value="olhos com um pequeno piercing na sobrancelha">Piercing na Sobrancelha</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <!-- Campo: Cabelo (50+ opções) -->
+            <div>
+                <label for="hair" class="block text-sm font-medium text-gray-700 mb-1">Estilo e Cor do Cabelo</label>
+                <select id="hair" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="" selected>N/A</option>
+                    <optgroup label="Lisos e Ondulados">
+                        <option value="cabelo solto, liso e castanho claro">Liso, Castanho Claro</option>
+                        <option value="cabelo liso, longo e preto azulado">Liso, Longo e Preto Azulado</option>
+                        <option value="cabelo liso com franja reta">Liso com Franja Reta</option>
+                        <option value="cabelo ondulado, médio e loiro acinzentado">Ondulado, Loiro Acinzentado</option>
+                        <option value="cabelo ondulado, cor mel, com mechas californianas">Ondulado, Mel (Californianas)</option>
+                        <option value="cabelo solto, ondulado e ruivo natural">Ondulado e Ruivo Natural</option>
+                        <option value="cabelo liso, curto e platinado">Liso, Curto e Platinado</option>
+                        <option value="cabelo 'long bob' liso e castanho escuro">Long Bob Liso</option>
+                        <option value="cabelo liso, na altura dos ombros, com pontas viradas">Liso, Pontas Viradas</option>
+                        <option value="cabelo ondulado com franja cortininha">Ondulado com Franja Cortininha</option>
+                        <option value="cabelo liso e brilhante, estilo celebridade">Liso e Brilhante</option>
+                        <option value="cabelo com cachos abertos e definidos">Cachos Abertos e Definidos</option>
+                        <option value="cabelo curto, tipo 'pixie cut' loiro">Pixie Cut Loiro</option>
+                    </optgroup>
+                    <optgroup label="Cacheados, Crespos e Afros">
+                        <option value="cabelo cacheado volumoso e castanho escuro">Cacheado Volumoso</option>
+                        <option value="cabelo crespo afro natural (black power)">Crespo Afro Natural</option>
+                        <option value="cabelo crespo curto e descolorido">Crespo Curto e Descolorido</option>
+                        <option value="cabelo com tranças longas e pretas">Tranças Longas e Pretas</option>
+                        <option value="cabelo com dreadlocks médios">Dreadlocks Médios</option>
+                        <option value="cabelo em coque alto e apertado">Coque Alto Apertado</option>
+                        <option value="cabelo cacheado tipo 'bob' com volume">Bob Cacheado com Volume</option>
+                        <option value="cabelo crespo em 'twist-out' com brilho">Crespo em Twist-Out</option>
+                        <option value="cabelo com cachos vermelhos intensos">Cachos Vermelhos Intensos</option>
+                        <option value="cabelo com 'box braids' curtas e coloridas">Box Braids Curtas</option>
+                    </optgroup>
+                    <optgroup label="Penteados e Estilos Especiais">
+                        <option value="coque bagunçado e castanho escuro com fios soltos">Coque Bagunçado com Fios Soltos</option>
+                        <option value="rabo de cavalo alto e polido">Rabo de Cavalo Alto e Polido</option>
+                        <option value="duas tranças boxers no topo da cabeça">Duas Tranças Boxers</option>
+                        <option value="meio preso com grampos discretos">Meio Preso com Grampos</option>
+                        <option value="cabelo com lenço estampado, estilo retrô">Com Lenço Estampado</option>
+                        <option value="cabelo úmido e jogado para trás ('wet look')">Úmido ('Wet Look')</option>
+                        <option value="cabelo com topete volumoso, estilo anos 60">Topete Volumoso</option>
+                        <option value="cabelo preso em trança lateral desfeita">Trança Lateral Desfeita</option>
+                    </optgroup>
+                    <optgroup label="Cabelos Masculinos e Curto">
+                        <option value="corte militar curto e barba por fazer">Corte Militar Curto e Barba</option>
+                        <option value="cabelo grisalho elegante e penteado para o lado">Grisalho Elegante (Homem)</option>
+                        <option value="cabelo raspado lateral com topete (undercut)">Undercut com Topete</option>
+                        <option value="cabelo cacheado curto masculino">Cacheado Curto Masculino</option>
+                        <option value="calvície discreta e bem cuidada">Calvície Discreta e Bem Cuidada</option>
+                        <option value="cabelo longo masculino e solto">Cabelo Longo Masculino</option>
+                        <option value="cabelo com 'man bun' (coque masculino) bagunçado">Man Bun Bagunçado</option>
+                    </optgroup>
+                    <optgroup label="Cores Fantasia e Destaques">
+                        <option value="cabelo com mechas azuis neon">Mechas Azuis Neon</option>
+                        <option value="cabelo tingido de rosa pastel">Rosa Pastel</option>
+                        <option value="cabelo ombré verde e roxo">Ombré Verde e Roxo</option>
+                        <option value="cabelo com raízes escuras e pontas loiras (contraste)">Raízes Escuras e Pontas Loiras</option>
+                        <option value="cabelo com tinta arco-íris (hidden rainbow)">Tinta Arco-Íris (Hidden Rainbow)</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+
+        <!-- GRUPO 3: CÂMERA E FORMATO (2 COLUNAS) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            
+            <!-- Campo: Enquadramento/Shot -->
+            <div>
+                <label for="cameraShot" class="block text-sm font-medium text-gray-700 mb-1">Enquadramento / Shot (Câmera)</label>
+                <select id="cameraShot" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="" selected>N/A</option>
+                    <option value="plano médio no rosto, eye-level">Plano Médio (Rosto/Busto) - Padrão</option>
+                    <option value="corpo inteiro em pé, eye-level">Corpo Inteiro (Full Body)</option>
+                    <option value="plano americano, da cintura para cima, eye-level">Plano Americano (Cintura p/ cima)</option>
+                    <option value="close-up no rosto, foco nos olhos">Close-up (Foco nos Olhos)</option>
+                    <option value="plano detalhe na mão segurando o produto">Plano Detalhe (Mão/Produto)</option>
+                    <option value="ponto de vista subjetivo (POV), câmera na mão">Ponto de Vista Subjetivo (POV)</option>
+                    <option value="plano geral do corpo, ângulo alto">Plano Geral / Ângulo Alto</option>
+                    <option value="plano contra-plongée, ângulo baixo">Ângulo Baixo / Contra-Plongée</option>
+                    <option value="plano médio-longo (meio corpo), câmera na altura do peito">Plano Médio-Longo (Meio Corpo)</option>
+                    <option value="selfie tirada no espelho com celular visível">Selfie no Espelho</option>
+                    <option value="corpo inteiro sentado, eye-level">Corpo Inteiro (Sentado)</option>
+                </select>
+            </div>
+
+            <!-- Campo: Formato da Rede Social -->
+            <div>
+                <label for="socialFormat" class="block text-sm font-medium text-gray-700 mb-1">Formato de Saída (Aspect Ratio)</label>
+                <select id="socialFormat" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="" selected>N/A</option>
+                    <option value="9:16">Vertical (9:16) - Reels, Stories</option>
+                    <option value="1:1">Quadrado (1:1) - Post Instagram</option>
+                    <option value="4:5">Retrato (4:5) - Feed</option>
+                    <option value="16:9">Paisagem (16:9) - YouTube/LinkedIn</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- GRUPO 4: CENÁRIO E CUSTOMIZAÇÃO -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            
+            <!-- Campo: Sugestão de Cenário com IA -->
+            <div class="col-span-full">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-4 border-t pt-4">Sugestão de Cenário Inteligente (Opcional)</h3>
+                <label for="productName" class="block text-sm font-medium text-gray-700 mb-1">Digite o Nome do Produto:</label>
+                <div class="flex space-x-2 mb-1">
+                    <input type="text" id="productName" placeholder="Ex: Protetor Solar, Headphone Gamer" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <button onclick="suggestEnvironment()" id="suggestBtn" class="bg-amber-500 text-white p-2 rounded-lg hover:bg-amber-600 transition duration-150 ease-in-out font-semibold text-sm whitespace-nowrap">
+                        Sugestão IA
+                    </button>
+                </div>
+                <p id="suggestionMessage" class="text-xs mt-1 text-gray-500 h-4"></p>
+            </div>
+
+            <!-- Campo: Cenário -->
+            <div>
+                <label for="environment" class="block text-sm font-medium text-gray-700 mb-1">Cenário (Mais de 100 Opções)</label>
+                <select id="environment" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    <option value="" selected>N/A</option>
+                    <optgroup label="Ambientes Caseiros (Interior)">
+                        <option value="Cozinha minimalista e iluminada">Cozinha Minimalista e Iluminada</option>
+                        <option value="Quarto aconchegante com luz indireta">Quarto Aconchegante com Luz Indireta</option>
+                        <option value="Sala de estar com janelas grandes">Sala de Estar com Janelas Grandes</option>
+                        <option value="Home office criativo e organizado">Home Office Criativo e Organizado</option>
+                        <option value="Varanda gourmet com plantas">Varanda Gourmet com Plantas</option>
+                        <option value="Banheiro de luxo com espelho redondo">Banheiro de Luxo com Espelho Redondo</option>
+                        <option value="Lavanderia organizada e moderna">Lavanderia Organizada e Moderna</option>
+                        <option value="Sala de jantar com mesa de madeira rústica">Sala de Jantar Rústica</option>
+                        <option value="Canto de leitura com poltrona confortável">Canto de Leitura</option>
+                        <option value="Corredor iluminado com quadros">Corredor Iluminado com Quadros</option>
+                        <option value="Cozinha vintage com azulejos coloridos">Cozinha Vintage</option>
+                        <option value="Quarto infantil decorado de forma suave">Quarto Infantil</option>
+                        <option value="Ateliê de arte com luz natural">Ateliê de Arte</option>
+                    </optgroup>
+                    <optgroup label="Urbanos e Comércio">
+                        <option value="Cafeteria artesanal com decoração industrial">Cafeteria Artesanal</option>
+                        <option value="Livraria vintage com estantes cheias">Livraria Vintage</option>
+                        <option value="Rua movimentada de cidade grande">Rua Movimentada</option>
+                        <option value="Estação de metrô moderna e vazia">Estação de Metrô Moderna</option>
+                        <option value="Feira de rua com frutas frescas">Feira de Rua</option>
+                        <option value="Fachada colorida de loja boutique">Fachada de Loja Boutique</option>
+                        <option value="Galeria de arte minimalista">Galeria de Arte Minimalista</option>
+                        <option value="Restaurante sofisticado com vista para a rua">Restaurante Sofisticado</option>
+                        <option value="Co-working space com grandes mesas de madeira">Co-working Space</option>
+                        <option value="Museu de história com grandes arcos">Museu de História</option>
+                    </optgroup>
+                    <optgroup label="Natureza e Exterior">
+                        <option value="Praia deserta com areia dourada ao pôr do sol">Praia Deserta</option>
+                        <option value="Parque urbano com árvores altas">Parque Urbano com Árvores</option>
+                        <option value="Jardim botânico com estufa de vidro">Jardim Botânico</option>
+                        <option value="Montanha rochosa com vista para o vale">Montanha Rochosa</option>
+                        <option value="Margem de lago calmo ao entardecer">Margem de Lago Calmo</option>
+                        <option value="Piscina em rooftop com vista para o skyline">Piscina em Rooftop</option>
+                        <option value="Estrada de terra em plantação de girassóis">Plantação de Girassóis</option>
+                        <option value="Floresta densa e sombreada">Floresta Densa</option>
+                        <option value="Deck de madeira à beira-mar">Deck de Madeira à Beira-Mar</option>
+                        <option value="Deserto com dunas suaves">Deserto com Dunas</option>
+                    </optgroup>
+                    <optgroup label="Estúdios e Lifestyle">
+                        <option value="Academia de ginástica moderna com pesos livres">Academia de Ginástica</option>
+                        <option value="Estúdio de dança com barra e espelhos">Estúdio de Dança</option>
+                        <option value="Cozinha industrial para aulas de culinária">Cozinha Industrial</option>
+                        <option value="Estúdio de fotografia com fundo infinito branco">Estúdio com Fundo Branco</option>
+                        <option value="Estúdio de música com instrumentos vintage">Estúdio de Música</option>
+                        <option value="Barbearia retrô com cadeiras de couro">Barbearia Retrô</option>
+                        <option value="Clínica de estética com equipamentos modernos">Clínica de Estética</option>
+                        <option value="Pista de skate abandonada, cheia de grafites">Pista de Skate</option>
+                    </optgroup>
+                    <optgroup label="Viagem e Cultura">
+                        <option value="Hotel boutique com decoração escandinava">Hotel Boutique</option>
+                        <option value="Aeroporto moderno com grandes janelas">Aeroporto Moderno</option>
+                        <option value="Mercado de especiarias no Marrocos">Mercado Marroquino</option>
+                        <option value="Templo antigo na Ásia">Templo Antigo Asiático</option>
+                        <option value="Cabana na floresta com lareira acesa">Cabana na Floresta</option>
+                        <option value="Ponte famosa em Veneza">Ponte em Veneza</option>
+                        <option value="Castelo medieval em ruínas">Castelo Medieval em Ruínas</option>
+                        <option value="Ônibus de viagem retrô">Ônibus de Viagem Retrô</option>
+                    </optgroup>
+                    <!-- Adicionando mais opções para chegar perto de 100 -->
+                    <optgroup label="Mais Opções Variadas">
+                        <option value="Terraço com luzes de Natal e vista noturna">Terraço com Luzes</option>
+                        <option value="Ponte pedonal moderna sobre um rio">Ponte Pedonal Moderna</option>
+                        <option value="Quadra de basquete de rua com piso desgastado">Quadra de Basquete</option>
+                        <option value="Jardim de inverno com mobiliário de vime">Jardim de Inverno</option>
+                        <option value="Cave de vinhos com garrafas antigas">Cave de Vinhos</option>
+                        <option value="Pátio escolar com sol forte">Pátio Escolar</option>
+                        <option value="Interior de carro de luxo com estofamento claro">Interior de Carro de Luxo</option>
+                        <option value="Píer de pesca com tábuas molhadas">Píer de Pesca</option>
+                        <option value="Laboratório científico com equipamentos de vidro">Laboratório Científico</option>
+                        <option value="Estacionamento de shopping à noite">Estacionamento de Shopping (Noite)</option>
+                        <option value="Escada caracol de ferro fundido">Escada Caracol</option>
+                        <option value="Teto verde com horta urbana">Teto Verde/Horta Urbana</option>
+                        <option value="Bairro residencial tranquilo no outono">Bairro Residencial (Outono)</option>
+                        <option value="Cabine de DJ em festa ao ar livre">Cabine de DJ (Festa)</option>
+                        <option value="Prateleira de supermercado com produtos coloridos">Prateleira de Supermercado</option>
+                        <option value="Bar de coquetéis com balcão de mármore">Bar de Coquetéis</option>
+                        <option value="Ponto de ônibus sob a chuva">Ponto de Ônibus (Chuva)</option>
+                        <option value="Sala de espera médica com design clean">Sala de Espera Clean</option>
+                        <option value="Rooftop abandonado com grafite e vista panorâmica">Rooftop Abandonado</option>
+                        <option value="Banca de jornais vintage">Banca de Jornais Vintage</option>
+                        <option value="Parque de diversões desativado">Parque de Diversões Desativado</option>
+                        <option value="Sala de aula vazia com carteiras alinhadas">Sala de Aula Vazia</option>
+                        <option value="Bosque de cerejeiras em flor">Bosque de Cerejeiras</option>
+                        <option value="Açougue tradicional com iluminação fria">Açougue Tradicional</option>
+                        <option value="Loja de discos de vinil">Loja de Discos de Vinil</option>
+                        <option value="Terraço ensolarado com espreguiçadeiras">Terraço Ensolarado</option>
+                        <option value="Pista de boliche com luzes neon">Pista de Boliche</option>
+                        <option value="Estádio esportivo vazio">Estádio Esportivo Vazio</option>
+                        <option value="Teatro com cortinas de veludo vermelho">Teatro com Cortinas</option>
+                        <option value="Hangar de avião com piso polido">Hangar de Avião</option>
+                        <option value="Túnel de árvores com luz do sol filtrada">Túnel de Árvores</option>
+                        <option value="Churrasqueira em quintal gramado">Churrasqueira em Quintal</option>
+                        <option value="Piscina olímpica com água azul clara">Piscina Olímpica</option>
+                        <option value="Marina com barcos atracados">Marina com Barcos</option>
+                        <option value="Caminho de tijolos no jardim">Caminho de Tijolos no Jardim</option>
+                        <option value="Jardim vertical interno">Jardim Vertical Interno</option>
+                        <option value="Estufa para plantas com vidro embaçado">Estufa para Plantas</option>
+                        <option value="Interior de carro de família com bagunça">Interior de Carro de Família</option>
+                        <option value="Estúdio de tatuagem com luz focada">Estúdio de Tatuagem</option>
+                        <option value="Praça central de cidade pequena">Praça Central</option>
+                        <option value="Ponte metálica enferrujada sobre rio">Ponte Metálica Enferrujada</option>
+                        <option value="Galpão industrial com equipamentos pesados">Galpão Industrial</option>
+                        <option value="Clube de golfe com gramado impecável">Clube de Golfe</option>
+                        <option value="Quarto de hospital com vista para a cidade">Quarto de Hospital</option>
+                        <option value="Deck de madeira na neve">Deck de Madeira na Neve</option>
+                        <option value="Cinema vintage com cartazes antigos">Cinema Vintage</option>
+                        <option value="Banca de flores na calçada">Banca de Flores</option>
+                        <option value="Interior de ônibus urbano à noite">Interior de Ônibus Urbano (Noite)</option>
+                        <option value="Escada rolante em shopping center">Escada Rolante em Shopping</option>
+                        <option value="Passeio de barco em canal">Passeio de Barco em Canal</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <!-- Campo: Outras Características (Custom) -->
+            <div>
+                <label for="customTraits" class="block text-sm font-medium text-gray-700 mb-1">Outras Características Visuais (Opcional)</label>
+                <textarea id="customTraits" rows="3" placeholder="Ex: poucas tatuagens minimalistas no braço, um piercing no nariz, sardas na bochecha, roupas mais largas, etc." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 resize-none"></textarea>
+            </div>
+
+        </div>
+
+
+        <!-- Botão de Geração -->
+        <button onclick="generatePrompt()" class="btn-generate w-full py-3 px-4 text-white font-bold rounded-xl text-lg hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-500 focus:ring-opacity-50">
+            Gerar Prompt Completo
+        </button>
+
+        <!-- Seção de Resultado -->
+        <div id="resultSection" class="mt-8 hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">Prompt de Geração Final</h2>
+            <div class="relative result-panel p-4 md:p-6 rounded-xl">
+                <textarea id="finalPrompt" rows="12" readonly class="w-full bg-transparent text-gray-800 text-base resize-none border-none focus:ring-0 p-0"></textarea>
+                <button onclick="copyPrompt()" class="copy-button absolute top-3 right-3 bg-white text-amber-600 p-2 rounded-full hover:bg-amber-100 transition duration-150 ease-in-out" title="Copiar Prompt">
+                    <!-- Ícone SVG de Copiar -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                </button>
+            </div>
+            <p id="copyMessage" class="text-sm text-green-600 mt-2 opacity-0 transition duration-300">Copiado!</p>
+        </div>
+    </div>
+
+    <script>
+        // Função para obter o valor. Não há mais defaults forçados.
+        function getValue(id) {
+            return document.getElementById(id).value;
+        }
+        
+        // UTILITY: Função para fetch com backoff exponencial
+        async function exponentialBackoffFetch(url, options, maxRetries = 5, delay = 1000) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status !== 429 && response.status < 500) {
+                        return response;
+                    }
+                } catch (error) {
+                    // Ignora erro de rede e tenta novamente
+                }
+                if (i < maxRetries - 1) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2; // Aumento exponencial
+                }
+            }
+            // Última tentativa para retornar o erro
+            return fetch(url, options);
+        }
+
+        // FUNÇÃO: Atualiza o campo Cenário com sugestões
+        function updateEnvironmentOptions(selectEl, suggestions, productName) {
+            // 1. Remove optgroups de sugestões anteriores
+            const existingOptions = selectEl.querySelectorAll('optgroup[data-source="suggestion"]');
+            existingOptions.forEach(opt => opt.remove());
+
+            // 2. Cria um novo optgroup para as sugestões
+            const newOptGroup = document.createElement('optgroup');
+            newOptGroup.label = `SUGESTÕES IA para ${productName.toUpperCase()}`;
+            newOptGroup.dataset.source = 'suggestion';
+
+            suggestions.forEach((scenario, index) => {
+                const option = document.createElement('option');
+                option.value = scenario;
+                option.textContent = `Sugestão ${index + 1}: ${scenario}`;
+                newOptGroup.appendChild(option);
+            });
+
+            // 3. Adiciona o novo optgroup após a opção N/A (que é a primeira)
+            const firstOption = selectEl.querySelector('option[value=""]');
+            if (firstOption) {
+                selectEl.insertBefore(newOptGroup, firstOption.nextSibling);
+            } else {
+                selectEl.prepend(newOptGroup);
+            }
+            
+            // Seleciona a primeira sugestão para melhor UX
+            selectEl.value = suggestions[0];
+        }
+
+        // FUNÇÃO: Faz a chamada à API do Gemini para sugestão de cenário
+        async function suggestEnvironment() {
+            const productName = document.getElementById('productName').value.trim();
+            const messageEl = document.getElementById('suggestionMessage');
+            const selectEl = document.getElementById('environment');
+            
+            if (!productName) {
+                messageEl.textContent = 'Por favor, insira o nome de um produto.';
+                messageEl.classList.remove('text-green-600', 'text-amber-500');
+                messageEl.classList.add('text-red-500');
+                return;
+            }
+            
+            messageEl.textContent = 'Gerando sugestões de cenários...';
+            messageEl.classList.remove('text-red-500', 'text-green-600');
+            messageEl.classList.add('text-amber-500');
+
+            // API Setup
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const userPrompt = `Sugira 3 cenários de User Generated Content (UGC) autênticos e de vida real para promover o seguinte produto: "${productName}".`;
+            const systemInstruction = "Você é um especialista em marketing e deve sugerir 3 cenários de gravação UGC (User Generated Content) que maximizem a conexão e a autenticidade, apresentando a saída estritamente no formato JSON solicitado.";
+
+            const scenarioSchema = {
+                type: "ARRAY",
+                description: "An array containing exactly three distinct and descriptive UGC scenarios (locations and activities) that are highly relevant for promoting the specified product.",
+                items: {
+                    type: "STRING",
+                    description: "A single, highly descriptive scenario string, e.g., 'Cozinha minimalista enquanto prepara um café chique'."
+                }
+            };
+
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: scenarioSchema
+                }
+            };
+
+            try {
+                const response = await exponentialBackoffFetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const result = await response.json();
+                
+                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (!jsonText) throw new Error("Resposta da IA vazia ou malformada.");
+
+                const suggestions = JSON.parse(jsonText);
+                
+                if (Array.isArray(suggestions) && suggestions.length === 3) {
+                    // Atualiza o box Cenário
+                    updateEnvironmentOptions(selectEl, suggestions, productName);
+                    messageEl.textContent = `3 cenários sugeridos para "${productName}" foram adicionados no topo da lista.`;
+                    messageEl.classList.remove('text-amber-500', 'text-red-500');
+                    messageEl.classList.add('text-green-600');
+                } else {
+                    throw new Error("A IA não retornou 3 cenários válidos.");
+                }
+
+            } catch (error) {
+                console.error("Erro na sugestão de cenário:", error);
+                messageEl.textContent = 'Erro ao gerar sugestões. Tente novamente.';
+                messageEl.classList.remove('text-amber-500', 'text-green-600');
+                messageEl.classList.add('text-red-500');
+            }
+        }
+
+        // FUNÇÃO: Gera o prompt principal
+        function generatePrompt() {
+            // 1. Coleta de valores (vazios se N/A)
+            const gender = getValue('gender');
+            const ageGroup = getValue('age');
+            const skinColor = getValue('skinColor');
+            const eyeColor = getValue('eyeColor');
+            const hair = getValue('hair');
+            const physique = getValue('physique');
+            const socialFormat = getValue('socialFormat');
+            const environment = getValue('environment');
+            const cameraShotValue = getValue('cameraShot');
+            const customTraits = document.getElementById('customTraits').value.trim();
+            
+            // 2. Definição da Pessoa e Idade (Essenciais para a estrutura)
+            let genderTerm = '';
+            let ageTerm = '';
+            
+            if (gender === 'Feminino') {
+                genderTerm = 'Mulher';
+            } else if (gender === 'Masculino') {
+                genderTerm = 'Homem';
+            } else if (gender === 'Não-Binário') {
+                genderTerm = 'Pessoa (gênero não-binário)';
+            } else {
+                genderTerm = 'Influenciador(a) digital'; // Termo neutro/padrão
+            }
+
+            if (ageGroup) {
+                ageTerm = `(idade aparente: ${ageGroup})`;
+            } else {
+                ageTerm = '(jovem adulta/o)'; // Termo neutro/padrão para o brief original
+            }
+
+            // Inicia a descrição do personagem
+            let influencerDescription = `${genderTerm} ${ageTerm}`;
+            
+            // 3. Detalhes Visuais (Adiciona apenas se preenchido)
+            const visualDetails = [];
+            if (skinColor) visualDetails.push(skinColor);
+            if (hair) visualDetails.push(hair);
+            if (eyeColor) visualDetails.push(`olhos ${eyeColor}`);
+            if (physique) visualDetails.push(physique);
+
+            if (visualDetails.length > 0) {
+                influencerDescription += ', com ' + visualDetails.join(', ');
+            }
+            influencerDescription += '.';
+            
+            if (customTraits) {
+                influencerDescription += ` Características adicionais: ${customTraits}.`;
+            }
+
+            // 4. Ajusta a descrição da aparência (maquiagem/barba)
+            let defaultLookDesc = 'aparência realista, carismática, expressão confiante e espontânea';
+
+            if (gender === 'Feminino' || !gender) { // Se não for especificado, assume o padrão feminino do brief
+                defaultLookDesc += ', maquiagem leve, cabelo solto ou preso de forma natural.';
+            } else if (gender === 'Masculino') {
+                 defaultLookDesc += ', cabelo e barba bem cuidados ou descontraídos.';
+            } else {
+                 defaultLookDesc += ', estilo pessoal casual e autêntico.';
+            }
+            
+            // 5. Elementos de Cena e Câmera (Usa os valores selecionados ou o padrão do brief original)
+            
+            const finalFormat = socialFormat || '9:16';
+            
+            let formatDescription = '';
+            if (finalFormat === '16:9') {
+                formatDescription = `enquadramento horizontal (formato 16:9),`;
+            } else if (finalFormat === '1:1') {
+                formatDescription = `enquadramento quadrado (formato 1:1),`;
+            } else if (finalFormat === '4:5') {
+                 formatDescription = `enquadramento vertical (formato 4:5),`;
+            } else { // 9:16 (padrão do brief)
+                formatDescription = `enquadramento vertical (formato 9:16),`;
+            }
+            
+            const finalCameraShot = cameraShotValue || 'plano médio no rosto, eye-level';
+
+            const cameraDescription = `${formatDescription} ${finalCameraShot}.`;
+            
+            // Cenário: Se N/A, usa a descrição genérica do brief original
+            const finalEnvironment = environment || 'ambiente caseiro com boa iluminação natural — pode ser sala, quarto ou cozinha minimalista.';
+
+
+            // 6. Elementos Fixos (Cena, Estilo, Câmera, Vibe)
+            const fixedElements = `
+Cena de estilo UGC (User Generated Content), transmitindo naturalidade e proximidade, como se estivesse gravando com o próprio celular.
+${defaultLookDesc}
+Cenário: ${finalEnvironment}. A luz deve ser suave, quente e difusa, estilo "golden hour".
+Estilo e mood: estética autêntica, casual e leve, como se estivesse mostrando um produto, dando uma dica ou compartilhando experiência pessoal.
+Roupa: look casual e moderno (camiseta básica, top de algodão, jeans ou moletom neutro) em tons quentes e naturais (bege, areia, dourado suave, branco, terracota).
+Câmera: ${cameraDescription}
+Vibe geral: genuína, leve e inspiradora, estilo “diário de vida real”, transmitindo confiança e conexão com o público.
+--ar ${finalFormat} --v 6.0
+            `;
+
+            const finalPrompt = (influencerDescription + fixedElements).trim().replace(/ {2,}/g, ' ');
+
+            document.getElementById('finalPrompt').value = finalPrompt;
+            document.getElementById('resultSection').classList.remove('hidden');
+
+            // Rola para a seção de resultado para melhor UX em mobile
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Função para copiar o prompt para a área de transferência
+        function copyPrompt() {
+            const promptTextarea = document.getElementById('finalPrompt');
+            
+            // Seleciona o texto no textarea
+            promptTextarea.select();
+            promptTextarea.setSelectionRange(0, 99999); // Para mobile
+            
+            // Tenta copiar
+            try {
+                // document.execCommand('copy') é usado para maior compatibilidade em iFrames
+                const successful = document.execCommand('copy');
+                const msg = document.getElementById('copyMessage');
+                
+                if (successful) {
+                    msg.textContent = 'Prompt Copiado com Sucesso!';
+                    msg.classList.remove('opacity-0', 'text-red-600');
+                    msg.classList.add('text-green-600');
+                } else {
+                    msg.textContent = 'Falha ao Copiar.';
+                    msg.classList.remove('opacity-0', 'text-green-600');
+                    msg.classList.add('text-red-600');
+                }
+
+                // Faz a mensagem de 'copiado' aparecer e desaparecer
+                msg.classList.add('opacity-100');
+                setTimeout(() => {
+                    msg.classList.remove('opacity-100');
+                    msg.classList.add('opacity-0');
+                }, 2000);
+
+            } catch (err) {
+                console.error('Erro ao tentar copiar', err);
+                const msg = document.getElementById('copyMessage');
+                msg.textContent = 'Erro: A cópia não é suportada neste ambiente.';
+                msg.classList.remove('opacity-0', 'text-green-600');
+                msg.classList.add('text-red-600', 'opacity-100');
+                setTimeout(() => {
+                    msg.classList.remove('opacity-100');
+                    msg.classList.add('opacity-0');
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
