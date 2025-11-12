@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade da Extensão GSpeak</title>
+    <!-- Carrega o Tailwind CSS para estilização e responsividade -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração do Font Family e Cores para um visual profissional -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#1e3a8a', // Azul escuro
+                        secondary: '#3b82f6', // Azul claro
+                        textbase: '#1f2937', // Cinza escuro para texto (alto contraste)
+                        background: '#f9fafb', // Fundo claro
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos adicionais para melhor legibilidade */
+        .content-section {
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e5e7eb; /* Divisor leve */
+        }
+    </style>
+</head>
+<body class="font-sans bg-background text-textbase leading-relaxed p-4 sm:p-8">
+
+    <header class="mb-10 text-center border-b pb-4">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-primary" id="main-heading" tabindex="-1">
+            Política de Privacidade da Extensão GSpeak
+        </h1>
+        <p class="mt-2 text-lg text-gray-600">
+            Última atualização: Novembro de 2025
+        </p>
+    </header>
+
+    <main class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-xl shadow-2xl space-y-8" role="doc-main">
+
+        <section class="content-section" aria-labelledby="intro-policy">
+            <h2 id="intro-policy" class="text-2xl font-bold text-secondary mb-4">Introdução</h2>
+            <p class="text-lg">
+                Esta Política de Privacidade descreve como a extensão **GSpeak**, desenvolvida pela **Agência de Correios de Italva**, coleta, utiliza e armazena dados. O GSpeak é uma extensão para o navegador Edge, atuando como um "ajudante digital" focado em otimizar a distribuição e triagem de Cartas Registradas e Encomendas.
+            </p>
+        </section>
+
+        <section class="content-section" aria-labelledby="escopo">
+            <h2 id="escopo" class="text-2xl font-bold text-secondary mb-4">1. Escopo e Natureza da Extensão</h2>
+            <p class="text-lg">
+                O GSpeak foi criado para trabalhar em parceria com a Função G do SROWEB e com o Carteiro, visando simplificar e tornar mais eficiente o processo de triagem por data (TPD). A ferramenta opera exclusivamente dentro do navegador do usuário, e sua proposta é ser um parceiro digital que caminha junto com a experiência humana para garantir um serviço mais eficiente.
+            </p>
+        </section>
+
+        <section class="content-section" aria-labelledby="coleta-dados">
+            <h2 id="coleta-dados" class="text-2xl font-bold text-secondary mb-4">2. Coleta e Tipos de Dados</h2>
+            <p class="text-lg mb-4">
+                O GSpeak realiza a Triagem Por Data (TPD). Para executar essa função, ele guarda temporariamente informações importantes dos objetos, que são extraídas da tela ativa na Função G do SROWEB.
+            </p>
+            <h3 class="text-xl font-semibold text-textbase mb-3">Dados coletados e armazenados (temporariamente):</h3>
+            <ul class="list-disc list-inside space-y-2 text-lg pl-5" role="list">
+                <li class="pl-2">Código do objeto</li>
+                <li class="pl-2">Data de postagem e previsão de entrega</li>
+                <li class="pl-2">Endereço (rua, número, complemento, bairro)</li>
+            </ul>
+        </section>
+
+        <section class="content-section" aria-labelledby="uso-dados">
+            <h2 id="uso-dados" class="text-2xl font-bold text-secondary mb-4">3. Finalidade do Uso dos Dados</h2>
+            <p class="text-lg mb-4">
+                Os dados coletados são utilizados **exclusivamente** para as funcionalidades internas da extensão.
+            </p>
+            <ol class="list-decimal list-inside space-y-4 text-lg pl-5" role="list">
+                <li class="pl-2">
+                    <strong class="font-semibold">Otimização da Triagem:</strong> A informação da data prevista de entrega é utilizada pelo recurso de voz inteligente (voz neural ou padrão do navegador) para falar em voz alta a data prevista de entrega. Isso permite que o operador realize a triagem sem precisar ficar olhando para a tela o tempo todo, tornando o processo mais rápido, leve e ergonômico.
+                </li>
+                <li class="pl-2">
+                    <strong class="font-semibold">Organização e Relatórios:</strong> Os dados registrados temporariamente dos objetos listados permitem que o GSpeak exporte essas informações em formato CSV. Este formato pode ser aberto em programas de planilha, como o Excel, sendo útil para a organização de relatórios ou acompanhamento de entregas.
+                </li>
+                <li class="pl-2">
+                    <strong class="font-semibold">Melhoria Operacional:</strong> O uso desses dados apoia o objetivo de entregas dentro do prazo, otimização da mão de obra e redução de retrabalho, visando a satisfação do cliente final.
+                </li>
+            </ol>
+        </section>
+
+        <section aria-labelledby="armazenamento-seguranca">
+            <h2 id="armazenamento-seguranca" class="text-2xl font-bold text-secondary mb-4">4. Armazenamento e Segurança dos Dados</h2>
+            <p class="text-lg mb-4">
+                A segurança e a rapidez são garantidas pela forma como o GSpeak lida com a informação, mantendo o controle total dos dados com o próprio usuário.
+            </p>
+            <h3 class="text-xl font-semibold text-textbase mb-3">Garantias de Segurança:</h3>
+            <ul class="list-disc list-inside space-y-2 text-lg pl-5" role="list">
+                <li class="pl-2">
+                    <strong class="font-semibold">Armazenamento Local:</strong> Os dados coletados ficam armazenados localmente.
+                </li>
+                <li class="pl-2">
+                    <strong class="font-semibold">Apenas no Computador do Usuário:</strong> A informação reside exclusivamente no computador ou dispositivo do operador.
+                </li>
+                <li class="pl-2">
+                    <strong class="font-semibold">Armazenamento Temporário:</strong> A extensão guarda essas informações temporariamente no próprio navegador (usando tecnologias como `localStorage` ou `sessionStorage`).
+                </li>
+            </ul>
+            <p class="mt-6 text-lg p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400" role="alert">
+                <strong class="font-semibold text-yellow-700">Compromisso:</strong> O GSpeak não envia, transfere ou compartilha os dados dos objetos para sistemas externos ou servidores remotos. O processamento é realizado internamente no ambiente do operador para a triagem.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="mt-12 text-center text-gray-500 text-sm">
+        <p>&copy; 2025 Extensão GSpeak (Agência de Correios de Italva). Todos os direitos reservados.</p>
+    </footer>
+
+</body>
+</html>
