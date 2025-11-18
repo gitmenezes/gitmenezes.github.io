@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca Gulosa em TXT</title>
+    <!-- Carrega Tailwind CSS para estilização -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Configuração de fonte global e classes personalizadas */
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #f59e0b; /* yellow-500 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e5e7eb; /* Cor de fundo mais clara */
+        }
+        .file-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 6px solid var(--primary-color);
+        }
+        .file-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+        }
+        .expandable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s ease-out;
+            padding-top: 0;
+            opacity: 0;
+        }
+        .expanded {
+            max-height: 1500px; /* Aumentado para animar melhor */
+            padding-top: 1.5rem;
+            opacity: 1;
+            transition: max-height 1.5s ease-in, opacity 0.5s ease-in 0.7s, padding-top 0.5s ease-in;
+        }
+        /* Estilos de carregamento */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .highlight {
+            background-color: #fde68a; /* yellow-300 */
+            font-weight: bold;
+            color: #1f2937; /* gray-800 */
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-10">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-2xl shadow-2xl">
+        <header class="mb-8 border-b pb-4">
+            <h1 class="text-4xl font-extrabold text-gray-900">
+                <span class="text-indigo-600">Normas</span> Busca Estruturada
+            </h1>
+            <p class="text-gray-500 mt-2">
+                Ferramenta local para pesquisa resumida do Correios Normas<span class="font-semibold">.txt</span>.
+            </p>
+        </header>
+
+        <!-- Seção de Inputs e Controles: Layout Mais Eficiente (Apenas Passo 1 e 2) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Etapa 1: Carregar Pasta -->
+            <div class="md:col-span-1 p-5 bg-indigo-50 border border-indigo-200 rounded-xl shadow-md">
+                <label for="fileInput" class="block text-lg font-bold text-indigo-700 mb-2">
+                    1. Carregar Pasta (.txt):
+                </label>
+                <input type="file" id="fileInput" webkitdirectory directory multiple accept=".txt" class="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                <p class="mt-3 text-xs text-indigo-500">
+                    Apenas arquivos TXT são suportados.
+                </p>
+            </div>
+
+            <!-- Etapa 2: Termo de Busca Principal -->
+            <div class="md:col-span-2 p-5 bg-white border border-gray-200 rounded-xl shadow-md flex flex-col">
+                <label for="searchTerm" class="block text-lg font-bold text-gray-700">
+                    2. Pesquisar:
+                </label>
+                <div class="flex mt-2 gap-3 flex-grow">
+                    <input type="text" id="searchTerm" placeholder="Digite a palavra ou frase a buscar (acentos e case são ignorados)..." class="flex-grow rounded-md border-gray-300 shadow-sm p-3 border focus:ring-indigo-500 focus:border-indigo-500">
+                    
+                    <button id="searchButton" onclick="handleSearch()" disabled class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]">
+                        <span id="buttonText">Buscar</span>
+                        <span id="loadingIndicator" class="spinner ml-2 hidden"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Área de Mensagens (Alerta) -->
+        <div id="messageBox" class="mt-4 p-4 rounded-lg hidden text-sm font-medium" role="alert"></div>
+
+        <!-- A Seção de Filtro (Passo 3) foi removida. -->
+
+        <!-- Área de Resultados -->
+        <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b pb-2">
+            Resultados por Acurácia/Relevância:
+        </h2>
+        <div id="results" class="space-y-6">
+            <p id="initialMessage" class="text-gray-500 italic p-4 bg-gray-50 rounded-lg border">
+                Nenhum resultado de busca ainda. Por favor, carregue uma pasta (.txt) e realize a busca no Passo 2.
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        // Configurações e variáveis globais
+        const fileInput = document.getElementById('fileInput');
+        const searchTermInput = document.getElementById('searchTerm');
+        const searchButton = document.getElementById('searchButton');
+        const resultsDiv = document.getElementById('results');
+        const initialMessage = document.getElementById('initialMessage');
+        const messageBox = document.getElementById('messageBox');
+        const buttonText = document.getElementById('buttonText');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        // As referências a filterResultsInput e filterSection foram removidas
+
+        let fileCache = []; // Armazena { name: string, content: string }
+        // lastRelevantFiles não é mais necessário, mas vamos mantê-lo para simplificar o refactoring de displayResults
+        let lastRelevantFiles = []; 
+
+        // Adiciona listeners
+        fileInput.addEventListener('change', loadDirectory);
+        searchTermInput.addEventListener('input', toggleSearchButton);
+        // O listener de filtro em tempo real foi removido
+
+        /**
+         * FUNÇÃO CHAVE: Normaliza uma string removendo acentos e convertendo para minúsculas.
+         * Garante que a busca seja case-insensitive e accent-insensitive.
+         */
+        function normalizeString(str) {
+            if (!str) return '';
+            // 1. Normaliza para NFD (separa base character e diacrítico)
+            // 2. Remove todos os diacríticos (marcas não espaçadoras \u0300-\u036f)
+            // 3. Converte para minúsculas
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
+
+        /**
+         * Cria uma expressão regular que será insensível a acentos no texto original.
+         */
+        function createAccentInsensitiveRegex(term) {
+            if (!term) return '';
+            // Escapa caracteres especiais de regex
+            let escapedTerm = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+
+            // Substitui letras por grupos de todas as suas variações acentuadas, incluindo uppercase
+            escapedTerm = escapedTerm
+                .replace(/a/g, '[aáàãâAÁÀÃÂ]')
+                .replace(/e/g, '[eéèêEÉÈÊ]')
+                .replace(/i/g, '[iíìîIÍÌÎ]')
+                .replace(/o/g, '[oóòõôOÓÒÕÔ]')
+                .replace(/u/g, '[uúùûUÚÙÛ]')
+                .replace(/c/g, '[cçCÇ]');
+            
+            return escapedTerm;
+        }
+
+        /**
+         * Verifica se as condições para a busca principal estão preenchidas.
+         */
+        function toggleSearchButton() {
+            const filesLoaded = fileCache.length > 0;
+            const termEntered = searchTermInput.value.trim().length > 0;
+            searchButton.disabled = !(filesLoaded && termEntered);
+        }
+
+        /**
+         * Exibe mensagens de feedback ou erro na interface.
+         */
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-blue-100', 'text-blue-700');
+            
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-700');
+            } else { // info
+                messageBox.classList.add('bg-blue-100', 'text-blue-700');
+            }
+            // Garante que o box esteja visível
+            messageBox.classList.remove('hidden');
+
+            // Efeito para esconder mensagens temporárias
+            if (!message.includes("Tempo previsto")) {
+                setTimeout(() => {
+                    messageBox.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        /**
+         * Lida com a seleção de diretório, lê todos os arquivos .txt e armazena o conteúdo em fileCache.
+         */
+        async function loadDirectory() {
+            fileCache = [];
+            lastRelevantFiles = []; // Limpa resultados anteriores
+
+            // FILTRO: Inclui APENAS .txt
+            const files = Array.from(fileInput.files).filter(file => 
+                file.name.toLowerCase().endsWith('.txt')
+            );
+
+            if (files.length === 0) {
+                showMessage("Nenhum arquivo .txt encontrado. Por favor, selecione uma pasta que contenha arquivos .txt.", 'error');
+                toggleSearchButton();
+                initialMessage.textContent = 'Nenhum resultado de busca ainda. Por favor, carregue uma pasta com arquivos .txt.';
+                initialMessage.classList.remove('hidden');
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            // Ativa o estado de carregamento
+            searchButton.disabled = true;
+            buttonText.textContent = `Carregando ${files.length} arquivos...`;
+            loadingIndicator.classList.remove('hidden');
+            resultsDiv.innerHTML = '';
+            initialMessage.classList.add('hidden');
+            
+            const readingPromises = files.map(file => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        fileCache.push({
+                            name: file.name,
+                            content: e.target.result
+                        });
+                        resolve();
+                    };
+
+                    reader.onerror = () => {
+                        console.error(`Falha ao ler o arquivo ${file.name}.`);
+                        resolve(); 
+                    };
+
+                    // Força a leitura do arquivo usando UTF-8
+                    reader.readAsText(file, 'UTF-8');
+                });
+            });
+
+            try {
+                await Promise.all(readingPromises);
+                showMessage(`${fileCache.length} arquivos (.txt) carregados para a memória. Pronto para buscar.`, 'success');
+            } catch (error) {
+                showMessage("Erro ao carregar os arquivos da pasta.", 'error');
+            } finally {
+                toggleSearchButton();
+                buttonText.textContent = 'Buscar';
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Simula um atraso de processamento e exibe uma contagem regressiva.
+         */
+        function simulateSearchDelay(duration) {
+            return new Promise(resolve => {
+                let remainingTime = Math.ceil(duration / 1000); 
+                
+                showMessage(`Tempo previsto de processamento: ${remainingTime} segundo(s).`, 'info');
+
+                const intervalId = setInterval(() => {
+                    if (remainingTime <= 0) {
+                        clearInterval(intervalId);
+                        messageBox.classList.add('hidden');
+                        resolve();
+                    } else {
+                        buttonText.textContent = `Processando... (${remainingTime}s)`;
+                        remainingTime--;
+                    }
+                }, 1000);
+            });
+        }
+
+        /**
+         * Inicia o processo de busca principal com tempo de processamento simulado.
+         */
+        async function handleSearch() {
+            const searchTerm = searchTermInput.value.trim();
+
+            if (fileCache.length === 0 || searchTerm === "") {
+                showMessage("Por favor, carregue uma pasta e insira um termo de busca.", 'error');
+                return;
+            }
+
+            // 1. Ativa o estado de carregamento
+            searchButton.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+            resultsDiv.innerHTML = '';
+            initialMessage.classList.add('hidden');
+
+            const simulatedDelay = 1500 + Math.random() * 2000; 
+
+            try {
+                // 2. Executa a contagem regressiva
+                await simulateSearchDelay(simulatedDelay);
+
+                // 3. Execução da Busca Gulosa
+                buttonText.textContent = 'Calculando Acurácia...';
+                
+                const scoredFiles = fileCache.map(file => calculateScore(file, searchTerm));
+                
+                // Salva e ordena os resultados para exibição
+                const filesToDisplay = scoredFiles
+                    .filter(f => f.score > 0)
+                    .sort((a, b) => b.score - a.score);
+                
+                // Exibe os resultados
+                displayResults(filesToDisplay);
+
+            } catch (error) {
+                console.error("Erro durante a busca:", error);
+                showMessage(`Ocorreu um erro inesperado: ${error.message}`, 'error');
+            } finally {
+                // 4. Restaura o estado normal
+                toggleSearchButton();
+                buttonText.textContent = 'Buscar';
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Calcula a "acurácia" (frequência de termos) de um conteúdo cacheado.
+         */
+        function calculateScore(file, term) {
+            const normalizedContent = normalizeString(file.content);
+            const normalizedTerm = normalizeString(term);
+
+            const regex = new RegExp(normalizedTerm.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g');
+            
+            const matches = normalizedContent.match(regex);
+            
+            const score = matches ? matches.length : 0;
+
+            return {
+                name: file.name,
+                score: score,
+                content: file.content,
+                term: term // Termo original para highlight
+            };
+        }
+
+        // A função filterResults foi removida
+
+        /**
+         * Exibe os resultados na tela, ordenados pela "acurácia" (score).
+         * Simplificada para aceitar apenas o array de arquivos.
+         */
+        function displayResults(filesToDisplay) {
+            
+            const currentHighlightTerm = searchTermInput.value.trim();
+            let highlightRegex = null;
+
+            if (currentHighlightTerm) {
+                 // Usa a regex insensível a acentos/case para o destaque visual
+                const regexSource = createAccentInsensitiveRegex(currentHighlightTerm);
+                highlightRegex = new RegExp(regexSource, 'gi');
+            }
+
+            if (filesToDisplay.length === 0) {
+                resultsDiv.innerHTML = `<p class="text-gray-500 italic p-4 bg-yellow-50 rounded-lg">
+                    Nenhuma ocorrência encontrada para o termo "${currentHighlightTerm}".
+                </p>`;
+                return;
+            }
+            
+            resultsDiv.innerHTML = '';
+            
+            filesToDisplay.forEach((file, index) => {
+                
+                let highlightedContent = file.content
+                    .replace(/&/g, '&amp;') 
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+                
+                // Aplica o destaque apenas se houver um termo para destacar
+                if (highlightRegex) {
+                    highlightedContent = highlightedContent.replace(highlightRegex, '<span class="highlight">$&</span>');
+                }
+
+                // Prepara a prévia do conteúdo
+                const contentPreview = file.content.substring(0, 300) + (file.content.length > 300 ? '...' : '');
+
+                // Cria o elemento card
+                const card = document.createElement('div');
+                card.id = `file-card-${index}`;
+                card.className = 'file-card bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200';
+                card.setAttribute('onclick', `toggleContent('content-${index}', 'icon-${index}')`);
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <!-- Informações Principais -->
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs font-semibold uppercase text-indigo-700 tracking-wider">
+                                Acurácia: ${file.score} ocorrência(s)
+                            </p>
+                            <!-- Referência Explícita -->
+                            <h3 class="text-xl font-extrabold text-gray-900 mt-1 truncate">
+                                Arquivo: ${file.name}
+                            </h3>
+                            <pre class="text-sm text-gray-600 mt-2 whitespace-pre-wrap max-h-20 overflow-hidden text-ellipsis">${contentPreview}</pre>
+                        </div>
+                        <!-- Ícone de Expansão -->
+                        <button class="text-gray-500 hover:text-indigo-600 p-2 rounded-full transition duration-150 ml-4 flex-shrink-0">
+                            <svg id="icon-${index}" class="w-6 h-6 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Conteúdo Expansível (o conteúdo completo com destaque) -->
+                    <div id="content-${index}" class="expandable-content mt-4">
+                        <h4 class="text-lg font-semibold border-b pb-1 mb-3">Conteúdo Completo (Destaques)</h4>
+                        <pre class="whitespace-pre-wrap text-sm leading-relaxed p-4 bg-white border border-gray-300 rounded-lg overflow-x-auto" style="max-height: 400px;">${highlightedContent}</pre>
+                    </div>
+                `;
+                
+                resultsDiv.appendChild(card);
+            });
+            
+            showMessage(`Busca concluída! ${filesToDisplay.length} arquivos relevantes encontrados.`, 'success');
+        }
+
+        /**
+         * Alterna a visibilidade do conteúdo de um card e a rotação do ícone.
+         */
+        function toggleContent(contentId, iconId) {
+            const content = document.getElementById(contentId);
+            const icon = document.getElementById(iconId);
+
+            const isExpanded = content.classList.toggle('expanded');
+            
+            if (isExpanded) {
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+    </script>
+</body>
+</html>
