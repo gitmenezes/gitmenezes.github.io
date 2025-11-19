@@ -50,7 +50,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        Adicionar Produtos (IA Local - Offline)
+                        Adicionar Produtos (API Gemini / Modo Offline)
                     </h2>
                     <input type="file" id="imageUploader" accept="image/*" multiple class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none p-2">
                     <button onclick="handleNewImageUpload()" id="analyzeButton" class="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:bg-red-300">
@@ -111,7 +111,7 @@
         <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
             <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full">
                 <h3 id="modalTitle" class="text-lg font-bold text-gray-800 mb-3">Aguarde...</h3>
-                <p id="modalMessage" class="text-gray-600">A IA Local está analisando a imagem para extrair os produtos.</p>
+                <p id="modalMessage" class="text-gray-600">A API do Gemini está analisando a imagem para extrair os produtos.</p>
                 <div id="modalSpinner" class="mt-4 flex justify-center">
                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
                 </div>
@@ -134,7 +134,9 @@
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
-        // As variáveis da API do Gemini foram removidas para garantir o uso local.
+        // Reintroduzindo variáveis da API do Gemini para uso externo (online)
+        const GEMINI_API_KEY = ""; 
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
         
         let db, auth;
         let userId = null;
@@ -409,7 +411,7 @@
             return price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        // Converte ArrayBuffer para string Base64 (função mantida mas não usada na simulação)
+        // Converte ArrayBuffer para string Base64
         function arrayBufferToBase64(buffer) {
             let binary = '';
             const bytes = new Uint8Array(buffer);
@@ -420,30 +422,90 @@
             return btoa(binary);
         }
 
-        // --- INTEGRAÇÃO COM CHROME AI (LOCAL/OFFLINE) ---
+        // --- INTEGRAÇÃO COM GEMINI API (ONLINE) E FALLBACK OFFLINE ---
 
-        // Função que simula a chamada à API local do Chrome AI para análise de imagem.
-        // ATENÇÃO: A API local (Web AI API/navigator.ai) atualmente não suporta 
-        // nativamente a análise visual (imagem para JSON). Esta função simula
-        // uma resposta instantânea e offline para cumprir o requisito, mas com 
-        // um resultado de MOCK (simulado).
-        async function callLocalAISimulation(file) {
-            // Verifica se a API de AI está disponível (pode ser necessário para futuras funcionalidades)
-            if (typeof navigator.ai === 'undefined' || !navigator.ai) {
-                // Se a API Local não estiver disponível, lançamos um erro
-                throw new Error("API de AI do seu navegador (Web AI API) não detectada. Tente usar a versão mais recente do Chrome.");
-            }
-
-            // Simula um processamento local rápido (offline)
+        // Função de fallback: Retorna dados simulados quando a API externa falha (Modo Offline)
+        async function callOfflineMock(file) {
             await new Promise(resolve => setTimeout(resolve, 300));
-
-            console.warn(`[Web AI Mock] Análise visual local completa ainda não é suportada. Retornando dados simulados para o arquivo: ${file.name}`);
+            console.warn(`[Offline Mock] Usando dados simulados para o arquivo: ${file.name}`);
             
-            // Retorna uma estrutura JSON mockada
+            // Retorna uma estrutura JSON mockada com um prefixo
             return [
-                {"name": `[Local AI MOCK] Produto 1 de ${file.name}`, "price": 11.50},
-                {"name": `[Local AI MOCK] Produto 2 de ${file.name}`, "price": 5.99}
+                {"name": `[OFFLINE MOCK] Frango Assado (${file.name.substring(0, 10)})`, "price": 25.99},
+                {"name": `[OFFLINE MOCK] Óleo de Soja 900ml (${file.name.substring(0, 10)})`, "price": 6.49},
+                {"name": `[OFFLINE MOCK] Cerveja Premium 350ml (${file.name.substring(0, 10)})`, "price": 4.99}
             ];
+        }
+
+
+        // Função que faz a chamada real para a API do Gemini
+        async function callGeminiVision(base64Image, mimeType) {
+            const systemInstruction = "Você é um extrator de dados de lista de pedidos. Analise a imagem de um catálogo de supermercado e retorne uma lista JSON dos produtos com nome e preço. Retorne SOMENTE o JSON.";
+            const userPrompt = "Extraia o nome do produto e o preço. Não inclua texto que não seja nome/preço (ex: 'Limite de 6'). Use o formato [{\"name\": \"Nome do Produto\", \"price\": 12.34}].";
+
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: userPrompt },
+                        { inlineData: { mimeType: mimeType, data: base64Image } }
+                    ]
+                }],
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                "name": { "type": "STRING", "description": "Nome completo do produto" },
+                                "price": { "type": "NUMBER", "description": "Preço do produto em formato decimal (Ex: 8.19)" }
+                            },
+                            "propertyOrdering": ["name", "price"]
+                        }
+                    }
+                }
+            };
+
+            // Implementação de Backoff Exponencial para lidar com falhas de rede/API
+            const maxRetries = 3;
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    const response = await fetch(GEMINI_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        // Se não for a última tentativa, tenta de novo
+                        if (attempt === maxRetries - 1) {
+                            throw new Error(`Erro HTTP: ${response.status}`);
+                        }
+                        const delay = Math.pow(2, attempt) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue; 
+                    }
+
+                    const result = await response.json();
+                    
+                    const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!jsonText) {
+                        // Se não extrair JSON válido, trata como falha da API
+                        throw new Error("Resposta da API vazia ou sem estrutura JSON.");
+                    }
+
+                    return JSON.parse(jsonText);
+
+                } catch (error) {
+                    console.error(`Tentativa ${attempt + 1} falhou.`, error);
+                    if (attempt === maxRetries - 1) {
+                         // Lança o erro na última tentativa para ser capturado pelo handleNewImageUpload (e ativar o mock)
+                         throw new Error("Falha na análise da imagem após várias tentativas.");
+                    }
+                    // Continua para a próxima tentativa
+                }
+            }
         }
 
 
@@ -460,50 +522,60 @@
             }
 
             analyzeButton.disabled = true;
-            statusElement.textContent = 'Iniciando análise com IA Local...';
-            showModal('Analisando Imagens', `Processando ${files.length} arquivo(s) usando IA Local (Offline)...`);
+            statusElement.textContent = 'Iniciando análise...';
+            showModal('Analisando Imagens', `Processando ${files.length} arquivo(s). Aguarde o resultado da API do Gemini.`);
 
             const newProducts = [];
-            // Usamos productCatalog para verificar IDs existentes
             const existingProductIds = new Set(productCatalog.map(p => p.id));
             let successfulAnalyses = 0;
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
+                let structuredResult = null;
+                
                 statusElement.textContent = `Processando arquivo ${i + 1}/${files.length}: ${file.name}`;
-                document.getElementById('modalMessage').textContent = `Analisando a imagem ${i + 1} de ${files.length} usando IA Local (Offline)...`;
+                document.getElementById('modalMessage').textContent = `Analisando a imagem ${i + 1} de ${files.length}. Por favor, aguarde...`;
 
                 try {
-                    // Chamada à função de simulação da AI Local
-                    const structuredResult = await callLocalAISimulation(file);
-                    
-                    if (structuredResult && Array.isArray(structuredResult)) {
-                        structuredResult.forEach(item => {
-                            // Sanitiza e gera um ID único
-                            const uniqueId = `p${existingProductIds.size + 1}_${Date.now()}`;
-                            const product = {
-                                id: uniqueId,
-                                name: item.name.trim() || 'Produto Desconhecido',
-                                price: parseFloat(item.price) || 0.00
-                            };
-                            if (product.price > 0 && !existingProductIds.has(product.id)) {
-                                newProducts.push(product);
-                                existingProductIds.add(product.id);
-                            }
-                        });
-                        successfulAnalyses++;
-                    }
+                    const base64Data = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result.split(',')[1]);
+                        reader.onerror = error => reject(error);
+                        reader.readAsDataURL(file);
+                    });
 
-                } catch (error) {
-                    console.error(`Erro ao processar imagem ${file.name} com IA Local:`, error);
-                    statusElement.textContent = `Erro: ${error.message}`;
-                    // Interrompe se a API local não estiver disponível.
-                    if (error.message.includes("API de AI do seu navegador")) {
-                        hideModal();
-                        analyzeButton.disabled = false;
-                        return;
+                    // 1. Tenta a análise online (API Gemini)
+                    structuredResult = await callGeminiVision(base64Data, file.type);
+                    
+                } catch (apiError) {
+                    // 2. Falha na API Gemini, usa o Mock Offline (Fallback Ativo)
+                    console.warn(`[Fallback Ativo] Falha ao conectar/processar a API Online. Usando Mock Offline. Erro:`, apiError);
+                    document.getElementById('modalMessage').textContent = `Falha na análise online. Usando Mock Offline para ${file.name}...`;
+                    try {
+                        structuredResult = await callOfflineMock(file);
+                    } catch(e) {
+                        // Se o mock falhar (não deve), registra o erro
+                        console.error("Erro no Mock Offline:", e);
                     }
                 }
+                
+                // Processa o resultado (online ou mock)
+                if (structuredResult && Array.isArray(structuredResult)) {
+                    structuredResult.forEach(item => {
+                        const uniqueId = `p${existingProductIds.size + 1}_${Date.now()}`;
+                        const product = {
+                            id: uniqueId,
+                            name: item.name.trim() || 'Produto Desconhecido',
+                            price: parseFloat(item.price) || 0.00
+                        };
+                        if (product.price > 0 && !existingProductIds.has(product.id)) {
+                            newProducts.push(product);
+                            existingProductIds.add(product.id);
+                        }
+                    });
+                    successfulAnalyses++;
+                }
+
             }
 
             hideModal();
@@ -511,14 +583,15 @@
             fileInput.value = ''; // Limpa a seleção do arquivo
 
             if (newProducts.length > 0) {
-                statusElement.textContent = `Análise concluída. ${newProducts.length} novos produtos (MOCK) adicionados ao catálogo!`;
+                statusElement.textContent = `Análise concluída. ${newProducts.length} novos produtos adicionados ao catálogo!`;
                 await updateProductCatalog(newProducts);
             } else if (successfulAnalyses > 0) {
-                 statusElement.textContent = `Análise concluída. Nenhuma oferta nova foi detectada (retorno de MOCK).`;
+                 statusElement.textContent = `Análise concluída, mas nenhum produto extraído. Tente outra imagem.`;
             } else {
                  statusElement.textContent = `Falha na análise. Nenhum produto foi extraído.`;
             }
         }
+
 
         // Adiciona os novos produtos ao Firestore
         async function updateProductCatalog(newProducts) {
