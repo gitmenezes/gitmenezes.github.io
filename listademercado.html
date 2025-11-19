@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Lista de Pedidos Ideal</title>
+    <!-- Carrega o Tailwind CSS para estilização fácil -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f9;
+        }
+        .scroll-list {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #fca5a5 #e5e7eb; /* Firefox */
+        }
+        .scroll-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scroll-list::-webkit-scrollbar-thumb {
+            background-color: #fca5a5;
+            border-radius: 4px;
+        }
+        .scroll-list::-webkit-scrollbar-track {
+            background-color: #e5e7eb;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="app" class="max-w-6xl mx-auto bg-white shadow-2xl rounded-xl p-6 md:p-10">
+
+        <!-- Título e Introdução -->
+        <header class="mb-8 border-b pb-4">
+            <h1 class="text-3xl font-extrabold text-red-600">Gerador de Lista de Pedidos 🛒</h1>
+            <p class="text-gray-600 mt-2">Crie sua lista de compras a partir do catálogo e use o campo de upload para adicionar novos produtos analisando novas imagens!</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Coluna 1: Análise de Imagem e Catálogo de Produtos -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Seção de Análise de Imagem -->
+                <section class="bg-gray-50 p-5 rounded-lg border-2 border-dashed border-gray-300">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Adicionar Produtos (IA Local - Offline)
+                    </h2>
+                    <input type="file" id="imageUploader" accept="image/*" multiple class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none p-2">
+                    <button onclick="handleNewImageUpload()" id="analyzeButton" class="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:bg-red-300">
+                        Analisar Imagens e Adicionar ao Catálogo
+                    </button>
+                    <div id="imageAnalysisStatus" class="mt-3 text-sm text-gray-500 min-h-[20px]"></div>
+                </section>
+
+                <!-- Seção de Catálogo de Produtos -->
+                <section>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        Catálogo de Produtos (<span id="catalogCount">0</span> Itens)
+                    </h2>
+                    <div id="productCatalogList" class="scroll-list border rounded-lg divide-y bg-white shadow-inner p-2">
+                        <!-- Itens do catálogo serão injetados aqui -->
+                        <p class="text-center text-gray-500 p-4">Carregando produtos...</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Coluna 2: Lista de Pedidos (Carrinho) -->
+            <div class="lg:col-span-1">
+                <section class="sticky top-0 bg-red-50 p-6 rounded-lg shadow-xl border border-red-200">
+                    <h2 class="text-xl font-semibold text-red-700 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Sua Lista de Pedidos
+                    </h2>
+
+                    <!-- Lista de Itens do Pedido -->
+                    <div id="orderList" class="scroll-list min-h-[150px] max-h-[250px] border rounded-md divide-y mb-4 bg-white">
+                        <p class="text-center text-gray-500 p-4" id="emptyOrderMessage">Nenhum item adicionado.</p>
+                    </div>
+
+                    <!-- Total e Botão WhatsApp -->
+                    <div class="mt-4 pt-4 border-t border-red-300">
+                        <div class="flex justify-between items-center text-lg font-bold text-red-700">
+                            <span>TOTAL:</span>
+                            <span id="orderTotal">R$ 0,00</span>
+                        </div>
+
+                        <a id="whatsappButton" href="#" target="_blank" class="mt-6 w-full flex items-center justify-center px-4 py-3 text-white bg-green-500 rounded-lg hover:bg-green-600 transition-colors text-base font-semibold disabled:bg-green-300" onclick="generateWhatsAppLink(event)">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12.001 0C6.183 0 1.625 4.577 1.625 10.395c0 1.956.54 3.791 1.488 5.378L.06 22.825l6.502-1.71c1.551.85 3.327 1.303 5.439 1.303 5.817 0 10.375-4.577 10.375-10.395C22.375 4.577 17.817 0 12.001 0zm4.846 14.898c-.287.151-1.688.802-1.952.883-.264.081-.532.122-.801.041-.27-.081-.976-.361-1.865-.925-.591-.371-1.18-.83-1.666-1.378-.485-.548-.871-1.161-1.16-1.751-.288-.59-.365-1.109-.081-1.396.284-.287.643-.758.857-.972.214-.214.397-.532.532-.801.135-.268.067-.502-.027-.771-.094-.268-.799-1.93-1.096-2.64-.296-.71-.592-.816-.957-.828-.365-.012-.782-.008-1.199-.008-.417 0-.756.109-1.026.425-.27.316-.764.747-.764 1.83 0 1.083.782 2.115 1.096 2.532.314.417 1.528 2.375 3.65 3.397 2.123 1.021 2.923 1.256 3.486 1.161.564-.095 1.83-2.035 2.094-2.299.264-.264.551-.38.838-.413.287-.033 1.83.125 2.127.688.296.564.296 1.066.202 1.22-.094.153-.87.411-1.637.792z"/>
+                            </svg>
+                            Enviar Lista via WhatsApp
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Feedback Modal (Mensagens de status/erro) -->
+        <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+            <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full">
+                <h3 id="modalTitle" class="text-lg font-bold text-gray-800 mb-3">Aguarde...</h3>
+                <p id="modalMessage" class="text-gray-600">A IA Local está analisando a imagem para extrair os produtos.</p>
+                <div id="modalSpinner" class="mt-4 flex justify-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+                </div>
+                <button onclick="hideModal()" id="modalCloseButton" class="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-lg hover:bg-gray-600 transition-colors hidden">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Importa as funções do Firebase para autenticação e Firestore
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, getDocs, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- VARIÁVEIS GLOBAIS FORNECIDAS PELO AMBIENTE (OBRIGATÓRIAS) ---
+        // O app ID é obrigatório para estruturar o Firestore
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // As variáveis da API do Gemini foram removidas para garantir o uso local.
+        
+        let db, auth;
+        let userId = null;
+        let isAuthReady = false;
+
+        // --- ESTADO GLOBAL DA APLICAÇÃO ---
+        let productCatalog = []; // Lista de todos os produtos disponíveis
+        let currentOrder = {}; // {productId: quantity, ...}
+        
+        // Variável para manter a referência ao elemento de mensagem vazia.
+        let emptyMessageRef = null; 
+        
+        // Catálogo de produtos iniciais (Vazio por escolha do usuário)
+        const initialProducts = []; 
+        
+        // --- FIREBASE E AUTENTICAÇÃO ---
+
+        function setupFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Configuração do Firebase não encontrada. O aplicativo funcionará em modo 'somente leitura' no catálogo, sem persistência.");
+                    // Se não houver config, usamos dados iniciais (agora vazios) e paramos.
+                    productCatalog = initialProducts;
+                    renderCatalog();
+                    return;
+                }
+
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Tenta autenticar
+                if (initialAuthToken) {
+                    signInWithCustomToken(auth, initialAuthToken)
+                        .catch(e => {
+                            console.error("Erro ao autenticar com token customizado:", e);
+                            signInAnonymously(auth); // Tenta anônimo como fallback
+                        });
+                } else {
+                    signInAnonymously(auth);
+                }
+
+                // Listener de estado de autenticação
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                        // O catálogo é público, mas o pedido é privado
+                        listenToPublicCatalog();
+                        listenToPrivateOrder();
+                    } else {
+                        userId = crypto.randomUUID(); // ID temporário se for anônimo/deslogado
+                        isAuthReady = true;
+                        // Se não estiver logado, usamos apenas os produtos iniciais (agora vazios)
+                        productCatalog = initialProducts;
+                        renderCatalog();
+                        console.warn("Usuário não logado. Usando ID temporário e produtos iniciais. O catálogo dinâmico e o pedido não serão salvos.");
+                    }
+                });
+
+            } catch (error) {
+                console.error("Erro na inicialização do Firebase:", error);
+                // Fallback para apenas produtos iniciais (agora vazios) se o Firebase falhar totalmente
+                productCatalog = initialProducts;
+                renderCatalog();
+            }
+        }
+
+        // --- FUNÇÕES DO FIRESTORE ---
+
+        // O catálogo de produtos é PÚBLICO para todos os usuários do mesmo aplicativo.
+        function getCatalogCollectionRef() {
+            return collection(db, `artifacts/${appId}/public/data/productCatalog`);
+        }
+
+        // O pedido (carrinho) é PRIVADO, associado ao usuário.
+        function getOrderDocRef() {
+            if (!userId) return null;
+            return doc(db, `artifacts/${appId}/users/${userId}/currentOrder/list`);
+        }
+
+        async function listenToPublicCatalog() {
+            const q = query(getCatalogCollectionRef());
+            // Tenta pegar o snapshot, mas se a coleção estiver vazia, usa os produtos iniciais
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                // Se a coleção estiver vazia, inicializa com os produtos iniciais (agora vazios)
+                productCatalog = initialProducts;
+                // Salva os produtos iniciais (se houver algum) no Firestore
+                for (const product of productCatalog) {
+                    await setDoc(doc(db, getCatalogCollectionRef().path, product.id), product);
+                }
+            }
+            
+            // Listener em tempo real
+            onSnapshot(q, (snapshot) => {
+                productCatalog = [];
+                snapshot.forEach(doc => {
+                    productCatalog.push(doc.data());
+                });
+                productCatalog.sort((a, b) => a.name.localeCompare(b.name));
+                renderCatalog();
+            }, (error) => {
+                console.error("Erro ao ouvir o catálogo de produtos:", error);
+                // Em caso de erro, garante que os produtos iniciais (agora vazios) estejam na lista
+                if (productCatalog.length === 0) {
+                    productCatalog = initialProducts;
+                    renderCatalog();
+                }
+            });
+        }
+        
+        async function listenToPrivateOrder() {
+            const orderRef = getOrderDocRef();
+            if (!orderRef) return;
+
+            onSnapshot(orderRef, (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    currentOrder = docSnapshot.data().items || {};
+                } else {
+                    currentOrder = {};
+                }
+                renderOrder();
+            }, (error) => {
+                console.error("Erro ao ouvir o pedido:", error);
+                currentOrder = {};
+                renderOrder();
+            });
+        }
+
+        async function saveOrder() {
+            if (!isAuthReady || !userId) {
+                console.warn("Usuário não autenticado. Pedido não será salvo.");
+                return;
+            }
+            const orderRef = getOrderDocRef();
+            if (orderRef) {
+                // Remove itens com quantidade zero antes de salvar
+                const cleanedOrder = Object.fromEntries(
+                    Object.entries(currentOrder).filter(([key, value]) => value > 0)
+                );
+
+                try {
+                    await setDoc(orderRef, { items: cleanedOrder, lastUpdated: new Date() });
+                } catch (e) {
+                    console.error("Erro ao salvar o pedido:", e);
+                }
+            }
+        }
+
+
+        // --- FUNÇÕES DE RENDERIZAÇÃO E UI ---
+
+        function renderCatalog() {
+            const listElement = document.getElementById('productCatalogList');
+            const catalogCountElement = document.getElementById('catalogCount');
+            listElement.innerHTML = '';
+            catalogCountElement.textContent = productCatalog.length;
+
+            if (productCatalog.length === 0) {
+                listElement.innerHTML = `<p class="text-center text-gray-500 p-4">Nenhum produto encontrado. Tente analisar uma imagem.</p>`;
+                return;
+            }
+
+            productCatalog.forEach(product => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'flex items-center justify-between p-3 hover:bg-red-50 transition-colors';
+                itemDiv.innerHTML = `
+                    <div class="flex-grow min-w-0 pr-4">
+                        <p class="text-sm font-medium text-gray-900 truncate" title="${product.name}">${product.name}</p>
+                        <p class="text-xs text-green-600 font-bold">${formatPrice(product.price)}</p>
+                    </div>
+                    <button data-id="${product.id}" onclick="addItemToOrder('${product.id}')" class="px-3 py-1 text-xs font-semibold text-white bg-red-500 rounded-full hover:bg-red-600 transition-colors shadow-md">
+                        Adicionar
+                    </button>
+                `;
+                listElement.appendChild(itemDiv);
+            });
+        }
+
+        function renderOrder() {
+            const listElement = document.getElementById('orderList');
+            const totalElement = document.getElementById('orderTotal');
+            
+            // FIX: Usamos a referência global salva no onload para evitar o erro NULL após innerHTML=''.
+            const emptyMessage = emptyMessageRef; 
+            
+            if (!emptyMessage) {
+                // Se o elemento não foi encontrado (o que não deve acontecer), saímos.
+                console.error("Elemento emptyOrderMessage não encontrado!");
+                return;
+            }
+            
+            let total = 0;
+            listElement.innerHTML = '';
+            
+            const orderedItems = Object.keys(currentOrder)
+                .filter(id => currentOrder[id] > 0)
+                .map(id => {
+                    const product = productCatalog.find(p => p.id === id);
+                    if (!product) return null; // Ignora se o produto não estiver no catálogo
+                    const quantity = currentOrder[id];
+                    const itemTotal = product.price * quantity;
+                    total += itemTotal;
+                    return { ...product, quantity, itemTotal };
+                })
+                .filter(item => item !== null)
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            if (orderedItems.length === 0) {
+                // Se a lista está vazia, re-adicionamos o elemento de mensagem
+                listElement.appendChild(emptyMessage);
+                emptyMessage.style.display = 'block';
+            } else {
+                // Se a lista não está vazia, garantimos que o elemento de mensagem esteja oculto
+                emptyMessage.style.display = 'none'; 
+                
+                orderedItems.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'flex items-center justify-between p-3 bg-white';
+                    itemDiv.innerHTML = `
+                        <div class="flex-grow min-w-0 pr-2">
+                            <p class="text-sm font-semibold text-gray-800 truncate">${item.name}</p>
+                            <p class="text-xs text-gray-500">${formatPrice(item.price)} x ${item.quantity} = <span class="font-bold text-red-500">${formatPrice(item.itemTotal)}</span></p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="changeQuantity('${item.id}', -1)" class="w-6 h-6 text-sm flex items-center justify-center text-white bg-red-400 rounded-full hover:bg-red-500 transition-colors shadow">-</button>
+                            <span class="text-sm font-bold w-4 text-center">${item.quantity}</span>
+                            <button onclick="changeQuantity('${item.id}', 1)" class="w-6 h-6 text-sm flex items-center justify-center text-white bg-red-600 rounded-full hover:bg-red-700 transition-colors shadow">+</button>
+                        </div>
+                    `;
+                    listElement.appendChild(itemDiv);
+                });
+            }
+
+            totalElement.textContent = formatPrice(total);
+            updateWhatsAppButton(orderedItems.length > 0);
+        }
+
+        function updateWhatsAppButton(isEnabled) {
+            const button = document.getElementById('whatsappButton');
+            if (isEnabled) {
+                button.classList.remove('disabled:bg-green-300');
+            } else {
+                button.classList.add('disabled:bg-green-300');
+            }
+            button.disabled = !isEnabled;
+        }
+
+        // --- FUNÇÕES DE LÓGICA DO PEDIDO ---
+
+        window.addItemToOrder = function(productId) {
+            currentOrder[productId] = (currentOrder[productId] || 0) + 1;
+            saveOrder(); // Salva e renderiza via listener do Firestore
+        }
+
+        window.changeQuantity = function(productId, delta) {
+            const newQuantity = (currentOrder[productId] || 0) + delta;
+            
+            if (newQuantity <= 0) {
+                delete currentOrder[productId];
+            } else {
+                currentOrder[productId] = newQuantity;
+            }
+            saveOrder(); // Salva e renderiza via listener do Firestore
+        }
+
+        // --- FUNÇÕES DE UTILIDADE ---
+
+        function formatPrice(price) {
+            return price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Converte ArrayBuffer para string Base64 (função mantida mas não usada na simulação)
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        // --- INTEGRAÇÃO COM CHROME AI (LOCAL/OFFLINE) ---
+
+        // Função que simula a chamada à API local do Chrome AI para análise de imagem.
+        // ATENÇÃO: A API local (Web AI API/navigator.ai) atualmente não suporta 
+        // nativamente a análise visual (imagem para JSON). Esta função simula
+        // uma resposta instantânea e offline para cumprir o requisito, mas com 
+        // um resultado de MOCK (simulado).
+        async function callLocalAISimulation(file) {
+            // Verifica se a API de AI está disponível (pode ser necessário para futuras funcionalidades)
+            if (typeof navigator.ai === 'undefined' || !navigator.ai) {
+                // Se a API Local não estiver disponível, lançamos um erro
+                throw new Error("API de AI do seu navegador (Web AI API) não detectada. Tente usar a versão mais recente do Chrome.");
+            }
+
+            // Simula um processamento local rápido (offline)
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            console.warn(`[Web AI Mock] Análise visual local completa ainda não é suportada. Retornando dados simulados para o arquivo: ${file.name}`);
+            
+            // Retorna uma estrutura JSON mockada
+            return [
+                {"name": `[Local AI MOCK] Produto 1 de ${file.name}`, "price": 11.50},
+                {"name": `[Local AI MOCK] Produto 2 de ${file.name}`, "price": 5.99}
+            ];
+        }
+
+
+        // Função principal para analisar novas imagens
+        window.handleNewImageUpload = async function() {
+            const fileInput = document.getElementById('imageUploader');
+            const files = fileInput.files;
+            const statusElement = document.getElementById('imageAnalysisStatus');
+            const analyzeButton = document.getElementById('analyzeButton');
+
+            if (files.length === 0) {
+                statusElement.textContent = 'Selecione uma ou mais imagens para análise.';
+                return;
+            }
+
+            analyzeButton.disabled = true;
+            statusElement.textContent = 'Iniciando análise com IA Local...';
+            showModal('Analisando Imagens', `Processando ${files.length} arquivo(s) usando IA Local (Offline)...`);
+
+            const newProducts = [];
+            // Usamos productCatalog para verificar IDs existentes
+            const existingProductIds = new Set(productCatalog.map(p => p.id));
+            let successfulAnalyses = 0;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                statusElement.textContent = `Processando arquivo ${i + 1}/${files.length}: ${file.name}`;
+                document.getElementById('modalMessage').textContent = `Analisando a imagem ${i + 1} de ${files.length} usando IA Local (Offline)...`;
+
+                try {
+                    // Chamada à função de simulação da AI Local
+                    const structuredResult = await callLocalAISimulation(file);
+                    
+                    if (structuredResult && Array.isArray(structuredResult)) {
+                        structuredResult.forEach(item => {
+                            // Sanitiza e gera um ID único
+                            const uniqueId = `p${existingProductIds.size + 1}_${Date.now()}`;
+                            const product = {
+                                id: uniqueId,
+                                name: item.name.trim() || 'Produto Desconhecido',
+                                price: parseFloat(item.price) || 0.00
+                            };
+                            if (product.price > 0 && !existingProductIds.has(product.id)) {
+                                newProducts.push(product);
+                                existingProductIds.add(product.id);
+                            }
+                        });
+                        successfulAnalyses++;
+                    }
+
+                } catch (error) {
+                    console.error(`Erro ao processar imagem ${file.name} com IA Local:`, error);
+                    statusElement.textContent = `Erro: ${error.message}`;
+                    // Interrompe se a API local não estiver disponível.
+                    if (error.message.includes("API de AI do seu navegador")) {
+                        hideModal();
+                        analyzeButton.disabled = false;
+                        return;
+                    }
+                }
+            }
+
+            hideModal();
+            analyzeButton.disabled = false;
+            fileInput.value = ''; // Limpa a seleção do arquivo
+
+            if (newProducts.length > 0) {
+                statusElement.textContent = `Análise concluída. ${newProducts.length} novos produtos (MOCK) adicionados ao catálogo!`;
+                await updateProductCatalog(newProducts);
+            } else if (successfulAnalyses > 0) {
+                 statusElement.textContent = `Análise concluída. Nenhuma oferta nova foi detectada (retorno de MOCK).`;
+            } else {
+                 statusElement.textContent = `Falha na análise. Nenhum produto foi extraído.`;
+            }
+        }
+
+        // Adiciona os novos produtos ao Firestore
+        async function updateProductCatalog(newProducts) {
+            if (!isAuthReady || !userId) {
+                console.warn("Usuário não autenticado. Produtos não serão salvos permanentemente.");
+                productCatalog.push(...newProducts);
+                renderCatalog();
+                return;
+            }
+            
+            const catalogRef = getCatalogCollectionRef();
+            for (const product of newProducts) {
+                try {
+                    // Usamos o ID gerado como ID do documento para evitar duplicidade de nomes simples
+                    await setDoc(doc(catalogRef, product.id), product);
+                } catch (e) {
+                    console.error("Erro ao adicionar produto ao Firestore:", e);
+                }
+            }
+        }
+
+
+        // --- WHATSAPP SHARE ---
+        
+        window.generateWhatsAppLink = function(event) {
+            event.preventDefault();
+
+            const orderedItems = Object.keys(currentOrder)
+                .filter(id => currentOrder[id] > 0)
+                .map(id => {
+                    const product = productCatalog.find(p => p.id === id);
+                    if (!product) return null;
+                    return { ...product, quantity: currentOrder[id] };
+                })
+                .filter(item => item !== null);
+
+            if (orderedItems.length === 0) {
+                document.getElementById('imageAnalysisStatus').textContent = 'Adicione itens ao pedido antes de enviar.';
+                return;
+            }
+
+            let total = 0;
+            const listText = orderedItems.map(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                return `* ${item.quantity}x ${item.name} (${formatPrice(itemTotal)})`;
+            }).join('\n');
+
+            const message = `*🧾 MINHA LISTA DE COMPRAS - SUPERMERCADO IDEAL 🛒*\n\n` +
+                            `${listText}\n\n` +
+                            `*TOTAL ESTIMADO: ${formatPrice(total)}*\n` +
+                            `_(Valores sujeitos a alteração na loja)_`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
+            
+            // Abre o link em uma nova aba
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // --- MODAL DE FEEDBACK ---
+
+        const modalElement = document.getElementById('modal');
+        const modalTitleElement = document.getElementById('modalTitle');
+        const modalMessageElement = document.getElementById('modalMessage');
+        const modalSpinnerElement = document.getElementById('modalSpinner');
+        const modalCloseButtonElement = document.getElementById('modalCloseButton');
+
+        function showModal(title, message, isError = false) {
+            modalTitleElement.textContent = title;
+            modalMessageElement.textContent = message;
+            modalSpinnerElement.style.display = isError ? 'none' : 'flex';
+            modalCloseButtonElement.style.display = isError ? 'block' : 'none';
+            modalElement.classList.remove('hidden');
+            modalElement.classList.add('flex');
+        }
+
+        window.hideModal = function() {
+            modalElement.classList.add('hidden');
+            modalElement.classList.remove('flex');
+        }
+        
+        // --- INICIALIZAÇÃO GERAL ---
+        window.onload = function() {
+            // FIX: Recupera a referência do elemento de mensagem vazia uma única vez
+            emptyMessageRef = document.getElementById('emptyOrderMessage');
+            // Remove ele do DOM estático para que innerHTML = '' no seu PARENT não o destrua permanentemente.
+            if (emptyMessageRef && emptyMessageRef.parentNode) {
+                emptyMessageRef.parentNode.removeChild(emptyMessageRef);
+            }
+
+            setupFirebase();
+        }
+    </script>
+</body>
+</html>
