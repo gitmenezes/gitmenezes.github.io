@@ -1,0 +1,585 @@
+import React, { useState, useEffect } from 'react';
+import { Copy, RefreshCw, Trash2, Wand2, Zap, Eye, Move, Palette, Layers, Skull, Leaf, Flame } from 'lucide-react';
+
+// Base de dados expandida com 270 efeitos (70 originais + 200 novos)
+const EFFECTS_DB = [
+  // --- 1. Luz e Atmosfera (30 efeitos) ---
+  { id: 1, name: "Bloom", category: "Luz", desc: "Brilho suave vazando de áreas claras" },
+  { id: 2, name: "Lens Flare", category: "Luz", desc: "Reflexos internos da lente" },
+  { id: 3, name: "God Rays", category: "Luz", desc: "Feixes de luz volumétrica" },
+  { id: 4, name: "Bokeh", category: "Luz", desc: "Desfoque de fundo com luzes suaves" },
+  { id: 5, name: "Vignette", category: "Luz", desc: "Bordas escurecidas" },
+  { id: 6, name: "Light Leaks", category: "Luz", desc: "Manchas de luz laterais" },
+  { id: 7, name: "Glow", category: "Luz", desc: "Aura luminosa externa" },
+  { id: 8, name: "Rim Light", category: "Luz", desc: "Iluminação de recorte nas bordas" },
+  { id: 9, name: "Ambient Occlusion", category: "Luz", desc: "Sombreamento realista em cantos" },
+  { id: 10, name: "Saber (Neon)", category: "Luz", desc: "Feixes de luz neon energia" },
+  // Novos
+  { id: 71, name: "Volumetric Fog", category: "Luz", desc: "Névoa densa iluminada" },
+  { id: 72, name: "Subsurface Scattering", category: "Luz", desc: "Luz atravessando pele/cera" },
+  { id: 73, name: "Caustic Reflections", category: "Luz", desc: "Reflexos complexos em metal/vidro" },
+  { id: 74, name: "Bioluminescence", category: "Luz", desc: "Luz orgânica natural azulada" },
+  { id: 75, name: "Neon Sign Flicker", category: "Luz", desc: "Luz neon falhando/piscando" },
+  { id: 76, name: "Strobe Light", category: "Luz", desc: "Pulsos de luz rápidos e intensos" },
+  { id: 77, name: "Softbox Lighting", category: "Luz", desc: "Iluminação de estúdio suave" },
+  { id: 78, name: "Hard Light", category: "Luz", desc: "Luz dura com sombras nítidas" },
+  { id: 79, name: "Silhouette", category: "Luz", desc: "Objeto escuro contra fundo claro" },
+  { id: 80, name: "Light Trails", category: "Luz", desc: "Rastros de luz (ex: carros à noite)" },
+  { id: 81, name: "Prism Refraction", category: "Luz", desc: "Luz separada em arco-íris" },
+  { id: 82, name: "Halo Effect", category: "Luz", desc: "Anel de luz angelical" },
+  { id: 83, name: "Specular Highlight", category: "Luz", desc: "Brilho intenso em superfícies molhadas" },
+  { id: 84, name: "Spotlight", category: "Luz", desc: "Feixe de luz focado circular" },
+  { id: 85, name: "Candlelight", category: "Luz", desc: "Luz quente e tremeluzente de vela" },
+  { id: 86, name: "Moonlight", category: "Luz", desc: "Luz fria e azulada da lua" },
+  { id: 87, name: "Golden Hour", category: "Luz", desc: "Luz dourada solar do entardecer" },
+  { id: 88, name: "Blue Hour", category: "Luz", desc: "Luz azul profunda do amanhecer" },
+  { id: 89, name: "Raytracing", category: "Luz", desc: "Simulação física real de luz" },
+  { id: 90, name: "Global Illumination", category: "Luz", desc: "Luz rebatida indireta suave" },
+
+  // --- 2. Cor e Estilo (30 efeitos) ---
+  { id: 11, name: "Color Grading", category: "Cor", desc: "Graduação de cor cinematográfica" },
+  { id: 12, name: "Duotone", category: "Cor", desc: "Apenas dois tons contrastantes" },
+  { id: 13, name: "Sepia", category: "Cor", desc: "Filtro antigo marrom-avermelhado" },
+  { id: 14, name: "Saturation", category: "Cor", desc: "Cores intensas e vibrantes" },
+  { id: 15, name: "Desaturation", category: "Cor", desc: "Cores removidas (P&B)" },
+  { id: 16, name: "Posterize", category: "Cor", desc: "Redução de tons (efeito poster)" },
+  { id: 17, name: "Threshold", category: "Cor", desc: "Preto e branco absoluto" },
+  { id: 18, name: "Invert", category: "Cor", desc: "Cores negativas invertidas" },
+  { id: 19, name: "Gradient Map", category: "Cor", desc: "Mapeamento de cores em degradê" },
+  { id: 20, name: "HDR", category: "Cor", desc: "Alto alcance dinâmico" },
+  // Novos
+  { id: 91, name: "Technicolor", category: "Cor", desc: "Cores saturadas estilo cinema antigo" },
+  { id: 92, name: "Cross Processing", category: "Cor", desc: "Revelação química cruzada (química errada)" },
+  { id: 93, name: "Bleach Bypass", category: "Cor", desc: "Alto contraste e baixa saturação (estilo guerra)" },
+  { id: 94, name: "Cyanotype", category: "Cor", desc: "Monocromático em tons de azul" },
+  { id: 95, name: "Thermography", category: "Cor", desc: "Mapa de calor infravermelho" },
+  { id: 96, name: "False Color", category: "Cor", desc: "Cores científicas artificiais" },
+  { id: 97, name: "Pastel Palette", category: "Cor", desc: "Tons suaves e lavados" },
+  { id: 98, name: "Neon Palette", category: "Cor", desc: "Cores cyberpunk elétricas" },
+  { id: 99, name: "Monochrome Red", category: "Cor", desc: "Toda a cena em tons de vermelho" },
+  { id: 100, name: "Vintage Polaroid", category: "Cor", desc: "Cores desbotadas e esverdeadas" },
+  { id: 101, name: "Lomo Effect", category: "Cor", desc: "Saturação alta com vinheta forte" },
+  { id: 102, name: "Color Splash", category: "Cor", desc: "Uma cor isolada, fundo P&B" },
+  { id: 103, name: "Infrared Photo", category: "Cor", desc: "Vegetação branca/rosa surreal" },
+  { id: 104, name: "Solarization", category: "Cor", desc: "Inversão parcial de tons na luz" },
+  { id: 105, name: "Vibrance", category: "Cor", desc: "Aumento inteligente de cores fracas" },
+  { id: 106, name: "Color Banding", category: "Cor", desc: "Degradês quebrados em faixas (retro)" },
+  { id: 107, name: "CMYK Halftone", category: "Cor", desc: "Pontos de impressão coloridos visíveis" },
+  { id: 108, name: "Teal and Orange", category: "Cor", desc: "Contraste azul/laranja cinematográfico" },
+  { id: 109, name: "Acid Trip", category: "Cor", desc: "Cores psicodélicas e mutantes" },
+  { id: 110, name: "High Contrast B&W", category: "Cor", desc: "Preto e branco dramático noir" },
+
+  // --- 3. Distorção e Glitch (30 efeitos) ---
+  { id: 21, name: "Glitch", category: "Distorção", desc: "Erros digitais e corrupção" },
+  { id: 22, name: "Chromatic Aberration", category: "Distorção", desc: "Deslocamento RGB nas bordas" },
+  { id: 23, name: "Pixelate", category: "Distorção", desc: "Resolução reduzida (mosaico)" },
+  { id: 24, name: "RGB Split", category: "Distorção", desc: "Separação de canais de cor" },
+  { id: 25, name: "Scanlines", category: "Distorção", desc: "Linhas de TV antiga" },
+  { id: 26, name: "VHS Effect", category: "Distorção", desc: "Ruído de fita cassete antiga" },
+  { id: 27, name: "CRT Effect", category: "Distorção", desc: "Curvatura de monitor de tubo" },
+  { id: 28, name: "Datamosh", category: "Distorção", desc: "Pixel derretendo (erro de compressão)" },
+  { id: 29, name: "Liquify", category: "Distorção", desc: "Distorção líquida da imagem" },
+  { id: 30, name: "Warp", category: "Distorção", desc: "Dobra seguindo curva" },
+  // Novos
+  { id: 111, name: "Kaleidoscope", category: "Distorção", desc: "Padrões simétricos espelhados" },
+  { id: 112, name: "Mirror Effect", category: "Distorção", desc: "Espelhamento simples central" },
+  { id: 113, name: "Ripple Effect", category: "Distorção", desc: "Ondulações concêntricas (água)" },
+  { id: 114, name: "Swirl", category: "Distorção", desc: "Imagem torcida em espiral" },
+  { id: 115, name: "Spherize", category: "Distorção", desc: "Imagem inflada como uma bola" },
+  { id: 116, name: "ZigZag", category: "Distorção", desc: "Ondas em padrão zigue-zague" },
+  { id: 117, name: "Wave Warp", category: "Distorção", desc: "Distorção em ondas senoidais" },
+  { id: 118, name: "Pinch", category: "Distorção", desc: "Compressão do centro para dentro" },
+  { id: 119, name: "Bloat", category: "Distorção", desc: "Inchaço exagerado de uma área" },
+  { id: 120, name: "Melt", category: "Distorção", desc: "Imagem derretendo verticalmente" },
+  { id: 121, name: "TV Static", category: "Distorção", desc: "Chiado de TV sem sinal (neve)" },
+  { id: 122, name: "Compression Artifacts", category: "Distorção", desc: "Blocos de baixa qualidade JPEG" },
+  { id: 123, name: "Banding Noise", category: "Distorção", desc: "Ruído digital em faixas horizontais" },
+  { id: 124, name: "Ghosting", category: "Distorção", desc: "Rastros translúcidos da imagem" },
+  { id: 125, name: "Interlacing", category: "Distorção", desc: "Linhas entrelaçadas (efeito pente)" },
+  { id: 126, name: "Screen Tearing", category: "Distorção", desc: "Corte horizontal por dessincronia" },
+  { id: 127, name: "Perspective Warp", category: "Distorção", desc: "Alteração forçada de perspectiva" },
+  { id: 128, name: "Fish Eye Extreme", category: "Distorção", desc: "Distorção ultra grande angular redonda" },
+  { id: 129, name: "Tiny Planet", category: "Distorção", desc: "Panorama 360 dobrado em esfera" },
+  { id: 130, name: "Pixel Sorting", category: "Distorção", desc: "Pixels ordenados por brilho (glitch art)" },
+
+  // --- 4. Movimento (27 efeitos) ---
+  { id: 31, name: "Motion Blur", category: "Movimento", desc: "Rastro de movimento rápido" },
+  { id: 32, name: "Gaussian Blur", category: "Movimento", desc: "Desfoque suave uniforme" },
+  { id: 33, name: "Radial Blur", category: "Movimento", desc: "Desfoque circular de zoom" },
+  { id: 34, name: "Dolly Zoom", category: "Movimento", desc: "Efeito Vertigo (distorção de fundo)" },
+  { id: 35, name: "Fisheye", category: "Movimento", desc: "Lente olho de peixe" },
+  { id: 36, name: "Parallax", category: "Movimento", desc: "Ilusão de profundidade 3D" },
+  { id: 37, name: "Time Remapping", category: "Movimento", desc: "Manipulação de velocidade" },
+  // Novos
+  { id: 131, name: "Zoom Blur", category: "Movimento", desc: "Desfoque de linhas radiais (túnel)" },
+  { id: 132, name: "Spin Blur", category: "Movimento", desc: "Desfoque de rotação (roda girando)" },
+  { id: 133, name: "Directional Blur", category: "Movimento", desc: "Desfoque em ângulo específico" },
+  { id: 134, name: "Camera Shake", category: "Movimento", desc: "Tremor de câmera (terremoto/impacto)" },
+  { id: 135, name: "Whip Pan", category: "Movimento", desc: "Movimento lateral muito rápido e borrado" },
+  { id: 136, name: "Slow Motion", category: "Movimento", desc: "Câmera lenta fluida e detalhada" },
+  { id: 137, name: "Timelapse", category: "Movimento", desc: "Passagem de tempo acelerada (nuvens/carros)" },
+  { id: 138, name: "Hyperlapse", category: "Movimento", desc: "Timelapse com movimento de câmera" },
+  { id: 139, name: "Bullet Time", category: "Movimento", desc: "Tempo congelado, câmera se move" },
+  { id: 140, name: "Reverse Motion", category: "Movimento", desc: "Ação voltando no tempo" },
+  { id: 141, name: "Freeze Frame", category: "Movimento", desc: "Congelamento súbito da ação" },
+  { id: 142, name: "Jitter", category: "Movimento", desc: "Movimento nervoso e pulado" },
+  { id: 143, name: "Stop Motion", category: "Movimento", desc: "Movimento travado estilo animação de massinha" },
+  { id: 144, name: "Frame Skipping", category: "Movimento", desc: "Pulo de quadros proposital (estilo Aranhaverso)" },
+  { id: 145, name: "Motion Trails", category: "Movimento", desc: "Cópias sólidas deixadas pelo movimento" },
+  { id: 146, name: "Echo Effect", category: "Movimento", desc: "Múltiplas exposições atrasadas" },
+  { id: 147, name: "Speed Lines", category: "Movimento", desc: "Linhas de ação estilo Anime" },
+  { id: 148, name: "Tearing Speed", category: "Movimento", desc: "Velocidade que parece rasgar a realidade" },
+  { id: 149, name: "Slow Shutter", category: "Movimento", desc: "Luzes arrastadas por longa exposição" },
+  { id: 150, name: "Handheld Camera", category: "Movimento", desc: "Movimento orgânico de câmera na mão" },
+
+  // --- 5. Artístico (27 efeitos) ---
+  { id: 38, name: "Halftone", category: "Artístico", desc: "Pontilhismo estilo jornal/HQ" },
+  { id: 39, name: "Cel Shading", category: "Artístico", desc: "Estilo Cartoon/Anime 2D" },
+  { id: 40, name: "Noise / Grain", category: "Artístico", desc: "Textura granulada de filme" },
+  { id: 41, name: "Oil Paint", category: "Artístico", desc: "Pinceladas de pintura a óleo" },
+  { id: 42, name: "Sketch", category: "Artístico", desc: "Desenho a traço (bordas)" },
+  { id: 43, name: "Low Poly", category: "Artístico", desc: "Geométrico com poucos polígonos" },
+  { id: 44, name: "Double Exposure", category: "Artístico", desc: "Fusão de duas imagens" },
+  // Novos
+  { id: 151, name: "Watercolor", category: "Artístico", desc: "Pintura suave com aquarela" },
+  { id: 152, name: "Impressionism", category: "Artístico", desc: "Pinceladas curtas e luz vibrante" },
+  { id: 153, name: "Pointillism", category: "Artístico", desc: "Imagem formada por milhares de pontos" },
+  { id: 154, name: "Charcoal Sketch", category: "Artístico", desc: "Desenho rústico a carvão" },
+  { id: 155, name: "Ink Blot", category: "Artístico", desc: "Manchas de tinta preta (Rorschach)" },
+  { id: 156, name: "Paper Cutout", category: "Artístico", desc: "Estilo de recorte de papel em camadas" },
+  { id: 157, name: "Origami", category: "Artístico", desc: "Objetos feitos de dobradura de papel" },
+  { id: 158, name: "Mosaic", category: "Artístico", desc: "Imagem formada por azulejos/pedras" },
+  { id: 159, name: "Stained Glass", category: "Artístico", desc: "Estilo vitral de igreja colorido" },
+  { id: 160, name: "Voxel Art", category: "Artístico", desc: "Pixels 3D cúbicos (estilo Minecraft)" },
+  { id: 161, name: "Isometric", category: "Artístico", desc: "Perspectiva isométrica sem fuga" },
+  { id: 162, name: "Blueprint", category: "Artístico", desc: "Desenho técnico branco em fundo azul" },
+  { id: 163, name: "Chalkboard", category: "Artístico", desc: "Desenho de giz em quadro negro" },
+  { id: 164, name: "Spray Paint", category: "Artístico", desc: "Estilo grafite urbano" },
+  { id: 165, name: "Stipple", category: "Artístico", desc: "Sombreamento feito com pontos de tinta" },
+  { id: 166, name: "Woodcut", category: "Artístico", desc: "Estilo xilogravura (entalhe em madeira)" },
+  { id: 167, name: "ASCII Art", category: "Artístico", desc: "Imagem formada apenas por letras/texto" },
+  { id: 168, name: "Wireframe", category: "Artístico", desc: "Malha de arame 3D neon" },
+  { id: 169, name: "Pop Art", category: "Artístico", desc: "Cores chapadas estilo Andy Warhol" },
+  { id: 170, name: "Marble Texture", category: "Artístico", desc: "Textura de tinta marmorizada líquida" },
+
+  // --- 6. VFX / Composição (26 efeitos) ---
+  { id: 45, name: "Chroma Key", category: "VFX", desc: "Fundo verde removido" },
+  { id: 46, name: "Rotoscoping", category: "VFX", desc: "Recorte manual de personagem" },
+  { id: 47, name: "Matte Painting", category: "VFX", desc: "Cenário digital estático" },
+  { id: 48, name: "Morphing", category: "VFX", desc: "Transformação fluida de forma" },
+  { id: 49, name: "Particle System", category: "VFX", desc: "Sistema de partículas" },
+  { id: 50, name: "Drop Shadow", category: "VFX", desc: "Sombra projetada" },
+  // Novos
+  { id: 171, name: "Hologram", category: "VFX", desc: "Projeção 3D translúcida e azulada" },
+  { id: 172, name: "Invisibility Cloak", category: "VFX", desc: "Distorção de camuflagem ótica" },
+  { id: 173, name: "X-Ray Vision", category: "VFX", desc: "Visão de esqueleto/estrutura interna" },
+  { id: 174, name: "Teleportation", category: "VFX", desc: "Partículas desaparecendo rapidamente" },
+  { id: 175, name: "Disintegration", category: "VFX", desc: "Objeto virando pó/areia e voando" },
+  { id: 176, name: "Force Field", category: "VFX", desc: "Barreira de energia visível ao impacto" },
+  { id: 177, name: "HUD Overlay", category: "VFX", desc: "Interface digital sobre a visão (Homem de Ferro)" },
+  { id: 178, name: "Digital Rain", category: "VFX", desc: "Código caindo estilo Matrix" },
+  { id: 179, name: "Face Swap", category: "VFX", desc: "Troca digital de rostos" },
+  { id: 180, name: "Deepfake", category: "VFX", desc: "Manipulação realista de face/voz" },
+  { id: 181, name: "Green Screen Spill", category: "VFX", desc: "Reflexo verde nas bordas (estética de bastidores)" },
+  { id: 182, name: "Wire Removal", category: "VFX", desc: "Personagens voando (cabos apagados)" },
+  { id: 183, name: "Set Extension", category: "VFX", desc: "Extensão de cenário além do real" },
+  { id: 184, name: "Crowd Simulation", category: "VFX", desc: "Multidão gerada por computador" },
+  { id: 185, name: "Motion Capture", category: "VFX", desc: "Traje de captura com pontos" },
+  { id: 186, name: "Virtual Production", category: "VFX", desc: "Fundo de tela LED realista" },
+  { id: 187, name: "Z-Depth Pass", category: "VFX", desc: "Visualização de profundidade (branco=perto)" },
+  { id: 188, name: "Alpha Channel", category: "VFX", desc: "Recorte com transparência perfeita" },
+  { id: 189, name: "Compositing", category: "VFX", desc: "Mistura perfeita de várias camadas" },
+  { id: 190, name: "Matchmoving", category: "VFX", desc: "Objetos 3D fixados em vídeo real" },
+
+  // --- 7. Explosão e Força (25 efeitos) ---
+  { id: 51, name: "Shockwave", category: "Explosão", desc: "Onda de choque expansiva" },
+  { id: 52, name: "Heat Distortion", category: "Explosão", desc: "Distorção de calor no ar" },
+  { id: 53, name: "Embers", category: "Explosão", desc: "Brasas e fagulhas flutuantes" },
+  { id: 54, name: "Muzzle Flash", category: "Explosão", desc: "Clarão de disparo de arma" },
+  { id: 55, name: "Rolling Fire", category: "Explosão", desc: "Bola de fogo volumétrica" },
+  // Novos
+  { id: 191, name: "Nuclear Mushroom", category: "Explosão", desc: "Nuvem de cogumelo gigante" },
+  { id: 192, name: "Spark Shower", category: "Explosão", desc: "Chuva intensa de faíscas de solda" },
+  { id: 193, name: "Debris Blast", category: "Explosão", desc: "Explosão que lança muitos destroços sólidos" },
+  { id: 194, name: "Smoke Plume", category: "Explosão", desc: "Coluna de fumaça preta vertical" },
+  { id: 195, name: "Plasma Blast", category: "Explosão", desc: "Explosão de energia azul/roxa sci-fi" },
+  { id: 196, name: "Underwater Explosion", category: "Explosão", desc: "Bolha de cavitação e choque na água" },
+  { id: 197, name: "Implosion", category: "Explosão", desc: "Força puxando tudo para um ponto central" },
+  { id: 198, name: "Dust Explosion", category: "Explosão", desc: "Explosão rápida de pó fino inflamável" },
+  { id: 199, name: "Gas Explosion", category: "Explosão", desc: "Fogo azul invisível e expansão rápida" },
+  { id: 200, name: "Fireworks", category: "Explosão", desc: "Explosões coloridas e simétricas no céu" },
+  { id: 201, name: "Confetti Blast", category: "Explosão", desc: "Explosão festiva de papel picado" },
+  { id: 202, name: "Magic Explosion", category: "Explosão", desc: "Explosão de glitter e poeira mágica" },
+  { id: 203, name: "Sound Wave", category: "Explosão", desc: "Visualização física da onda sonora" },
+  { id: 204, name: "Sonic Boom", category: "Explosão", desc: "Cone de vapor na quebra da barreira do som" },
+  { id: 205, name: "Napalm Strike", category: "Explosão", desc: "Parede de fogo líquido que gruda" },
+  { id: 206, name: "Grenade Impact", category: "Explosão", desc: "Explosão pequena, suja e concentrada" },
+  { id: 207, name: "Asteroid Impact", category: "Explosão", desc: "Impacto planetário massivo com crosta voando" },
+  { id: 208, name: "Volcanic Eruption", category: "Explosão", desc: "Jato de lava e cinzas vulcânicas" },
+  { id: 209, name: "Supernova", category: "Explosão", desc: "Explosão estelar cegante em escala cósmica" },
+  { id: 210, name: "Big Bang", category: "Explosão", desc: "O nascimento explosivo do universo" },
+
+  // --- 8. Energia (25 efeitos) ---
+  { id: 56, name: "Lightning Arc", category: "Energia", desc: "Arcos elétricos secundários" },
+  { id: 57, name: "Plasma", category: "Energia", desc: "Energia ionizada líquida" },
+  { id: 58, name: "Energy Ripple", category: "Energia", desc: "Ondulação de campo de força" },
+  { id: 59, name: "Static Noise", category: "Energia", desc: "Interferência elétrica visual" },
+  { id: 60, name: "Thunderbolt", category: "Energia", desc: "Raio mestre espesso" },
+  // Novos
+  { id: 211, name: "Laser Beam", category: "Energia", desc: "Feixe de luz sólido e contínuo" },
+  { id: 212, name: "Energy Shield", category: "Energia", desc: "Parede de energia com padrão hexagonal" },
+  { id: 213, name: "Magic Rune", category: "Energia", desc: "Símbolos brilhantes flutuando no ar" },
+  { id: 214, name: "Aura", category: "Energia", desc: "Energia emanando do contorno do corpo" },
+  { id: 215, name: "Spirit Bomb", category: "Energia", desc: "Esfera gigante de energia concentrada" },
+  { id: 216, name: "Telekinesis", category: "Energia", desc: "Ondas de distorção ao mover objetos" },
+  { id: 217, name: "Warp Drive", category: "Energia", desc: "Estrelas virando linhas (velocidade da luz)" },
+  { id: 218, name: "Portal", category: "Energia", desc: "Janela circular para outra dimensão" },
+  { id: 219, name: "Vortex", category: "Energia", desc: "Túnel de energia giratório" },
+  { id: 220, name: "Quantum Fluctuation", category: "Energia", desc: "Partículas subatômicas piscando" },
+  { id: 221, name: "Radioactive Glow", category: "Energia", desc: "Brilho verde tóxico doentio" },
+  { id: 222, name: "Cybernetic Circuitry", category: "Energia", desc: "Linhas de circuito brilhando sob a pele" },
+  { id: 223, name: "Power Up", category: "Energia", desc: "Energia subindo do chão (estilo Anime)" },
+  { id: 224, name: "Chakra Flow", category: "Energia", desc: "Visualização de energia interna do corpo" },
+  { id: 225, name: "Spell Casting", category: "Energia", desc: "Círculos mágicos complexos girando" },
+  { id: 226, name: "Energy Sword", category: "Energia", desc: "Lâmina feita de plasma contido" },
+  { id: 227, name: "Plasma Ball", category: "Energia", desc: "Esfera elétrica crepitante" },
+  { id: 228, name: "Ghost Trail", category: "Energia", desc: "Rastro fantasmagórico etéreo" },
+  { id: 229, name: "Soul Extraction", category: "Energia", desc: "Forma espiritual sendo puxada do corpo" },
+  { id: 230, name: "Dark Energy", category: "Energia", desc: "Energia negativa roxa/preta e fumaça" },
+
+  // --- 9. Natureza (25 efeitos) ---
+  { id: 61, name: "Caustics", category: "Natureza", desc: "Refração de luz na água" },
+  { id: 62, name: "Splash", category: "Natureza", desc: "Respingos de líquido" },
+  { id: 63, name: "Sandstorm", category: "Natureza", desc: "Tempestade de areia densa" },
+  { id: 64, name: "Frost Spreading", category: "Natureza", desc: "Gelo crescendo na superfície" },
+  { id: 65, name: "Turbulence", category: "Natureza", desc: "Movimento caótico de vento" },
+  // Novos
+  { id: 231, name: "Rain", category: "Natureza", desc: "Chuva caindo com pingos visíveis" },
+  { id: 232, name: "Snow", category: "Natureza", desc: "Flocos de neve caindo suavemente" },
+  { id: 233, name: "Fog/Mist", category: "Natureza", desc: "Neblina branca baixa e densa" },
+  { id: 234, name: "Clouds", category: "Natureza", desc: "Nuvens cumulus volumétricas e fofas" },
+  { id: 235, name: "Rainbow", category: "Natureza", desc: "Arco de cores ótico no céu" },
+  { id: 236, name: "Aurora Borealis", category: "Natureza", desc: "Luzes do norte verdes ondulantes" },
+  { id: 237, name: "Tornado", category: "Natureza", desc: "Funil de vento destrutivo" },
+  { id: 238, name: "Whirlpool", category: "Natureza", desc: "Redemoinho sugando água para baixo" },
+  { id: 239, name: "Waterfall", category: "Natureza", desc: "Queda d'água fluida e espuma" },
+  { id: 240, name: "Dew Drops", category: "Natureza", desc: "Gotas de orvalho em macro" },
+  { id: 241, name: "Spider Web", category: "Natureza", desc: "Teias finas brilhando na luz" },
+  { id: 242, name: "Leaves Falling", category: "Natureza", desc: "Folhas secas caindo ao vento" },
+  { id: 243, name: "Cherry Blossoms", category: "Natureza", desc: "Pétalas rosa voando (Sakura)" },
+  { id: 244, name: "Forest Fire", category: "Natureza", desc: "Linha de fogo consumindo árvores" },
+  { id: 245, name: "Tsunami", category: "Natureza", desc: "Parede de água gigante avançando" },
+  { id: 246, name: "Eclipse", category: "Natureza", desc: "Bloqueio do sol com anel de fogo" },
+  { id: 247, name: "Meteor Shower", category: "Natureza", desc: "Vários riscos brilhantes no céu noturno" },
+  { id: 248, name: "Bioluminescent Algae", category: "Natureza", desc: "Mar brilhando azul à noite" },
+  { id: 249, name: "Desert Mirage", category: "Natureza", desc: "Distorção de calor no horizonte" },
+  { id: 250, name: "Ice Cracking", category: "Natureza", desc: "Linhas de fratura brancas no gelo azul" },
+
+  // --- 10. Destruição (25 efeitos) ---
+  { id: 66, name: "Shatter", category: "Destruição", desc: "Objeto quebrando em pedaços" },
+  { id: 67, name: "Debris", category: "Destruição", desc: "Destroços voando com colisão" },
+  { id: 68, name: "Ground Cracks", category: "Destruição", desc: "Fissuras no chão" },
+  { id: 69, name: "Dust Cloud", category: "Destruição", desc: "Nuvem de poeira de impacto" },
+  { id: 70, name: "Crater", category: "Destruição", desc: "Deformação de terreno pós-impacto" },
+  // Novos
+  { id: 251, name: "Building Collapse", category: "Destruição", desc: "Prédio desmoronando estruturalmente" },
+  { id: 252, name: "Rust/Corrosion", category: "Destruição", desc: "Metal enferrujado e corroído pelo tempo" },
+  { id: 253, name: "Decay", category: "Destruição", desc: "Matéria orgânica apodrecendo" },
+  { id: 254, name: "Melting", category: "Destruição", desc: "Objeto sólido derretendo em líquido" },
+  { id: 255, name: "Erosion", category: "Destruição", desc: "Pedra desgastada pelo vento/água" },
+  { id: 256, name: "Fabric Tearing", category: "Destruição", desc: "Tecido rasgando e desfiando" },
+  { id: 257, name: "Glass Shards", category: "Destruição", desc: "Explosão de cacos de vidro afiados" },
+  { id: 258, name: "Metal Bending", category: "Destruição", desc: "Metal amassando sob pressão extrema" },
+  { id: 259, name: "Bullet Holes", category: "Destruição", desc: "Furos de impacto em metal/parede" },
+  { id: 260, name: "Scratches", category: "Destruição", desc: "Superfície arranhada e gasta" },
+  { id: 261, name: "Burns/Charring", category: "Destruição", desc: "Textura de queimado e carvão preto" },
+  { id: 262, name: "Wall Breaching", category: "Destruição", desc: "Buraco explodido em uma parede" },
+  { id: 263, name: "Road Buckling", category: "Destruição", desc: "Asfalto levantando e quebrando" },
+  { id: 264, name: "Sinkhole", category: "Destruição", desc: "Chão cedendo em um buraco profundo" },
+  { id: 265, name: "Avalanche", category: "Destruição", desc: "Deslizamento massivo de neve branca" },
+  { id: 266, name: "Landslide", category: "Destruição", desc: "Deslizamento de terra e lama marrom" },
+  { id: 267, name: "Structural Failure", category: "Destruição", desc: "Vigas entortando e colapsando" },
+  { id: 268, name: "Paint Peeling", category: "Destruição", desc: "Tinta velha descascando da parede" },
+  { id: 269, name: "Mold/Fungus", category: "Destruição", desc: "Manchas de mofo crescendo em humidade" },
+  { id: 270, name: "Acid Burn", category: "Destruição", desc: "Material derretendo e borbulhando por ácido" },
+];
+
+const CATEGORIES = [
+  { id: "Luz", icon: <Zap size={18} />, color: "text-yellow-400" },
+  { id: "Cor", icon: <Palette size={18} />, color: "text-pink-400" },
+  { id: "Distorção", icon: <Layers size={18} />, color: "text-cyan-400" },
+  { id: "Movimento", icon: <Move size={18} />, color: "text-green-400" },
+  { id: "Artístico", icon: <Eye size={18} />, color: "text-purple-400" },
+  { id: "VFX", icon: <Wand2 size={18} />, color: "text-blue-400" },
+  { id: "Explosão", icon: <Skull size={18} />, color: "text-red-500" },
+  { id: "Energia", icon: <Zap size={18} />, color: "text-indigo-400" },
+  { id: "Natureza", icon: <Leaf size={18} />, color: "text-emerald-400" },
+  { id: "Destruição", icon: <Flame size={18} />, color: "text-orange-500" },
+];
+
+export default function App() {
+  const [subject, setSubject] = useState("");
+  const [style, setStyle] = useState("");
+  const [selectedEffects, setSelectedEffects] = useState([]);
+  const [aspectRatio, setAspectRatio] = useState("--ar 16:9");
+  const [filter, setFilter] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const toggleEffect = (effectName) => {
+    if (selectedEffects.includes(effectName)) {
+      setSelectedEffects(selectedEffects.filter(e => e !== effectName));
+    } else {
+      setSelectedEffects([...selectedEffects, effectName]);
+    }
+  };
+
+  const clearAll = () => {
+    setSelectedEffects([]);
+    setSubject("");
+    setStyle("");
+  };
+
+  const randomize = () => {
+    const shuffled = [...EFFECTS_DB].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 3).map(e => e.name);
+    setSelectedEffects(selected);
+  };
+
+  const generatePrompt = () => {
+    const parts = [];
+    if (style) parts.push(style);
+    if (subject) parts.push(subject);
+    if (selectedEffects.length > 0) parts.push(`GFX Effects: ${selectedEffects.join(", ")}`);
+    parts.push("highly detailed, 8k, cinematic lighting");
+    parts.push(aspectRatio);
+    return parts.join(", ");
+  };
+
+  const copyToClipboard = () => {
+    const text = generatePrompt();
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+        console.error('Falha ao copiar', err);
+    }
+    document.body.removeChild(textArea);
+  };
+
+  const filteredEffects = EFFECTS_DB.filter(e => 
+    e.name.toLowerCase().includes(filter.toLowerCase()) || 
+    e.desc.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-purple-500 selection:text-white">
+      
+      {/* Header */}
+      <header className="bg-slate-800 border-b border-slate-700 p-6 sticky top-0 z-10 shadow-lg">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-purple-600 p-2 rounded-lg shadow-purple-500/20 shadow-lg">
+              <Wand2 className="text-white" size={24} />
+            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+              GFX Prompt Generator <span className="text-xs text-slate-500 ml-2 font-mono border border-slate-600 px-1 rounded">v2.0 (270 FX)</span>
+            </h1>
+          </div>
+          
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <button 
+              onClick={randomize}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors text-sm font-medium"
+            >
+              <RefreshCw size={16} /> Inspire-me
+            </button>
+            <button 
+              onClick={clearAll}
+              className="flex items-center gap-2 px-4 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 border border-red-900/50 rounded-lg transition-colors text-sm font-medium"
+            >
+              <Trash2 size={16} /> Limpar
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Left Column: Inputs */}
+        <div className="lg:col-span-2 space-y-8">
+          
+          {/* Core Inputs */}
+          <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 backdrop-blur-sm">
+            <h2 className="text-lg font-semibold mb-4 text-purple-300 flex items-center gap-2">
+              1. Defina a Cena
+            </h2>
+            <div className="grid gap-4">
+              <div>
+                <label className="block text-sm text-slate-400 mb-1">Assunto Principal</label>
+                <input 
+                  type="text" 
+                  placeholder="Ex: Um samurai cibernético na chuva..." 
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-slate-400 mb-1">Estilo Artístico</label>
+                  <input 
+                    type="text" 
+                    placeholder="Ex: Fotografia Realista, Anime, 3D Render..." 
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                    value={style}
+                    onChange={(e) => setStyle(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-slate-400 mb-1">Proporção</label>
+                  <select 
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 outline-none"
+                    value={aspectRatio}
+                    onChange={(e) => setAspectRatio(e.target.value)}
+                  >
+                    <option value="--ar 16:9">16:9 (Cinematográfico)</option>
+                    <option value="--ar 1:1">1:1 (Quadrado)</option>
+                    <option value="--ar 9:16">9:16 (Vertical/Stories)</option>
+                    <option value="--ar 21:9">21:9 (Ultra Wide)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Effects Selection */}
+          <div className="space-y-4">
+             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h2 className="text-lg font-semibold text-purple-300">2. Adicione Efeitos GFX</h2>
+                <input 
+                  type="text"
+                  placeholder="Buscar efeito (ex: rain, glow)..."
+                  className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm w-full sm:w-64 focus:ring-2 focus:ring-purple-500 outline-none"
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                />
+             </div>
+
+             {/* Grid of Effects */}
+             <div className="space-y-8">
+              {CATEGORIES.map(cat => {
+                const catEffects = filteredEffects.filter(e => e.category === cat.id);
+                if (catEffects.length === 0) return null;
+
+                return (
+                  <div key={cat.id} className="animate-fadeIn">
+                    <div className={`flex items-center gap-2 mb-3 ${cat.color} font-medium sticky top-20 bg-slate-900/90 backdrop-blur py-2 z-10 rounded-lg px-2 -mx-2`}>
+                      {cat.icon}
+                      <span>{cat.id}</span>
+                      <span className="text-xs text-slate-600 ml-auto bg-slate-800 px-2 py-0.5 rounded-full">{catEffects.length} items</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {catEffects.map(effect => (
+                        <button
+                          key={effect.id}
+                          onClick={() => toggleEffect(effect.name)}
+                          className={`
+                            group text-left p-3 rounded-lg border transition-all duration-200 relative overflow-hidden
+                            ${selectedEffects.includes(effect.name) 
+                              ? 'bg-purple-900/30 border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
+                              : 'bg-slate-800/50 border-slate-700 hover:border-slate-500 hover:bg-slate-800'}
+                          `}
+                        >
+                          <div className="flex justify-between items-start">
+                            <span className={`font-medium block text-sm ${selectedEffects.includes(effect.name) ? 'text-purple-300' : 'text-slate-200'}`}>
+                              {effect.name}
+                            </span>
+                            {selectedEffects.includes(effect.name) && (
+                              <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse mt-1" />
+                            )}
+                          </div>
+                          <span className="text-[10px] text-slate-500 mt-1 block group-hover:text-slate-400 transition-colors leading-tight">
+                            {effect.desc}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+             </div>
+          </div>
+        </div>
+
+        {/* Right Column: Preview Sticky */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-28 space-y-6">
+            
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl border border-slate-700 shadow-2xl">
+              <h3 className="text-sm uppercase tracking-wider text-slate-500 font-bold mb-4 flex items-center gap-2">
+                <Zap size={14} /> Prompt Final
+              </h3>
+              
+              <div className="bg-black/50 p-4 rounded-lg border border-slate-800 min-h-[160px] text-slate-300 font-mono text-sm leading-relaxed break-words relative group">
+                {(!subject && !style && selectedEffects.length === 0) ? (
+                  <span className="text-slate-600 italic">Seu prompt aparecerá aqui...</span>
+                ) : (
+                  generatePrompt()
+                )}
+              </div>
+
+              <div className="mt-4 flex gap-3">
+                <button 
+                  onClick={copyToClipboard}
+                  className={`
+                    flex-1 py-3 px-4 rounded-lg font-bold text-white flex justify-center items-center gap-2 transition-all
+                    ${copied 
+                      ? 'bg-green-600 hover:bg-green-700 scale-95' 
+                      : 'bg-purple-600 hover:bg-purple-700 hover:shadow-lg hover:shadow-purple-500/25'}
+                  `}
+                >
+                  {copied ? (
+                    <>Copiado! <Zap size={18} /></>
+                  ) : (
+                    <>Copiar Prompt <Copy size={18} /></>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Active Effects List */}
+            {selectedEffects.length > 0 && (
+              <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                <div className="flex justify-between items-center mb-3">
+                   <h3 className="text-sm font-bold text-slate-400">Efeitos Ativos ({selectedEffects.length})</h3>
+                   <button onClick={() => setSelectedEffects([])} className="text-xs text-red-400 hover:underline">Remover todos</button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {selectedEffects.map(effect => (
+                    <span key={effect} className="inline-flex items-center gap-1 bg-slate-700 text-slate-200 text-xs px-2 py-1 rounded border border-slate-600">
+                      {effect}
+                      <button onClick={() => toggleEffect(effect)} className="hover:text-red-400 ml-1">
+                        &times;
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="text-xs text-slate-500 text-center">
+              Dica: Use "Inspire-me" para descobrir combinações inusitadas!
+            </div>
+
+          </div>
+        </div>
+
+      </main>
+    </div>
+  );
+}
