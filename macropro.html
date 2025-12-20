@@ -46,9 +46,25 @@
                 display: none;
             }
         }
+
+        /* Animação para o botão flutuante em vermelho */
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+        .btn-floating {
+            animation: pulse-red 2s infinite;
+        }
     </style>
 </head>
-<body class="bg-white text-slate-900">
+<body class="bg-white text-slate-900 relative">
+
+    <!-- Botão Flutuante COMPRAR (Vermelho) -->
+    <a href="https://mon.net.br/3swryz" target="_blank" class="btn-floating fixed bottom-6 right-6 z-[100] bg-red-600 text-white px-8 py-4 rounded-full font-black text-lg shadow-2xl hover:bg-red-700 hover:scale-110 transition-all flex items-center space-x-3 border-2 border-white/20">
+        <i class="fas fa-shopping-cart"></i>
+        <span>COMPRAR AGORA</span>
+    </a>
 
     <!-- Navegação -->
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
@@ -87,13 +103,14 @@
                 Um gravador de macros completo que capta movimentos do rato, cliques e teclas com precisão milimétrica. Elimine tarefas repetitivas hoje mesmo.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="#guia" class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 flex items-center justify-center space-x-2">
-                    <span>Começar Agora</span>
-                    <i class="fas fa-arrow-right text-sm"></i>
+                <!-- Botão Hero (Vermelho) -->
+                <a href="https://mon.net.br/3swryz" target="_blank" class="bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-red-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Comprar Versão Pro</span>
                 </a>
                 <a href="AutoClicker Pro.pdf" download class="bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-xl font-bold hover:bg-slate-50 transition flex items-center justify-center space-x-2">
                     <i class="fas fa-download"></i>
-                    <span>Descarregar Manual (PDF)</span>
+                    <span>Manual (PDF)</span>
                 </a>
             </div>
         </div>
@@ -185,9 +202,10 @@
                     <p class="text-slate-600 mb-6 text-sm">
                         O sistema respeita o tempo exato entre as ações. Se fizer uma pausa de 3 segundos durante a gravação, a reprodução repetirá exatamente esse tempo.
                     </p>
-                    <a href="AutoClicker Pro.pdf" download class="text-blue-600 font-bold text-sm flex items-center space-x-2 hover:underline">
-                        <i class="fas fa-file-pdf"></i>
-                        <span>Ler detalhes técnicos no Manual PDF</span>
+                    <!-- Link Compra (Vermelho) -->
+                    <a href="https://mon.net.br/3swryz" target="_blank" class="text-red-600 font-bold text-sm flex items-center space-x-2 hover:underline">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Adquirir licença completa para uso profissional</span>
                     </a>
                 </div>
             </div>
@@ -195,7 +213,7 @@
     </section>
 
     <!-- Segurança -->
-    <section id="seguranca" class="py-24 max-w-5xl mx-auto px-6">
+    <section id="seguranca" class="py-24 max-w-5xl mx-auto px-6 pb-40">
         <div class="bg-blue-600 rounded-[3rem] p-12 text-white text-center relative overflow-hidden shadow-2xl">
             <div class="absolute top-0 right-0 p-10 opacity-10 pointer-events-none">
                 <i class="fas fa-shield-alt text-[150px]"></i>
@@ -214,9 +232,12 @@
                     <p class="text-xs text-blue-100">Trapaça em jogos online, atividades maliciosas ou burla de sistemas de segurança.</p>
                 </div>
             </div>
-            <p class="mt-8 text-xs text-blue-200 italic">
-                Consulte os termos completos no <a href="AutoClicker Pro.pdf" download class="underline text-white font-bold">Manual de Utilizador</a>.
-            </p>
+            <div class="mt-10">
+                <!-- Botão Compra Segurança (Botão branco com texto vermelho para contraste) -->
+                <a href="https://mon.net.br/3swryz" target="_blank" class="inline-block bg-white text-red-600 px-10 py-4 rounded-xl font-black shadow-xl hover:scale-105 transition-transform">
+                    COMPRAR AGORA
+                </a>
+            </div>
         </div>
     </section>
 
@@ -246,7 +267,7 @@
             </div>
             <div class="pt-8 border-t border-slate-100 text-center">
                 <p class="text-[11px] text-slate-400 uppercase tracking-widest font-bold">
-                    Software Portátil | Windows 10 & 11 | <a href="AutoClicker Pro.pdf" download class="text-blue-600 hover:underline">Baixar Documentação PDF</a>
+                    Software Portátil | Windows 10 & 11 | <a href="https://mon.net.br/3swryz" target="_blank" class="text-red-600 hover:underline">Comprar Licença Oficial</a>
                 </p>
             </div>
         </div>
