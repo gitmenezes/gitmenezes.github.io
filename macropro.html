@@ -3,342 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Clicker Pro | Guia de Automação</title>
+    <title>AutoClicker Macro Pro | Produtividade Automatizada</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         body {
             font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
         }
 
-        .step-card:hover {
-            transform: translateY(-5px);
-            transition: all 0.3s ease;
+        .hero-gradient {
+            background: radial-gradient(circle at 50% -20%, #e0e7ff 0%, #ffffff 60%);
         }
 
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .feature-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .gradient-text {
-            background: linear-gradient(90deg, #ef4444, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
 
-        .progress-bar-fill {
-            width: 0%;
-            transition: width 2s ease-in-out;
+        .step-line {
+            position: relative;
         }
 
-        .animate-pulse-slow {
-            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        @media (min-width: 768px) {
+            .step-line::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 100%;
+                width: 100%;
+                height: 2px;
+                background: #e2e8f0;
+                z-index: -1;
+            }
+            .step-line:last-child::after {
+                display: none;
+            }
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="bg-white text-slate-900">
 
     <!-- Navegação -->
-    <nav class="sticky top-0 z-50 glass-effect shadow-sm">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
             <div class="flex items-center space-x-2">
-                <span class="text-2xl">🚀</span>
-                <span class="font-bold text-xl tracking-tight">Auto Clicker <span class="text-blue-600">Pro</span></span>
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-mouse text-white text-sm"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">AutoClicker <span class="text-blue-600">Pro</span></span>
             </div>
-            <div class="hidden md:flex space-x-8 font-medium text-slate-600">
-                <a href="#cockpit" class="hover:text-blue-600 transition">Anatomia</a>
-                <a href="#gravacao" class="hover:text-blue-600 transition">Gravação</a>
-                <a href="#execucao" class="hover:text-blue-600 transition">Execução</a>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
+                <a href="#recursos" class="hover:text-blue-600 transition">Recursos</a>
+                <a href="#guia" class="hover:text-blue-600 transition">Como Funciona</a>
+                <a href="#seguranca" class="hover:text-blue-600 transition">Segurança</a>
             </div>
-            <a href="#suporte" class="bg-blue-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-200 text-sm">Suporte</a>
+            <div class="flex items-center space-x-4">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">v2.0 2025</span>
+            </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <header class="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
-        <div class="inline-block px-4 py-1.5 mb-6 bg-blue-50 text-blue-600 rounded-full text-xs font-bold tracking-widest uppercase">
-            Automação Digital First
-        </div>
-        <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-            Domina a Automação em <span class="gradient-text">Segundos</span>.
-        </h1>
-        <p class="text-lg text-slate-600 max-w-2xl mx-auto mb-10">
-            Transforma tarefas repetitivas em processos automáticos fluídos com o Auto Clicker Pro. Ensina ao robô a tua rotina e ganha tempo para o que importa.
-        </p>
-        <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="#gravacao" class="bg-slate-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition shadow-xl">Começar a Gravar</a>
-            <button onclick="simulateProgress()" class="bg-white border-2 border-slate-200 px-8 py-4 rounded-xl font-bold hover:bg-slate-50 transition">Ver Simulação</button>
-        </div>
-    </header>
-
-    <!-- 1. Anatomia (O Cockpit) -->
-    <section id="cockpit" class="max-w-6xl mx-auto px-6 py-20">
-        <div class="flex items-center space-x-4 mb-12">
-            <span class="p-3 bg-slate-200 rounded-2xl text-2xl">🛠️</span>
-            <div>
-                <h2 class="text-3xl font-bold text-slate-900">1. Anatomia do Painel</h2>
-                <p class="text-slate-500 font-medium">Conhece o teu cockpit de comando.</p>
+    <section class="hero-gradient pt-32 pb-20 px-6">
+        <div class="max-w-5xl mx-auto text-center">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 mb-8">
+                <span class="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
+                <span class="text-xs font-semibold text-blue-700 uppercase tracking-wider">Manual Oficial do Utilizador</span>
             </div>
-        </div>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="step-card bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                <div class="text-3xl mb-4">📡</div>
-                <h3 class="font-bold text-lg mb-2">Status</h3>
-                <p class="text-sm text-slate-500">Indicador em tempo real: Pronto, Gravando ou Executando.</p>
-            </div>
-            <div class="step-card bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-blue-600 bg-blue-50/50">
-                <div class="text-3xl mb-4">🔢</div>
-                <h3 class="font-bold text-lg mb-2">Contador</h3>
-                <p class="text-sm text-slate-500">Registo exato de cada clique e tecla capturada na memória.</p>
-            </div>
-            <div class="step-card bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                <div class="text-3xl mb-4">⚙️</div>
-                <h3 class="font-bold text-lg mb-2">Painel Central</h3>
-                <p class="text-sm text-slate-500">Onde a "mágica" acontece. Ajusta velocidade e loops.</p>
-            </div>
-            <div class="step-card bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                <div class="text-3xl mb-4">📂</div>
-                <h3 class="font-bold text-lg mb-2">Menu Arquivo</h3>
-                <p class="text-sm text-slate-500">Exporta e importa as tuas macros em formato JSON.</p>
+            <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight">
+                Transforme a sua <span class="text-blue-600">produtividade</span> com automação inteligente.
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-10 leading-relaxed">
+                Um gravador de macros completo que capta movimentos do rato, cliques e teclas com precisão milimétrica. Elimine tarefas repetitivas hoje mesmo.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#recursos" class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                    Explorar Recursos
+                </a>
+                <a href="#guia" class="bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-xl font-bold hover:bg-slate-50 transition">
+                    Ver Guia de Uso
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- 2. Gravação (A Missão) -->
-    <section id="gravacao" class="bg-white py-20 border-y border-slate-100">
+    <!-- Recursos -->
+    <section id="recursos" class="py-24 max-w-7xl mx-auto px-6">
+        <div class="grid md:grid-cols-3 gap-12">
+            <div class="feature-card p-8 rounded-3xl bg-slate-50 border border-slate-100">
+                <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-md shadow-blue-100">
+                    <i class="fas fa-video"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Gravação Total</h3>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    Capta movimentos do rato, cliques e teclas pressionadas. O software reproduz exatamente o seu fluxo de trabalho.
+                </p>
+            </div>
+            <div class="feature-card p-8 rounded-3xl bg-slate-50 border border-slate-100">
+                <div class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-md shadow-indigo-100">
+                    <i class="fas fa-crosshairs"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Fidelidade Extrema</h3>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    Reproduz tarefas complexas com precisão espacial. Ideal para preenchimento de formulários ou testes de software (QA).
+                </p>
+            </div>
+            <div class="feature-card p-8 rounded-3xl bg-slate-50 border border-slate-100">
+                <div class="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-md shadow-emerald-100">
+                    <i class="fas fa-sliders-h"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Ajuste de Velocidade</h3>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    Controle o ritmo: de 0.5x para máxima precisão até 10.0x para velocidade máxima de processamento.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Guia Passo a Passo -->
+    <section id="guia" class="py-24 bg-slate-50">
         <div class="max-w-6xl mx-auto px-6">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <div class="flex items-center space-x-4 mb-6 text-red-600">
-                        <span class="p-3 bg-red-50 rounded-2xl text-2xl">🔴</span>
-                        <h2 class="text-3xl font-bold">2. Gravar a Tua Missão</h2>
-                    </div>
-                    <p class="text-slate-600 mb-8 leading-relaxed">Ensina ao computador a rotina que queres automatizar. O processo é simples e direto:</p>
-                    
-                    <ul class="space-y-6">
-                        <li class="flex items-start space-x-4">
-                            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm">1</span>
-                            <div>
-                                <h4 class="font-bold">Ativação</h4>
-                                <p class="text-sm text-slate-500">Clica em "Iniciar Gravação".</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start space-x-4">
-                            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm">2</span>
-                            <div>
-                                <h4 class="font-bold">Foco Total</h4>
-                                <p class="text-sm text-slate-500">A janela minimiza-se. O ecrã é teu.</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start space-x-4">
-                            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm">3</span>
-                            <div>
-                                <h4 class="font-bold">Finalização</h4>
-                                <p class="text-sm text-slate-500">Terminaste? Prime <kbd class="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-bold uppercase shadow-sm">ESC</kbd> no teclado.</p>
-                            </div>
-                        </li>
-                    </ul>
-
-                    <div class="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-xl">
-                        <p class="text-sm text-yellow-800">
-                            <strong>💡 Dica:</strong> Mantém as janelas na mesma posição. O robô memoriza coordenadas espaciais!
-                        </p>
-                    </div>
-                </div>
-                <div class="relative">
-                    <div class="bg-slate-900 rounded-3xl p-2 shadow-2xl overflow-hidden">
-                        <div class="bg-slate-800 h-6 flex items-center px-4 space-x-2">
-                            <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                            <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
-                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                        </div>
-                        <div class="p-8 flex flex-col items-center justify-center text-white min-h-[300px]">
-                            <div class="w-16 h-16 bg-red-600 rounded-full animate-pulse flex items-center justify-center mb-6">
-                                <i class="fas fa-microphone text-2xl"></i>
-                            </div>
-                            <h4 class="text-xl font-bold mb-2">Gravando...</h4>
-                            <p class="text-slate-400 text-sm">Clica em qualquer lugar da tela</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Como Automatizar a sua Rotina</h2>
+                <p class="text-slate-500">Siga estes três passos simples para criar a sua primeira macro.</p>
             </div>
-        </div>
-    </section>
-
-    <!-- 3 & 4. Calibrar e Lançar (Interactive Section) -->
-    <section id="execucao" class="max-w-6xl mx-auto px-6 py-20">
-        <div class="grid md:grid-cols-2 gap-16">
-            <!-- Calibrar -->
-            <div>
-                <div class="flex items-center space-x-4 mb-10 text-blue-600">
-                    <span class="p-3 bg-blue-50 rounded-2xl text-2xl">⚡</span>
-                    <h2 class="text-3xl font-bold">3. Calibrar o Motor</h2>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center group">
+                    <div class="step-line mb-8">
+                        <div class="w-16 h-16 bg-white border-4 border-blue-50 rounded-full flex items-center justify-center mx-auto shadow-sm group-hover:border-blue-600 transition duration-500">
+                            <span class="text-xl font-bold">1</span>
+                        </div>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">Iniciar Gravação</h4>
+                    <p class="text-sm text-slate-500 px-4">Clique no botão principal. A janela irá minimizar-se para libertar o seu ecrã.</p>
                 </div>
-                <div class="space-y-8 bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-                    <div>
-                        <div class="flex justify-between mb-4">
-                            <span class="font-bold text-slate-700">🔄 Repetições</span>
-                            <span class="text-blue-600 font-bold">5x</span>
+                <div class="text-center group">
+                    <div class="step-line mb-8">
+                        <div class="w-16 h-16 bg-white border-4 border-blue-50 rounded-full flex items-center justify-center mx-auto shadow-sm group-hover:border-blue-600 transition duration-500">
+                            <span class="text-xl font-bold">2</span>
                         </div>
-                        <input type="range" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" value="5" max="100">
                     </div>
-                    <div>
-                        <div class="flex justify-between mb-4">
-                            <span class="font-bold text-slate-700">⚡ Velocidade</span>
-                            <span class="text-blue-600 font-bold">1.5x</span>
+                    <h4 class="font-bold text-lg mb-2">Executar Tarefas</h4>
+                    <p class="text-sm text-slate-500 px-4">Realize a tarefa desejada (cliques, digitação). O sistema grava o tempo real entre as ações.</p>
+                </div>
+                <div class="text-center group">
+                    <div class="step-line mb-8">
+                        <div class="w-16 h-16 bg-white border-4 border-blue-50 rounded-full flex items-center justify-center mx-auto shadow-sm group-hover:border-blue-600 transition duration-500">
+                            <span class="text-xl font-bold">3</span>
                         </div>
-                        <input type="range" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" value="75" max="100">
                     </div>
-                    <div>
-                        <div class="flex justify-between mb-4">
-                            <span class="font-bold text-slate-700">⏱️ Intervalo</span>
-                            <span class="text-blue-600 font-bold">0.5s</span>
-                        </div>
-                        <input type="range" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" value="20" max="100">
-                    </div>
+                    <h4 class="font-bold text-lg mb-2">Tecla Mestra ESC</h4>
+                    <p class="text-sm text-slate-500 px-4">Pressione ESC para finalizar. A janela reaparecerá com a gravação pronta para ser salva.</p>
                 </div>
             </div>
 
-            <!-- Lançar -->
-            <div>
-                <div class="flex items-center space-x-4 mb-10 text-emerald-600">
-                    <span class="p-3 bg-emerald-50 rounded-2xl text-2xl">▶️</span>
-                    <h2 class="text-3xl font-bold">4. Lançar a Execução</h2>
-                </div>
-                <div class="bg-slate-900 rounded-3xl p-10 text-white relative overflow-hidden">
-                    <h3 class="text-xl font-bold mb-6">Status da Execução</h3>
-                    <div id="status-display" class="mb-4 text-emerald-400 font-mono text-sm uppercase tracking-widest">A aguardar lançamento...</div>
-                    <div class="w-full bg-slate-800 rounded-full h-4 mb-8">
-                        <div id="progress-bar" class="progress-bar-fill bg-emerald-500 h-full rounded-full"></div>
+            <div class="mt-20 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-8">
+                <div class="w-full md:w-1/2">
+                    <div class="p-6 bg-slate-900 rounded-2xl text-slate-300 font-mono text-xs leading-relaxed shadow-xl">
+                        <p class="text-emerald-400 mb-2">// Configurações de Reprodução</p>
+                        <p>repeticoes: <span class="text-blue-400">100</span></p>
+                        <p>velocidade: <span class="text-blue-400">2.0</span> // 2x mais rápido</p>
+                        <p>intervalo: <span class="text-blue-400">5.0</span> // Aguarda 5s entre ciclos</p>
+                        <p class="mt-4 text-slate-500 italic">> Status: Pronto para reproduzir...</p>
                     </div>
-                    <button id="btn-play" onclick="startExecution()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-900 py-4 rounded-2xl font-black text-lg transition shadow-xl flex items-center justify-center space-x-3">
-                        <span>Lançar Execução</span>
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <p class="mt-6 text-center text-slate-400 text-xs">
-                        Para interromper: Clica em <strong>Parar</strong> ou prime <strong>ESC</strong>.
+                </div>
+                <div class="w-full md:w-1/2">
+                    <h3 class="text-2xl font-bold mb-4">Pausas Inteligentes</h3>
+                    <p class="text-slate-600 mb-6 text-sm">
+                        O sistema respeita o tempo exato entre as ações. Se fizer uma pausa de 3 segundos durante a gravação, a reprodução repetirá exatamente esse tempo, garantindo que as páginas carreguem corretamente.
                     </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 5. Segurança -->
-    <section class="max-w-4xl mx-auto px-6 py-10">
-        <div class="bg-red-50 border-2 border-red-100 rounded-[2rem] p-10">
-            <div class="flex flex-col md:flex-row items-center gap-8">
-                <div class="text-6xl animate-pulse-slow">🚨</div>
-                <div>
-                    <h2 class="text-2xl font-black text-red-600 mb-4">5. Protocolo de Segurança</h2>
-                    <div class="grid sm:grid-cols-2 gap-4 text-sm text-red-800 font-medium">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-hand-paper text-red-500"></i>
-                            <span><strong>Emergência:</strong> Prime ESC se o rato desviar.</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-tv text-red-500"></i>
-                            <span><strong>Resolução:</strong> Grava novo se mudares de monitor.</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-clock text-red-500"></i>
-                            <span><strong>Latência:</strong> Sites lentos? Usa velocidade 1.0.</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-shield-alt text-red-500"></i>
-                            <span><strong>Trava:</strong> O ESC é o teu travão de mão.</span>
-                        </div>
+                    <div class="flex items-center space-x-2 text-blue-600 font-bold text-sm">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Padrão 1.0 (Tempo Real)</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Suporte / Rodapé -->
-    <footer id="suporte" class="bg-white pt-20 pb-10 mt-20 border-t border-slate-100">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="grid md:grid-cols-3 gap-12 mb-16">
-                <div>
-                    <div class="flex items-center space-x-2 mb-6">
-                        <span class="text-2xl">🚀</span>
-                        <span class="font-bold text-xl">Auto Clicker <span class="text-blue-600">Pro</span></span>
-                    </div>
-                    <p class="text-slate-500 text-sm leading-relaxed">
-                        Software de automação simplificado desenvolvido para profissionais que valorizam cada segundo.
-                    </p>
+    <!-- Segurança -->
+    <section id="seguranca" class="py-24 max-w-5xl mx-auto px-6">
+        <div class="bg-blue-600 rounded-[3rem] p-12 text-white text-center relative overflow-hidden shadow-2xl">
+            <div class="absolute top-0 right-0 p-10 opacity-10 pointer-events-none">
+                <i class="fas fa-shield-alt text-[150px]"></i>
+            </div>
+            <h2 class="text-3xl font-extrabold mb-6">Segurança e Ética</h2>
+            <p class="text-blue-100 max-w-2xl mx-auto mb-10 leading-relaxed">
+                A segurança é a nossa prioridade número um. O AutoClicker Macro Pro foi concebido estritamente para fins de produtividade e acessibilidade.
+            </p>
+            <div class="grid sm:grid-cols-2 gap-6 text-left">
+                <div class="bg-blue-700/50 p-6 rounded-2xl border border-blue-400/30">
+                    <h4 class="font-bold mb-2">Uso Permitido</h4>
+                    <p class="text-xs text-blue-100">Redução de lesões por esforço repetitivo (LER), testes de QA e automação de escritório legítima.</p>
                 </div>
-                <div class="md:col-span-2">
-                    <h4 class="font-bold mb-6">Informações de Suporte</h4>
-                    <div class="grid sm:grid-cols-2 gap-6">
-                        <div class="flex items-center space-x-4 p-4 bg-slate-50 rounded-2xl">
-                            <div class="w-10 h-10 bg-white flex items-center justify-center rounded-xl shadow-sm text-blue-600">
-                                <i class="fas fa-code"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Desenvolvedor</p>
-                                <p class="font-bold text-slate-700">Alexandre Menezes Ferreira</p>
-                            </div>
+                <div class="bg-red-500/20 p-6 rounded-2xl border border-red-400/30">
+                    <h4 class="font-bold mb-2">Uso Proibido</h4>
+                    <p class="text-xs text-blue-100">Trapaça em jogos online, atividades maliciosas (DDoS/Spam) ou burla de sistemas de segurança.</p>
+                </div>
+            </div>
+            <p class="mt-8 text-xs text-blue-200 italic italic">
+                A tecla <strong class="text-white">ESC</strong> é o comando universal de paragem para interrupção imediata.
+            </p>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer class="bg-white border-t border-slate-100 pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
+                            <i class="fas fa-mouse text-white text-[10px]"></i>
                         </div>
-                        <div class="flex items-center space-x-4 p-4 bg-slate-50 rounded-2xl">
-                            <div class="w-10 h-10 bg-white flex items-center justify-center rounded-xl shadow-sm text-blue-600">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Contacto</p>
-                                <p class="font-bold text-slate-700">22-99822-9207</p>
-                            </div>
-                        </div>
+                        <span class="font-bold text-lg">AutoClicker Pro</span>
+                    </div>
+                    <p class="text-sm text-slate-500">Otimizando fluxos de trabalho desde 2025.</p>
+                </div>
+                <div class="flex flex-wrap gap-8 text-sm font-semibold text-slate-600">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-user-circle text-blue-600"></i>
+                        Alexandre Menezes Ferreira
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fab fa-whatsapp text-emerald-500"></i>
+                        22-99822-9207
                     </div>
                 </div>
             </div>
-            <div class="text-center pt-8 border-t border-slate-100 text-slate-400 text-xs">
-                &copy; 2023 Auto Clicker Pro. Todos os direitos reservados. | Desenvolvido com <i class="fas fa-heart text-red-400"></i> usando Python & Tkinter.
+            <div class="pt-8 border-t border-slate-100 text-center">
+                <p class="text-[11px] text-slate-400 uppercase tracking-widest font-bold">
+                    Software Portátil | Sem Instalação Necessária | Windows 10 & 11
+                </p>
+                <p class="text-[10px] text-slate-400 mt-4 leading-relaxed max-w-2xl mx-auto">
+                    O software é fornecido "como está". O autor não se responsabiliza por quaisquer danos ou banimentos decorrentes do uso inadequado da ferramenta.
+                </p>
             </div>
         </div>
     </footer>
 
-    <script>
-        function simulateProgress() {
-            window.scrollTo({
-                top: document.getElementById('execucao').offsetTop - 100,
-                behavior: 'smooth'
-            });
-            setTimeout(startExecution, 1000);
-        }
-
-        function startExecution() {
-            const bar = document.getElementById('progress-bar');
-            const status = document.getElementById('status-display');
-            const btn = document.getElementById('btn-play');
-
-            // Reset
-            bar.style.transition = 'none';
-            bar.style.width = '0%';
-            
-            setTimeout(() => {
-                status.innerText = "Reproduzindo...";
-                status.classList.remove('text-emerald-400');
-                status.classList.add('text-blue-400');
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-                
-                bar.style.transition = 'width 3s ease-in-out';
-                bar.style.width = '100%';
-
-                setTimeout(() => {
-                    status.innerText = "Execução Concluída!";
-                    status.classList.remove('text-blue-400');
-                    status.classList.add('text-emerald-400');
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                }, 3000);
-            }, 100);
-        }
-    </script>
 </body>
 </html>
