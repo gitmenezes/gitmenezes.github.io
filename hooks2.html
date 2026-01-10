@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Hooks App - 500 Headlines Interativas</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --text-color: #2d3748;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --highlight: #3182ce;
+            --accent-fill: #ebf8ff;
+            --accent-text: #2c5282;
+            
+            /* Cores dos Temas */
+            --theme-1: #e53e3e;
+            --theme-2: #3182ce;
+            --theme-3: #805ad5;
+            --theme-4: #38a169;
+            --theme-5: #d69e2e;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a202c;
+            --text-color: #e2e8f0;
+            --card-bg: #2d3748;
+            --border-color: #4a5568;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+            --highlight: #63b3ed;
+            --accent-fill: #2a4365;
+            --accent-text: #90cdf4;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.3s, color 0.3s; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        /* HEADER & CONTROLS */
+        header {
+            background-color: #1a202c;
+            color: white;
+            padding: 30px 20px 20px;
+            text-align: center;
+        }
+        
+        header h1 { font-size: 2rem; margin-bottom: 5px; }
+        header p { opacity: 0.8; margin-bottom: 20px; }
+
+        .controls-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .input-group {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input:focus { box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); }
+
+        .btn-toggle {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-toggle:hover { background: rgba(255,255,255,0.1); }
+        
+        .btn-fav-view {
+            background-color: #ecc94b;
+            color: #744210;
+            border: none;
+        }
+
+        /* NAV & LAYOUT */
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            background: var(--bg-color);
+            padding: 15px 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: white;
+            opacity: 0.8;
+            font-weight: 600;
+        }
+        .nav-btn:hover, .nav-btn.active { opacity: 1; transform: translateY(-2px); }
+
+        /* CARDS */
+        .theme-section { margin-bottom: 50px; scroll-margin-top: 140px; }
+        
+        .theme-title {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+            border-bottom: 3px solid;
+            display: inline-block;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            border-top: 4px solid #ccc;
+            position: relative;
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .category-number {
+            background: var(--border-color);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-right: 10px;
+            opacity: 0.7;
+        }
+
+        /* LIST ITEMS */
+        ul { list-style: none; }
+        
+        li {
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 10px;
+        }
+        
+        li:last-child { border-bottom: none; }
+
+        li:hover {
+            background-color: var(--border-color);
+        }
+
+        li span.text-content { flex: 1; }
+
+        /* DYNAMIC HIGHLIGHT */
+        .filled-niche {
+            background-color: var(--accent-fill);
+            color: var(--accent-text);
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* ACTIONS (Star & Copy) */
+        .action-icon {
+            opacity: 0.1;
+            transition: opacity 0.2s, color 0.2s;
+            font-size: 1.1rem;
+        }
+        li:hover .action-icon { opacity: 0.6; }
+        li .action-icon:hover { opacity: 1; transform: scale(1.2); }
+        .is-fav { color: #ecc94b !important; opacity: 1 !important; }
+
+        /* THEME COLORS */
+        #t1 .theme-title { border-color: var(--theme-1); color: var(--theme-1); }
+        #t1 .card { border-top-color: var(--theme-1); }
+        #t1 .nav-btn { background-color: var(--theme-1); }
+
+        #t2 .theme-title { border-color: var(--theme-2); color: var(--theme-2); }
+        #t2 .card { border-top-color: var(--theme-2); }
+        #t2 .nav-btn { background-color: var(--theme-2); }
+
+        #t3 .theme-title { border-color: var(--theme-3); color: var(--theme-3); }
+        #t3 .card { border-top-color: var(--theme-3); }
+        #t3 .nav-btn { background-color: var(--theme-3); }
+
+        #t4 .theme-title { border-color: var(--theme-4); color: var(--theme-4); }
+        #t4 .card { border-top-color: var(--theme-4); }
+        #t4 .nav-btn { background-color: var(--theme-4); }
+
+        #t5 .theme-title { border-color: var(--theme-5); color: var(--theme-5); }
+        #t5 .card { border-top-color: var(--theme-5); }
+        #t5 .nav-btn { background-color: var(--theme-5); }
+
+        /* TOAST */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* FAVOURITES VIEW */
+        #fav-view { display: none; }
+        .empty-state { text-align: center; padding: 40px; opacity: 0.6; }
+        .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .controls-container { flex-direction: column; align-items: stretch; }
+            .nav-links { overflow-x: auto; white-space: nowrap; justify-content: flex-start; padding-left: 20px; }
+            header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>⚡ Super Hooks App</h1>
+        <p>500 Headlines prontas. Digite seu nicho, filtre e copie.</p>
+        
+        <div class="controls-container">
+            <!-- Input para Nicho (Magic Filler) -->
+            <div class="input-group">
+                <input type="text" id="nicheInput" placeholder="✍️ Seu Nicho (ex: Marketing, Dieta, Inglês)...">
+            </div>
+
+            <!-- Input para Busca -->
+            <div class="input-group">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar por palavra-chave...">
+            </div>
+
+            <!-- Botões -->
+            <button class="btn-toggle" id="themeToggle">🌓</button>
+            <button class="btn-toggle btn-fav-view" id="favToggle">⭐ Favoritos (<span id="favCount">0</span>)</button>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- Navegação -->
+        <nav class="nav-links" id="mainNav">
+            <a href="#t1" class="nav-btn" style="background-color: var(--theme-1)">1. Urgência</a>
+            <a href="#t2" class="nav-btn" style="background-color: var(--theme-2)">2. Educação</a>
+            <a href="#t3" class="nav-btn" style="background-color: var(--theme-3)">3. Curiosidade</a>
+            <a href="#t4" class="nav-btn" style="background-color: var(--theme-4)">4. Autoridade</a>
+            <a href="#t5" class="nav-btn" style="background-color: var(--theme-5)">5. Listas</a>
+        </nav>
+
+        <!-- VIEW PRINCIPAL: LISTA DE HOOKS -->
+        <div id="main-view">
+            
+            <!-- TEMA 1 -->
+            <section id="t1" class="theme-section">
+                <h2 class="theme-title">1. Urgência & Medo</h2>
+                <div class="card-grid">
+                    <!-- 1. O Pare Agora -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">01</span> O "Pare Agora"</div>
+                        <ul>
+                            <li data-original="Pare de fazer [Ação] se você quer [Resultado]!">Pare de fazer [Ação] se você quer [Resultado]!</li>
+                            <li data-original="Pare de ignorar [Sinal] antes que seja tarde.">Pare de ignorar [Sinal] antes que seja tarde.</li>
+                            <li data-original="Pare de gastar dinheiro com [Item].">Pare de gastar dinheiro com [Item].</li>
+                            <li data-original="Pare de usar [Ferramenta] do jeito errado.">Pare de usar [Ferramenta] do jeito errado.</li>
+                            <li data-original="Pare de cometer este erro no seu [Nicho].">Pare de cometer este erro no seu [Nicho].</li>
+                            <li data-original="Pare tudo e escute essa dica sobre [Tema].">Pare tudo e escute essa dica sobre [Tema].</li>
+                            <li data-original="Por favor, pare de acreditar em [Mito].">Por favor, pare de acreditar em [Mito].</li>
+                            <li data-original="Pare de perder tempo com [Estratégia Antiga].">Pare de perder tempo com [Estratégia Antiga].</li>
+                            <li data-original="Pare de sabotar seu [Objetivo] fazendo isso.">Pare de sabotar seu [Objetivo] fazendo isso.</li>
+                            <li data-original="Pare de rolar o feed se você sofre com [Problema].">Pare de rolar o feed se você sofre com [Problema].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 2. O Erro Fatal -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">02</span> O Erro Fatal</div>
+                        <ul>
+                            <li data-original="O erro nº 1 que destrói seu [Projeto].">O erro nº 1 que destrói seu [Projeto].</li>
+                            <li data-original="Você está fazendo [X] errado e nem sabe.">Você está fazendo [X] errado e nem sabe.</li>
+                            <li data-original="O maior erro que iniciantes cometem em [Área].">O maior erro que iniciantes cometem em [Área].</li>
+                            <li data-original="Evite este erro se quiser [Benefício].">Evite este erro se quiser [Benefício].</li>
+                            <li data-original="90% das pessoas erram nisso ao tentar [Ação].">90% das pessoas erram nisso ao tentar [Ação].</li>
+                            <li data-original="O erro sutil que te custa [Valor/Tempo].">O erro sutil que te custa [Valor/Tempo].</li>
+                            <li data-original="Não cometa esse erro clássico de [Profissão].">Não cometa esse erro clássico de [Profissão].</li>
+                            <li data-original="Um erro bobo que impede seu [Crescimento].">Um erro bobo que impede seu [Crescimento].</li>
+                            <li data-original="Identifiquei o erro que está travando seu [Resultado].">Identifiquei o erro que está travando seu [Resultado].</li>
+                            <li data-original="Como corrigir o erro que todos ignoram em [X].">Como corrigir o erro que todos ignoram em [X].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 3. O Nunca Faça -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">03</span> O "Nunca Faça"</div>
+                        <ul>
+                            <li data-original="Nunca faça [X] sem antes fazer [Y].">Nunca faça [X] sem antes fazer [Y].</li>
+                            <li data-original="Nunca compre [Produto] antes de ver isso.">Nunca compre [Produto] antes de ver isso.</li>
+                            <li data-original="Coisas que eu nunca faria se fosse [Perfil].">Coisas que eu nunca faria se fosse [Perfil].</li>
+                            <li data-original="Nunca misture [A] com [B], veja o porquê.">Nunca misture [A] com [B], veja o porquê.</li>
+                            <li data-original="Nunca diga isso para seu [Cliente/Chefe].">Nunca diga isso para seu [Cliente/Chefe].</li>
+                            <li data-original="Nunca comece [Projeto] dessa maneira.">Nunca comece [Projeto] dessa maneira.</li>
+                            <li data-original="Nunca ignore este sinal no seu [Corpo/Negócio].">Nunca ignore este sinal no seu [Corpo/Negócio].</li>
+                            <li data-original="Por que eu nunca mais usarei [Ferramenta].">Por que eu nunca mais usarei [Ferramenta].</li>
+                            <li data-original="Nunca confie em [Tipo de pessoa] no mercado.">Nunca confie em [Tipo de pessoa] no mercado.</li>
+                            <li data-original="Nunca poste [Conteúdo] sem revisar isso.">Nunca poste [Conteúdo] sem revisar isso.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 4. O Desperdício -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">04</span> O Desperdício</div>
+                        <ul>
+                            <li data-original="Você está jogando dinheiro fora com [X].">Você está jogando dinheiro fora com [X].</li>
+                            <li data-original="Como parar de desperdiçar horas em [Tarefa].">Como parar de desperdiçar horas em [Tarefa].</li>
+                            <li data-original="O jeito mais rápido de perder [Recurso].">O jeito mais rápido de perder [Recurso].</li>
+                            <li data-original="[X] é um desperdício se você não tiver [Y].">[X] é um desperdício se você não tiver [Y].</li>
+                            <li data-original="Não desperdice seu talento fazendo [Função].">Não desperdice seu talento fazendo [Função].</li>
+                            <li data-original="Pare de desperdiçar energia com [Pessoas/Apps].">Pare de desperdiçar energia com [Pessoas/Apps].</li>
+                            <li data-original="O maior desperdício de tempo do [Ano].">O maior desperdício de tempo do [Ano].</li>
+                            <li data-original="Você está desperdiçando o potencial do seu [X].">Você está desperdiçando o potencial do seu [X].</li>
+                            <li data-original="3 coisas que são puro desperdício de [Dinheiro].">3 coisas que são puro desperdício de [Dinheiro].</li>
+                            <li data-original="Como recuperei o [Tempo] que desperdicei.">Como recuperei o [Tempo] que desperdicei.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 5. O Aviso Urgente -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">05</span> O Aviso Urgente</div>
+                        <ul>
+                            <li data-original="Um aviso para quem quer [Objetivo] em 2024.">Um aviso para quem quer [Objetivo] em 2024.</li>
+                            <li data-original="Cuidado: [Tendência] pode acabar com seu [X].">Cuidado: [Tendência] pode acabar com seu [X].</li>
+                            <li data-original="Alerta vermelho para quem usa [Plataforma].">Alerta vermelho para quem usa [Plataforma].</li>
+                            <li data-original="Se você tem [Idade/Cargo], precisa ver isso.">Se você tem [Idade/Cargo], precisa ver isso.</li>
+                            <li data-original="Aviso: Não use [Técnica] sem supervisão.">Aviso: Não use [Técnica] sem supervisão.</li>
+                            <li data-original="O aviso que eu gostaria de ter recebido antes de [Ação].">O aviso que eu gostaria de ter recebido antes de [Ação].</li>
+                            <li data-original="Preste atenção: Isso vai mudar o mercado de [Nicho].">Preste atenção: Isso vai mudar o mercado de [Nicho].</li>
+                            <li data-original="Um aviso brutalmente honesto sobre [Tema].">Um aviso brutalmente honesto sobre [Tema].</li>
+                            <li data-original="Escute esse aviso antes de desistir de [Sonho].">Escute esse aviso antes de desistir de [Sonho].</li>
+                            <li data-original="Aviso importante para todos os meus seguidores.">Aviso importante para todos os meus seguidores.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 6. A Verdade Dura -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">06</span> A Verdade Dura</div>
+                        <ul>
+                            <li data-original="A verdade dura sobre [Sucesso/Dinheiro].">A verdade dura sobre [Sucesso/Dinheiro].</li>
+                            <li data-original="Ninguém te conta, mas [X] é difícil.">Ninguém te conta, mas [X] é difícil.</li>
+                            <li data-original="A verdade que dói: você não precisa de [X].">A verdade que dói: você não precisa de [X].</li>
+                            <li data-original="Engolindo a pílula difícil sobre [Realidade].">Engolindo a pílula difícil sobre [Realidade].</li>
+                            <li data-original="A verdade nua e crua sobre ser [Profissão].">A verdade nua e crua sobre ser [Profissão].</li>
+                            <li data-original="Desculpe a sinceridade, mas seu [X] está ruim.">Desculpe a sinceridade, mas seu [X] está ruim.</li>
+                            <li data-original="A verdade sobre porque você não vende [Produto].">A verdade sobre porque você não vende [Produto].</li>
+                            <li data-original="Uma verdade impopular sobre [Assunto].">Uma verdade impopular sobre [Assunto].</li>
+                            <li data-original="A verdade: [Guru] mentiu para você.">A verdade: [Guru] mentiu para você.</li>
+                            <li data-original="Encarando a realidade sobre [Situação].">Encarando a realidade sobre [Situação].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 7. O Arrependimento -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">07</span> O Arrependimento</div>
+                        <ul>
+                            <li data-original="Meu maior arrependimento ao começar [X].">Meu maior arrependimento ao começar [X].</li>
+                            <li data-original="Não chegue aos 40 arrependido de [Não fazer X].">Não chegue aos 40 arrependido de [Não fazer X].</li>
+                            <li data-original="O arrependimento nº 1 de quem compra [Y].">O arrependimento nº 1 de quem compra [Y].</li>
+                            <li data-original="Como evitar o arrependimento pós-compra de [Z].">Como evitar o arrependimento pós-compra de [Z].</li>
+                            <li data-original="Me arrependo de não ter aprendido [Skill] antes.">Me arrependo de não ter aprendido [Skill] antes.</li>
+                            <li data-original="Histórias de arrependimento em [Área].">Histórias de arrependimento em [Área].</li>
+                            <li data-original="Faça isso hoje para não se arrepender amanhã.">Faça isso hoje para não se arrepender amanhã.</li>
+                            <li data-original="O único arrependimento da minha carreira.">O único arrependimento da minha carreira.</li>
+                            <li data-original="Evite o arrependimento de perder [Oportunidade].">Evite o arrependimento de perder [Oportunidade].</li>
+                            <li data-original="Você vai se arrepender se ignorar [Dica].">Você vai se arrepender se ignorar [Dica].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 8. O Inimigo Comum -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">08</span> O Inimigo Comum</div>
+                        <ul>
+                            <li data-original="O que a indústria de [X] não quer que você saiba.">O que a indústria de [X] não quer que você saiba.</li>
+                            <li data-original="Como vencer a [Procrastinação/Inimigo] hoje.">Como vencer a [Procrastinação/Inimigo] hoje.</li>
+                            <li data-original="O vilão silencioso da sua [Produtividade].">O vilão silencioso da sua [Produtividade].</li>
+                            <li data-original="Lutando contra [Problema Comum]? Tente isso.">Lutando contra [Problema Comum]? Tente isso.</li>
+                            <li data-original="[Instituição] está lucrando com seu erro.">[Instituição] está lucrando com seu erro.</li>
+                            <li data-original="Derrote o medo de [X] em 3 passos.">Derrote o medo de [X] em 3 passos.</li>
+                            <li data-original="Por que [Concorrente/Fator] está ganhando de você.">Por que [Concorrente/Fator] está ganhando de você.</li>
+                            <li data-original="O inimigo nº 1 do seu [Bolso].">O inimigo nº 1 do seu [Bolso].</li>
+                            <li data-original="Não deixe a [Ansiedade/Dúvida] te parar.">Não deixe a [Ansiedade/Dúvida] te parar.</li>
+                            <li data-original="Como eliminar [Obstáculo] da sua vida.">Como eliminar [Obstáculo] da sua vida.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 9. A Armadilha -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">09</span> A Armadilha</div>
+                        <ul>
+                            <li data-original="A armadilha da [Falsa Produtividade].">A armadilha da [Falsa Produtividade].</li>
+                            <li data-original="Cuidado com a armadilha do 'faço amanhã'.">Cuidado com a armadilha do 'faço amanhã'.</li>
+                            <li data-original="Não caia na armadilha de preços baixos em [X].">Não caia na armadilha de preços baixos em [X].</li>
+                            <li data-original="A armadilha mental que te impede de [Ação].">A armadilha mental que te impede de [Ação].</li>
+                            <li data-original="Fugindo da armadilha do [Conceito].">Fugindo da armadilha do [Conceito].</li>
+                            <li data-original="A maior armadilha para novos [Profissionais].">A maior armadilha para novos [Profissionais].</li>
+                            <li data-original="É uma armadilha achar que [X] resolve tudo.">É uma armadilha achar que [X] resolve tudo.</li>
+                            <li data-original="Como saí da armadilha da [Dívida/Rotina].">Como saí da armadilha da [Dívida/Rotina].</li>
+                            <li data-original="3 armadilhas comuns em [Relacionamentos].">3 armadilhas comuns em [Relacionamentos].</li>
+                            <li data-original="A armadilha do 'feito é melhor que perfeito'.">A armadilha do 'feito é melhor que perfeito'.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 10. A Consequência -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">10</span> A Consequência</div>
+                        <ul>
+                            <li data-original="O que acontece se você comer [X] todo dia.">O que acontece se você comer [X] todo dia.</li>
+                            <li data-original="A consequência real de ignorar [Lei/Regra].">A consequência real de ignorar [Lei/Regra].</li>
+                            <li data-original="Se você não fizer [X], [Y] vai acontecer.">Se você não fizer [X], [Y] vai acontecer.</li>
+                            <li data-original="As consequências de não dormir bem para [X].">As consequências de não dormir bem para [X].</li>
+                            <li data-original="O efeito dominó de um erro em [Área].">O efeito dominó de um erro em [Área].</li>
+                            <li data-original="Prepare-se para as consequências de [Decisão].">Prepare-se para as consequências de [Decisão].</li>
+                            <li data-original="O lado sombrio de usar [Produto].">O lado sombrio de usar [Produto].</li>
+                            <li data-original="O que acontece com seu corpo quando [Ação].">O que acontece com seu corpo quando [Ação].</li>
+                            <li data-original="Consequências financeiras de [Hábito].">Consequências financeiras de [Hábito].</li>
+                            <li data-original="O preço alto de não saber [Habilidade].">O preço alto de não saber [Habilidade].</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TEMA 2 -->
+            <section id="t2" class="theme-section">
+                <h2 class="theme-title">2. Educação & Valor</h2>
+                <div class="card-grid">
+                    <!-- 11. O Como Fazer -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">11</span> O "Como Fazer"</div>
+                        <ul>
+                            <li data-original="Como fazer [X] em menos de 5 minutos.">Como fazer [X] em menos de 5 minutos.</li>
+                            <li data-original="Como criar [Y] do zero absoluto.">Como criar [Y] do zero absoluto.</li>
+                            <li data-original="Como conseguir [Resultado] sem [Esforço].">Como conseguir [Resultado] sem [Esforço].</li>
+                            <li data-original="Como eu organizo meu [X] para máxima eficiência.">Como eu organizo meu [X] para máxima eficiência.</li>
+                            <li data-original="Como resolver [Problema] de uma vez por todas.">Como resolver [Problema] de uma vez por todas.</li>
+                            <li data-original="Como usar [Ferramenta] como um profissional.">Como usar [Ferramenta] como um profissional.</li>
+                            <li data-original="Como melhorar seu [Habilidade] hoje.">Como melhorar seu [Habilidade] hoje.</li>
+                            <li data-original="Como economizar [Valor] fazendo [Ação].">Como economizar [Valor] fazendo [Ação].</li>
+                            <li data-original="Como começar em [Nicho] sem dinheiro.">Como começar em [Nicho] sem dinheiro.</li>
+                            <li data-original="Como transformar [A] em [B].">Como transformar [A] em [B].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 12. Passo a Passo -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">12</span> Passo a Passo</div>
+                        <ul>
+                            <li data-original="Passo a passo para dominar [Técnica].">Passo a passo para dominar [Técnica].</li>
+                            <li data-original="Tutorial: [X] em 3 passos simples.">Tutorial: [X] em 3 passos simples.</li>
+                            <li data-original="Siga este roteiro para alcançar [Objetivo].">Siga este roteiro para alcançar [Objetivo].</li>
+                            <li data-original="O guia passo a passo definitivo de [Tema].">O guia passo a passo definitivo de [Tema].</li>
+                            <li data-original="Passo 1 para [X]: Faça isso agora.">Passo 1 para [X]: Faça isso agora.</li>
+                            <li data-original="Meu método de 4 passos para [Resultado].">Meu método de 4 passos para [Resultado].</li>
+                            <li data-original="A receita passo a passo para [Sucesso].">A receita passo a passo para [Sucesso].</li>
+                            <li data-original="Desenhando o passo a passo do [Projeto].">Desenhando o passo a passo do [Projeto].</li>
+                            <li data-original="Do zero ao [Topo]: O passo a passo.">Do zero ao [Topo]: O passo a passo.</li>
+                            <li data-original="Copie este passo a passo de [Estratégia].">Copie este passo a passo de [Estratégia].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 13. O Guia Rápido -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">13</span> O Guia Rápido</div>
+                        <ul>
+                            <li data-original="Guia de 60 segundos sobre [Assunto].">Guia de 60 segundos sobre [Assunto].</li>
+                            <li data-original="Tudo o que você precisa saber sobre [X] rápido.">Tudo o que você precisa saber sobre [X] rápido.</li>
+                            <li data-original="Resumo rápido: Como funciona o [Sistema].">Resumo rápido: Como funciona o [Sistema].</li>
+                            <li data-original="Um guia expresso para [Iniciantes].">Um guia expresso para [Iniciantes].</li>
+                            <li data-original="Guia de bolso para [Situação].">Guia de bolso para [Situação].</li>
+                            <li data-original="Aprenda [Conceito] em 1 minuto.">Aprenda [Conceito] em 1 minuto.</li>
+                            <li data-original="O guia prático para quem não tem tempo.">O guia prático para quem não tem tempo.</li>
+                            <li data-original="Guia visual: Entenda [X] agora.">Guia visual: Entenda [X] agora.</li>
+                            <li data-original="O guia 'preguiçoso' para [Tarefa].">O guia 'preguiçoso' para [Tarefa].</li>
+                            <li data-original="Flashcard: O guia essencial de [X].">Flashcard: O guia essencial de [X].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 14. A Ferramenta -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">14</span> A Ferramenta</div>
+                        <ul>
+                            <li data-original="A ferramenta que salvou meu [Negócio].">A ferramenta que salvou meu [Negócio].</li>
+                            <li data-original="3 ferramentas gratuitas para [Função].">3 ferramentas gratuitas para [Função].</li>
+                            <li data-original="Pare de usar [X], use essa ferramenta aqui.">Pare de usar [X], use essa ferramenta aqui.</li>
+                            <li data-original="A ferramenta secreta dos [Experts].">A ferramenta secreta dos [Experts].</li>
+                            <li data-original="Testei a nova ferramenta de [IA/Tech].">Testei a nova ferramenta de [IA/Tech].</li>
+                            <li data-original="Essa ferramenta faz o trabalho de 3 pessoas.">Essa ferramenta faz o trabalho de 3 pessoas.</li>
+                            <li data-original="Melhores ferramentas para [Ano].">Melhores ferramentas para [Ano].</li>
+                            <li data-original="Ferramenta indispensável para [Profissão].">Ferramenta indispensável para [Profissão].</li>
+                            <li data-original="Como essa ferramenta automatiza [Tarefa].">Como essa ferramenta automatiza [Tarefa].</li>
+                            <li data-original="A ferramenta que ninguém está olhando.">A ferramenta que ninguém está olhando.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 15. O Hack/Truque -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">15</span> O Hack/Truque</div>
+                        <ul>
+                            <li data-original="O hack de [X] que mudou minha vida.">O hack de [X] que mudou minha vida.</li>
+                            <li data-original="Truque psicológico para [Persuasão].">Truque psicológico para [Persuasão].</li>
+                            <li data-original="Hack de produtividade para [Pessoas Ocupadas].">Hack de produtividade para [Pessoas Ocupadas].</li>
+                            <li data-original="Um truque simples para limpar [Objeto].">Um truque simples para limpar [Objeto].</li>
+                            <li data-original="Hack de iPhone que você não conhecia.">Hack de iPhone que você não conhecia.</li>
+                            <li data-original="O truque para pagar menos em [Serviço].">O truque para pagar menos em [Serviço].</li>
+                            <li data-original="Life hack para [Situação Cotidiana].">Life hack para [Situação Cotidiana].</li>
+                            <li data-original="Truque de edição para [Vídeos].">Truque de edição para [Vídeos].</li>
+                            <li data-original="Hackeando o algoritmo do [Plataforma].">Hackeando o algoritmo do [Plataforma].</li>
+                            <li data-original="O truque dos milionários para [Gestão].">O truque dos milionários para [Gestão].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 16. A Dica de Ouro -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">16</span> A Dica de Ouro</div>
+                        <ul>
+                            <li data-original="A dica de ouro para quem estuda [X].">A dica de ouro para quem estuda [X].</li>
+                            <li data-original="Uma dica valiosa sobre [Finanças].">Uma dica valiosa sobre [Finanças].</li>
+                            <li data-original="Dica rápida: Não esqueça de [Ação].">Dica rápida: Não esqueça de [Ação].</li>
+                            <li data-original="A melhor dica que recebi sobre [Carreira].">A melhor dica que recebi sobre [Carreira].</li>
+                            <li data-original="Dica de mestre para [Cozinha/Hobbie].">Dica de mestre para [Cozinha/Hobbie].</li>
+                            <li data-original="Só uma dica pode salvar seu [Dia].">Só uma dica pode salvar seu [Dia].</li>
+                            <li data-original="Dica bônus no final do vídeo.">Dica bônus no final do vídeo.</li>
+                            <li data-original="A dica que dobra seus resultados em [X].">A dica que dobra seus resultados em [X].</li>
+                            <li data-original="Dica de especialista para [Problema].">Dica de especialista para [Problema].</li>
+                            <li data-original="Compartilhando minha dica favorita de [X].">Compartilhando minha dica favorita de [X].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 17. O Segredo Técnico -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">17</span> O Segredo Técnico</div>
+                        <ul>
+                            <li data-original="A técnica [Nome] explicada.">A técnica [Nome] explicada.</li>
+                            <li data-original="Por que a técnica [X] funciona tão bem.">Por que a técnica [X] funciona tão bem.</li>
+                            <li data-original="O segredo técnico por trás de [Obra].">O segredo técnico por trás de [Obra].</li>
+                            <li data-original="Desvendando a técnica de [Autoridade].">Desvendando a técnica de [Autoridade].</li>
+                            <li data-original="A técnica japonesa para [Disciplina].">A técnica japonesa para [Disciplina].</li>
+                            <li data-original="Minha técnica pessoal para [Foco].">Minha técnica pessoal para [Foco].</li>
+                            <li data-original="Técnica avançada de [Vendas].">Técnica avançada de [Vendas].</li>
+                            <li data-original="O segredo da configuração do [Equipamento].">O segredo da configuração do [Equipamento].</li>
+                            <li data-original="Dominando a técnica de [Respiração/Movimento].">Dominando a técnica de [Respiração/Movimento].</li>
+                            <li data-original="A técnica esquecida de [Ano/Década].">A técnica esquecida de [Ano/Década].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 18. A Simplificação -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">18</span> A Simplificação</div>
+                        <ul>
+                            <li data-original="Explicando [X] para uma criança de 5 anos.">Explicando [X] para uma criança de 5 anos.</li>
+                            <li data-original="[Tema Complexo] simplificado.">[Tema Complexo] simplificado.</li>
+                            <li data-original="Entenda [Geopolítica/Ciência] de forma simples.">Entenda [Geopolítica/Ciência] de forma simples.</li>
+                            <li data-original="A maneira mais simples de ver [Problema].">A maneira mais simples de ver [Problema].</li>
+                            <li data-original="Simplificando sua rotina de [Beleza/Treino].">Simplificando sua rotina de [Beleza/Treino].</li>
+                            <li data-original="[Teoria] sem 'economês' ou jargão.">[Teoria] sem 'economês' ou jargão.</li>
+                            <li data-original="A regra simples para [Investir].">A regra simples para [Investir].</li>
+                            <li data-original="Simplifique sua vida com esta [Mudança].">Simplifique sua vida com esta [Mudança].</li>
+                            <li data-original="O jeito simples vence o complexo em [X].">O jeito simples vence o complexo em [X].</li>
+                            <li data-original="Como simplificar processos de [Trabalho].">Como simplificar processos de [Trabalho].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 19. O Checklist -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">19</span> O Checklist</div>
+                        <ul>
+                            <li data-original="Checklist diário para [Sucesso].">Checklist diário para [Sucesso].</li>
+                            <li data-original="Salve este checklist antes de viajar.">Salve este checklist antes de viajar.</li>
+                            <li data-original="Checklist: Você tem tudo para [Evento]?">Checklist: Você tem tudo para [Evento]?</li>
+                            <li data-original="O checklist definitivo de [SEO/Marketing].">O checklist definitivo de [SEO/Marketing].</li>
+                            <li data-original="Checklist de limpeza para [Casa].">Checklist de limpeza para [Casa].</li>
+                            <li data-original="Verifique este checklist antes de postar.">Verifique este checklist antes de postar.</li>
+                            <li data-original="Meu checklist matinal de [Saúde].">Meu checklist matinal de [Saúde].</li>
+                            <li data-original="Checklist para iniciantes em [X].">Checklist para iniciantes em [X].</li>
+                            <li data-original="O único checklist que você precisa para [Y].">O único checklist que você precisa para [Y].</li>
+                            <li data-original="Checklist de segurança para [Família].">Checklist de segurança para [Família].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 20. A Fonte/Recurso -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">20</span> A Fonte/Recurso</div>
+                        <ul>
+                            <li data-original="Onde baixar [Recursos] grátis.">Onde baixar [Recursos] grátis.</li>
+                            <li data-original="As melhores fontes para aprender [X].">As melhores fontes para aprender [X].</li>
+                            <li data-original="Revelando minhas fontes de [Inspiração].">Revelando minhas fontes de [Inspiração].</li>
+                            <li data-original="Sites secretos para [Designers/Writers].">Sites secretos para [Designers/Writers].</li>
+                            <li data-original="O livro que é a fonte de [Conhecimento].">O livro que é a fonte de [Conhecimento].</li>
+                            <li data-original="Recursos essenciais para [Estudantes].">Recursos essenciais para [Estudantes].</li>
+                            <li data-original="Onde encontrar [Produtos] baratos.">Onde encontrar [Produtos] baratos.</li>
+                            <li data-original="A fonte secreta de tráfego para [Site].">A fonte secreta de tráfego para [Site].</li>
+                            <li data-original="Banco de imagens/vídeos que uso.">Banco de imagens/vídeos que uso.</li>
+                            <li data-original="Recursos ocultos no [Google/Excel].">Recursos ocultos no [Google/Excel].</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+             <!-- TEMA 3 -->
+             <section id="t3" class="theme-section">
+                <h2 class="theme-title">3. Curiosidade</h2>
+                <div class="card-grid">
+                    <!-- 21. O Segredo Revelado -->
+                     <div class="card">
+                        <div class="category-title"><span class="category-number">21</span> O Segredo Revelado</div>
+                        <ul>
+                            <li data-original="O segredo que a [Indústria] guarda a 7 chaves.">O segredo que a [Indústria] guarda a 7 chaves.</li>
+                            <li data-original="Revelei o segredo do meu [Resultado].">Revelei o segredo do meu [Resultado].</li>
+                            <li data-original="O ingrediente secreto do [Prato/Sucesso].">O ingrediente secreto do [Prato/Sucesso].</li>
+                            <li data-original="Segredo de bastidores: Como fizemos [X].">Segredo de bastidores: Como fizemos [X].</li>
+                            <li data-original="O segredo obscuro de [Personagem].">O segredo obscuro de [Personagem].</li>
+                            <li data-original="Finalmente descobri o segredo de [X].">Finalmente descobri o segredo de [X].</li>
+                            <li data-original="Não é mágica, é este segredo aqui.">Não é mágica, é este segredo aqui.</li>
+                            <li data-original="O segredo para [Pele/Cabelo] perfeito.">O segredo para [Pele/Cabelo] perfeito.</li>
+                            <li data-original="Compartilhando um segredo de família.">Compartilhando um segredo de família.</li>
+                            <li data-original="O segredo que mudou o jogo para mim.">O segredo que mudou o jogo para mim.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 22. O Que Ninguém Fala -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">22</span> O "O Que Ninguém Fala"</div>
+                        <ul>
+                            <li data-original="O que ninguém te fala sobre morar em [Lugar].">O que ninguém te fala sobre morar em [Lugar].</li>
+                            <li data-original="O lado de [X] que ninguém mostra.">O lado de [X] que ninguém mostra.</li>
+                            <li data-original="O que ninguém tem coragem de dizer sobre [Y].">O que ninguém tem coragem de dizer sobre [Y].</li>
+                            <li data-original="Falam de [A], mas ninguém fala de [B].">Falam de [A], mas ninguém fala de [B].</li>
+                            <li data-original="O detalhe que ninguém percebeu em [Filme].">O detalhe que ninguém percebeu em [Filme].</li>
+                            <li data-original="O que ninguém te conta sobre o pós-parto.">O que ninguém te conta sobre o pós-parto.</li>
+                            <li data-original="O custo oculto que ninguém menciona.">O custo oculto que ninguém menciona.</li>
+                            <li data-original="A realidade do home office que ninguém fala.">A realidade do home office que ninguém fala.</li>
+                            <li data-original="O que ninguém diz sobre ser [Chefe].">O que ninguém diz sobre ser [Chefe].</li>
+                            <li data-original="O problema de [X] que ninguém discute.">O problema de [X] que ninguém discute.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 23. O Mito -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">23</span> O Mito</div>
+                        <ul>
+                            <li data-original="O maior mito sobre [Perda de Peso].">O maior mito sobre [Perda de Peso].</li>
+                            <li data-original="Desbancando o mito de que [X] é caro.">Desbancando o mito de que [X] é caro.</li>
+                            <li data-original="3 mitos sobre [Investimentos] que te deixam pobre.">3 mitos sobre [Investimentos] que te deixam pobre.</li>
+                            <li data-original="Isso é um mito ou verdade? Vamos testar.">Isso é um mito ou verdade? Vamos testar.</li>
+                            <li data-original="Pare de acreditar nesse mito de [Beleza].">Pare de acreditar nesse mito de [Beleza].</li>
+                            <li data-original="O mito da [Produtividade Tóxica].">O mito da [Produtividade Tóxica].</li>
+                            <li data-original="Quebrando mitos sobre [Profissão].">Quebrando mitos sobre [Profissão].</li>
+                            <li data-original="Um mito antigo que a ciência derrubou.">Um mito antigo que a ciência derrubou.</li>
+                            <li data-original="O mito de que você precisa de [Talento].">O mito de que você precisa de [Talento].</li>
+                            <li data-original="Mitos sobre [Relacionamento] que destroem casais.">Mitos sobre [Relacionamento] que destroem casais.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 24. A Curiosidade Bizarra -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">24</span> A Curiosidade Bizarra</div>
+                        <ul>
+                            <li data-original="Fato bizarro sobre [Animal/Lugar].">Fato bizarro sobre [Animal/Lugar].</li>
+                            <li data-original="A história mais estranha que já ouvi sobre [X].">A história mais estranha que já ouvi sobre [X].</li>
+                            <li data-original="Você sabia dessa curiosidade sobre [Marca]?">Você sabia dessa curiosidade sobre [Marca]?</li>
+                            <li data-original="O objeto mais bizarro que encontrei.">O objeto mais bizarro que encontrei.</li>
+                            <li data-original="Curiosidade inútil, mas interessante sobre [X].">Curiosidade inútil, mas interessante sobre [X].</li>
+                            <li data-original="O caso bizarro de [Crime/Mistério].">O caso bizarro de [Crime/Mistério].</li>
+                            <li data-original="Coisas estranhas que o corpo humano faz.">Coisas estranhas que o corpo humano faz.</li>
+                            <li data-original="A lei mais bizarra deste [País].">A lei mais bizarra deste [País].</li>
+                            <li data-original="Curiosidade: Por que [X] é dessa cor?">Curiosidade: Por que [X] é dessa cor?</li>
+                            <li data-original="O ritual bizarro de [Celebridade].">O ritual bizarro de [Celebridade].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 25. O Você Sabia? -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">25</span> O "Você Sabia?"</div>
+                        <ul>
+                            <li data-original="Você sabia que [X] não é o que parece?">Você sabia que [X] não é o que parece?</li>
+                            <li data-original="Você sabia que pode usar [X] para [Y]?">Você sabia que pode usar [X] para [Y]?</li>
+                            <li data-original="Você sabia? [Fato Histórico].">Você sabia? [Fato Histórico].</li>
+                            <li data-original="Aposto que você não sabia disso sobre [Filme].">Aposto que você não sabia disso sobre [Filme].</li>
+                            <li data-original="Você sabia que seu [Celular] faz isso?">Você sabia que seu [Celular] faz isso?</li>
+                            <li data-original="Você sabia a origem de [Palavra]?">Você sabia a origem de [Palavra]?</li>
+                            <li data-original="Você sabia que [Alimento] faz mal?">Você sabia que [Alimento] faz mal?</li>
+                            <li data-original="Você sabia desse atalho no [Teclado]?">Você sabia desse atalho no [Teclado]?</li>
+                            <li data-original="Você sabia quem inventou o [Objeto]?">Você sabia quem inventou o [Objeto]?</li>
+                            <li data-original="Você sabia que eu já fui [Profissão]?">Você sabia que eu já fui [Profissão]?</li>
+                        </ul>
+                    </div>
+
+                    <!-- 26. Os Bastidores -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">26</span> Os Bastidores</div>
+                        <ul>
+                            <li data-original="Bastidores: Um dia na minha vida de [X].">Bastidores: Um dia na minha vida de [X].</li>
+                            <li data-original="O que acontece por trás das câmeras de [Y].">O que acontece por trás das câmeras de [Y].</li>
+                            <li data-original="Bastidores do lançamento de [Produto].">Bastidores do lançamento de [Produto].</li>
+                            <li data-original="Vem ver os bastidores da minha [Casa].">Vem ver os bastidores da minha [Casa].</li>
+                            <li data-original="O caos nos bastidores do [Evento].">O caos nos bastidores do [Evento].</li>
+                            <li data-original="Bastidores: Como editamos este vídeo.">Bastidores: Como editamos este vídeo.</li>
+                            <li data-original="A verdade dos bastidores da [TV/Internet].">A verdade dos bastidores da [TV/Internet].</li>
+                            <li data-original="Tour pelos bastidores da [Empresa].">Tour pelos bastidores da [Empresa].</li>
+                            <li data-original="Bastidores de uma sessão de [Fotos].">Bastidores de uma sessão de [Fotos].</li>
+                            <li data-original="O que não mostramos nos stories (Bastidores).">O que não mostramos nos stories (Bastidores).</li>
+                        </ul>
+                    </div>
+
+                    <!-- 27. A Pergunta Intrigante -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">27</span> A Pergunta Intrigante</div>
+                        <ul>
+                            <li data-original="E se [X] nunca tivesse existido?">E se [X] nunca tivesse existido?</li>
+                            <li data-original="Por que [Marca] mudou de logo?">Por que [Marca] mudou de logo?</li>
+                            <li data-original="Onde está [Pessoa Famosa] hoje?">Onde está [Pessoa Famosa] hoje?</li>
+                            <li data-original="Quanto custa viajar para [Lugar]?">Quanto custa viajar para [Lugar]?</li>
+                            <li data-original="Por que você sente [Sensação]?">Por que você sente [Sensação]?</li>
+                            <li data-original="Qual é a melhor hora para [Postar]?">Qual é a melhor hora para [Postar]?</li>
+                            <li data-original="Quem é o dono da [Empresa]?">Quem é o dono da [Empresa]?</li>
+                            <li data-original="O que acontece se você parar de [Comer Açúcar]?">O que acontece se você parar de [Comer Açúcar]?</li>
+                            <li data-original="Como [X] ficou tão rico?">Como [X] ficou tão rico?</li>
+                            <li data-original="Será que vale a pena comprar [X]?">Será que vale a pena comprar [X]?</li>
+                        </ul>
+                    </div>
+
+                    <!-- 28. A Análise / Breakdown -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">28</span> A Análise / Breakdown</div>
+                        <ul>
+                            <li data-original="Analisando o marketing da [Marca].">Analisando o marketing da [Marca].</li>
+                            <li data-original="Breakdown: Como esse vídeo viralizou.">Breakdown: Como esse vídeo viralizou.</li>
+                            <li data-original="Analisando o estilo de [Celebridade].">Analisando o estilo de [Celebridade].</li>
+                            <li data-original="Análise técnica de [Jogo/Filme].">Análise técnica de [Jogo/Filme].</li>
+                            <li data-original="Vamos analisar seu [Perfil] ao vivo.">Vamos analisar seu [Perfil] ao vivo.</li>
+                            <li data-original="Desconstruindo o sucesso de [Empresa].">Desconstruindo o sucesso de [Empresa].</li>
+                            <li data-original="Análise de currículo: O que mudar.">Análise de currículo: O que mudar.</li>
+                            <li data-original="Breakdown da estratégia de [Vendas].">Breakdown da estratégia de [Vendas].</li>
+                            <li data-original="Analisando a dieta de [Atleta].">Analisando a dieta de [Atleta].</li>
+                            <li data-original="O que aprendemos analisando [Dados].">O que aprendemos analisando [Dados].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 29. A Previsão -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">29</span> A Previsão</div>
+                        <ul>
+                            <li data-original="Minha previsão para o futuro do [Marketing].">Minha previsão para o futuro do [Marketing].</li>
+                            <li data-original="O que vai acontecer com [Cripto/Dólar]?">O que vai acontecer com [Cripto/Dólar]?</li>
+                            <li data-original="Previsão: [Tendência] vai morrer em breve.">Previsão: [Tendência] vai morrer em breve.</li>
+                            <li data-original="O futuro da [Profissão] com a IA.">O futuro da [Profissão] com a IA.</li>
+                            <li data-original="3 previsões ousadas para [Ano].">3 previsões ousadas para [Ano].</li>
+                            <li data-original="Previsão do tempo para o mercado de [X].">Previsão do tempo para o mercado de [X].</li>
+                            <li data-original="Onde estaremos daqui a 5 anos?">Onde estaremos daqui a 5 anos?</li>
+                            <li data-original="A próxima grande coisa em [Tech].">A próxima grande coisa em [Tech].</li>
+                            <li data-original="Previsão: Quem vai ganhar [Campeonato]?">Previsão: Quem vai ganhar [Campeonato]?</li>
+                            <li data-original="O fim do [App]? Minha previsão.">O fim do [App]? Minha previsão.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 30. A Comparação Inesperada -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">30</span> A Comparação Inesperada</div>
+                        <ul>
+                            <li data-original="Por que [X] é o novo [Y].">Por que [X] é o novo [Y].</li>
+                            <li data-original="[Filme] é igual a [Livro], entenda.">[Filme] é igual a [Livro], entenda.</li>
+                            <li data-original="Comparando [Produto Barato] vs [Caro].">Comparando [Produto Barato] vs [Caro].</li>
+                            <li data-original="A semelhança entre [Marketing] e [Namoro].">A semelhança entre [Marketing] e [Namoro].</li>
+                            <li data-original="[Cidade] é a nova [Capital].">[Cidade] é a nova [Capital].</li>
+                            <li data-original="O que [Série] ensina sobre [Negócios].">O que [Série] ensina sobre [Negócios].</li>
+                            <li data-original="Comparando minha vida antes e depois de [X].">Comparando minha vida antes e depois de [X].</li>
+                            <li data-original="[Carro A] vs [Carro B]: Qual vence?">[Carro A] vs [Carro B]: Qual vence?</li>
+                            <li data-original="A relação estranha entre [X] e [Y].">A relação estranha entre [X] e [Y].</li>
+                            <li data-original="Por que tratar [Cliente] é igual a tratar [Filho].">Por que tratar [Cliente] é igual a tratar [Filho].</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TEMA 4 -->
+            <section id="t4" class="theme-section">
+                <h2 class="theme-title">4. Autoridade</h2>
+                <div class="card-grid">
+                    <!-- 31. Como eu consegui -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">31</span> "Como eu consegui"</div>
+                        <ul>
+                            <li data-original="Como eu consegui [Resultado] em 30 dias.">Como eu consegui [Resultado] em 30 dias.</li>
+                            <li data-original="Como consegui meu primeiro [Cliente].">Como consegui meu primeiro [Cliente].</li>
+                            <li data-original="Como consegui sair das dívidas.">Como consegui sair das dívidas.</li>
+                            <li data-original="Como eu consegui [Número] seguidores.">Como eu consegui [Número] seguidores.</li>
+                            <li data-original="A estratégia de como consegui [Emprego].">A estratégia de como consegui [Emprego].</li>
+                            <li data-original="Como consegui viajar gastando pouco.">Como consegui viajar gastando pouco.</li>
+                            <li data-original="Como consegui superar a [Timidez].">Como consegui superar a [Timidez].</li>
+                            <li data-original="Como consegui ler [X] livros no ano.">Como consegui ler [X] livros no ano.</li>
+                            <li data-original="Como consegui comprar minha casa.">Como consegui comprar minha casa.</li>
+                            <li data-original="Como consegui ser promovido rápido.">Como consegui ser promovido rápido.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 32. O Estudo de Caso -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">32</span> O Estudo de Caso</div>
+                        <ul>
+                            <li data-original="Estudo de caso: De [0] a [Milhão].">Estudo de caso: De [0] a [Milhão].</li>
+                            <li data-original="Como [Cliente] triplicou suas vendas.">Como [Cliente] triplicou suas vendas.</li>
+                            <li data-original="Analisando o caso da [Empresa Falida].">Analisando o caso da [Empresa Falida].</li>
+                            <li data-original="Estudo de caso: O lançamento de [X].">Estudo de caso: O lançamento de [X].</li>
+                            <li data-original="A história real deste [Paciente/Aluno].">A história real deste [Paciente/Aluno].</li>
+                            <li data-original="Estudo de caso: Viralizando no [TikTok].">Estudo de caso: Viralizando no [TikTok].</li>
+                            <li data-original="Como ajudamos [Marca] a crescer.">Como ajudamos [Marca] a crescer.</li>
+                            <li data-original="O case de sucesso da [Startup].">O case de sucesso da [Startup].</li>
+                            <li data-original="Lições do estudo de caso de [Crise].">Lições do estudo de caso de [Crise].</li>
+                            <li data-original="Estudo de caso: A recuperação de [Atleta].">Estudo de caso: A recuperação de [Atleta].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 33. O Se eu começasse hoje -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">33</span> O "Se eu começasse hoje"</div>
+                        <ul>
+                            <li data-original="Se eu começasse no [Marketing] hoje, faria isso.">Se eu começasse no [Marketing] hoje, faria isso.</li>
+                            <li data-original="Se eu tivesse que começar do zero, leria isso.">Se eu tivesse que começar do zero, leria isso.</li>
+                            <li data-original="O que eu faria se começasse a investir hoje.">O que eu faria se começasse a investir hoje.</li>
+                            <li data-original="Se eu começasse academia hoje, evitaria isso.">Se eu começasse academia hoje, evitaria isso.</li>
+                            <li data-original="Roteiro para se eu começasse canal no Youtube hoje.">Roteiro para se eu começasse canal no Youtube hoje.</li>
+                            <li data-original="Se eu começasse a programar hoje...">Se eu começasse a programar hoje...</li>
+                            <li data-original="Minha estratégia se perdesse tudo hoje.">Minha estratégia se perdesse tudo hoje.</li>
+                            <li data-original="Se eu começasse a empreender aos 20 anos.">Se eu começasse a empreender aos 20 anos.</li>
+                            <li data-original="Dicas para mim mesmo se começasse hoje.">Dicas para mim mesmo se começasse hoje.</li>
+                            <li data-original="O kit básico se eu começasse a [Cozinhar].">O kit básico se eu começasse a [Cozinhar].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 34. A Transformação -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">34</span> A Transformação</div>
+                        <ul>
+                            <li data-original="A transformação incrível de [Pessoa].">A transformação incrível de [Pessoa].</li>
+                            <li data-original="30 dias de transformação com [Dieta/Treino].">30 dias de transformação com [Dieta/Treino].</li>
+                            <li data-original="Veja a transformação deste [Cômodo].">Veja a transformação deste [Cômodo].</li>
+                            <li data-original="Transformação de estilo: Antes e depois.">Transformação de estilo: Antes e depois.</li>
+                            <li data-original="A transformação mental que mudou meu jogo.">A transformação mental que mudou meu jogo.</li>
+                            <li data-original="Transformando [Lixo] em [Luxo].">Transformando [Lixo] em [Luxo].</li>
+                            <li data-original="A jornada de transformação da minha pele.">A jornada de transformação da minha pele.</li>
+                            <li data-original="Transformação de carreira aos 40 anos.">Transformação de carreira aos 40 anos.</li>
+                            <li data-original="Transformando um negócio físico em digital.">Transformando um negócio físico em digital.</li>
+                            <li data-original="O poder da transformação capilar.">O poder da transformação capilar.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 35. Os Números Reais -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">35</span> Os Números Reais</div>
+                        <ul>
+                            <li data-original="Abrindo meus números: Quanto ganhei com [X].">Abrindo meus números: Quanto ganhei com [X].</li>
+                            <li data-original="Os números não mentem sobre [Estratégia].">Os números não mentem sobre [Estratégia].</li>
+                            <li data-original="Revelei meus gastos mensais em [Viagem].">Revelei meus gastos mensais em [Viagem].</li>
+                            <li data-original="Os números por trás de um canal pequeno.">Os números por trás de um canal pequeno.</li>
+                            <li data-original="Faturei [Valor] em [Tempo]: Veja como.">Faturei [Valor] em [Tempo]: Veja como.</li>
+                            <li data-original="A matemática do emagrecimento.">A matemática do emagrecimento.</li>
+                            <li data-original="Números assustadores sobre [Indústria].">Números assustadores sobre [Indústria].</li>
+                            <li data-original="Quanto custa manter um [Carro de Luxo].">Quanto custa manter um [Carro de Luxo].</li>
+                            <li data-original="Meus resultados em números no [Projeto].">Meus resultados em números no [Projeto].</li>
+                            <li data-original="Estatísticas que provam que [X] funciona.">Estatísticas que provam que [X] funciona.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 36. A Experiência -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">36</span> A Experiência</div>
+                        <ul>
+                            <li data-original="Testei [Produto] por 30 dias.">Testei [Produto] por 30 dias.</li>
+                            <li data-original="Minha experiência viajando sozinha.">Minha experiência viajando sozinha.</li>
+                            <li data-original="O que aprendi com 10 anos de [Profissão].">O que aprendi com 10 anos de [Profissão].</li>
+                            <li data-original="Minha experiência sendo vegano por um mês.">Minha experiência sendo vegano por um mês.</li>
+                            <li data-original="A pior experiência que tive em [Hotel].">A pior experiência que tive em [Hotel].</li>
+                            <li data-original="Minha experiência honesta com [Marca].">Minha experiência honesta com [Marca].</li>
+                            <li data-original="O que a experiência me ensinou sobre [Amor].">O que a experiência me ensinou sobre [Amor].</li>
+                            <li data-original="Troquei o [iPhone] pelo [Android]: A experiência.">Troquei o [iPhone] pelo [Android]: A experiência.</li>
+                            <li data-original="Relato de experiência: Cirurgia de [X].">Relato de experiência: Cirurgia de [X].</li>
+                            <li data-original="Minha experiência trabalhando no [Google].">Minha experiência trabalhando no [Google].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 37. A Autoridade Emprestada -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">37</span> A Autoridade Emprestada</div>
+                        <ul>
+                            <li data-original="O que [Elon Musk] diz sobre [IA].">O que [Elon Musk] diz sobre [IA].</li>
+                            <li data-original="A regra de [Warren Buffett] para dinheiro.">A regra de [Warren Buffett] para dinheiro.</li>
+                            <li data-original="Aprendi isso com um monge budista.">Aprendi isso com um monge budista.</li>
+                            <li data-original="O conselho do meu mentor milionário.">O conselho do meu mentor milionário.</li>
+                            <li data-original="O livro favorito de [Bill Gates].">O livro favorito de [Bill Gates].</li>
+                            <li data-original="A rotina matinal de [Atleta Olímpico].">A rotina matinal de [Atleta Olímpico].</li>
+                            <li data-original="O que a [Ciência/NASA] diz sobre isso.">O que a [Ciência/NASA] diz sobre isso.</li>
+                            <li data-original="Seguindo a dieta de [Celebridade].">Seguindo a dieta de [Celebridade].</li>
+                            <li data-original="A lição de liderança de [Steve Jobs].">A lição de liderança de [Steve Jobs].</li>
+                            <li data-original="Como [Empresa Gigante] treina funcionários.">Como [Empresa Gigante] treina funcionários.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 38. O Contra-Intuitivo -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">38</span> O Contra-Intuitivo</div>
+                        <ul>
+                            <li data-original="Por que trabalhar menos me fez ganhar mais.">Por que trabalhar menos me fez ganhar mais.</li>
+                            <li data-original="Para emagrecer, você precisa comer [X].">Para emagrecer, você precisa comer [X].</li>
+                            <li data-original="Por que você deve ignorar seus clientes.">Por que você deve ignorar seus clientes.</li>
+                            <li data-original="O segredo é *não* ter um nicho.">O segredo é *não* ter um nicho.</li>
+                            <li data-original="Por que acordar às 5h da manhã é ruim.">Por que acordar às 5h da manhã é ruim.</li>
+                            <li data-original="Venda mais parando de vender.">Venda mais parando de vender.</li>
+                            <li data-original="A melhor forma de economizar é gastar em [X].">A melhor forma de economizar é gastar em [X].</li>
+                            <li data-original="Por que o fracasso é bom para [Y].">Por que o fracasso é bom para [Y].</li>
+                            <li data-original="Não siga sua paixão, siga [Isso].">Não siga sua paixão, siga [Isso].</li>
+                            <li data-original="Por que a perfeição é inimiga do lucro.">Por que a perfeição é inimiga do lucro.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 39. A História Pessoal -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">39</span> A História Pessoal</div>
+                        <ul>
+                            <li data-original="A história de como quase fali.">A história de como quase fali.</li>
+                            <li data-original="Minha história com a [Ansiedade].">Minha história com a [Ansiedade].</li>
+                            <li data-original="O dia em que conheci meu ídolo.">O dia em que conheci meu ídolo.</li>
+                            <li data-original="A história engraçada da minha [Viagem].">A história engraçada da minha [Viagem].</li>
+                            <li data-original="Como superei o luto: Minha história.">Como superei o luto: Minha história.</li>
+                            <li data-original="A história por trás da minha tatuagem.">A história por trás da minha tatuagem.</li>
+                            <li data-original="Storytime: O pior encontro da minha vida.">Storytime: O pior encontro da minha vida.</li>
+                            <li data-original="A história de como mudei de país.">A história de como mudei de país.</li>
+                            <li data-original="Minha jornada de aceitação.">Minha jornada de aceitação.</li>
+                            <li data-original="A história não contada da minha infância.">A história não contada da minha infância.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 40. A Prova/Resultado -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">40</span> A Prova/Resultado</div>
+                        <ul>
+                            <li data-original="Aqui está a prova de que [Método] funciona.">Aqui está a prova de que [Método] funciona.</li>
+                            <li data-original="Resultado de 1 semana usando [Creme].">Resultado de 1 semana usando [Creme].</li>
+                            <li data-original="A prova social que você precisava.">A prova social que você precisava.</li>
+                            <li data-original="Mostrando resultados dos meus alunos.">Mostrando resultados dos meus alunos.</li>
+                            <li data-original="A prova definitiva sobre [Terra Plana/Fato].">A prova definitiva sobre [Terra Plana/Fato].</li>
+                            <li data-original="Print dos meus ganhos com [App].">Print dos meus ganhos com [App].</li>
+                            <li data-original="O resultado chocante dessa mistura.">O resultado chocante dessa mistura.</li>
+                            <li data-original="Prova de resistência do [Produto].">Prova de resistência do [Produto].</li>
+                            <li data-original="Resultados reais, sem filtro.">Resultados reais, sem filtro.</li>
+                            <li data-original="Veja o resultado final desta reforma.">Veja o resultado final desta reforma.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TEMA 5 -->
+            <section id="t5" class="theme-section">
+                <h2 class="theme-title">5. Listas</h2>
+                <div class="card-grid">
+                    <!-- 41. Top X Melhores -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">41</span> Top X Melhores</div>
+                        <ul>
+                            <li data-original="Top 5 melhores livros de [Ano].">Top 5 melhores livros de [Ano].</li>
+                            <li data-original="Top 10 filmes para chorar.">Top 10 filmes para chorar.</li>
+                            <li data-original="Os 3 melhores apps para [Edição].">Os 3 melhores apps para [Edição].</li>
+                            <li data-original="Top 7 lugares para visitar em [Cidade].">Top 7 lugares para visitar em [Cidade].</li>
+                            <li data-original="As 5 melhores compras que fiz na [Amazon].">As 5 melhores compras que fiz na [Amazon].</li>
+                            <li data-original="Top restaurantes em [Bairro].">Top restaurantes em [Bairro].</li>
+                            <li data-original="Os melhores exercícios para [Músculo].">Os melhores exercícios para [Músculo].</li>
+                            <li data-original="Top tendências de [Moda].">Top tendências de [Moda].</li>
+                            <li data-original="Os melhores investimentos para iniciantes.">Os melhores investimentos para iniciantes.</li>
+                            <li data-original="Top ferramentas de IA do momento.">Top ferramentas de IA do momento.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 42. Top X Piores -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">42</span> Top X Piores</div>
+                        <ul>
+                            <li data-original="Os 3 piores erros no [Instagram].">Os 3 piores erros no [Instagram].</li>
+                            <li data-original="Top 5 piores alimentos para [Saúde].">Top 5 piores alimentos para [Saúde].</li>
+                            <li data-original="Os piores conselhos que já recebi.">Os piores conselhos que já recebi.</li>
+                            <li data-original="Top looks mais feios do [Evento].">Top looks mais feios do [Evento].</li>
+                            <li data-original="As piores senhas para usar.">As piores senhas para usar.</li>
+                            <li data-original="Top 10 filmes que odiei.">Top 10 filmes que odiei.</li>
+                            <li data-original="Os piores hábitos para sua pele.">Os piores hábitos para sua pele.</li>
+                            <li data-original="Piores jeitos de começar uma conversa.">Piores jeitos de começar uma conversa.</li>
+                            <li data-original="As piores contratações do [Time].">As piores contratações do [Time].</li>
+                            <li data-original="Top mentiras que contam sobre [X].">Top mentiras que contam sobre [X].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 43. Lista de Verificação -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">43</span> Lista de Verificação</div>
+                        <ul>
+                            <li data-original="5 sinais de que você é [TDAH/Introvertido].">5 sinais de que você é [TDAH/Introvertido].</li>
+                            <li data-original="3 coisas para checar no seu carro.">3 coisas para checar no seu carro.</li>
+                            <li data-original="Lista de compras saudável.">Lista de compras saudável.</li>
+                            <li data-original="7 sinais de um relacionamento tóxico.">7 sinais de um relacionamento tóxico.</li>
+                            <li data-original="Itens essenciais para levar na mala.">Itens essenciais para levar na mala.</li>
+                            <li data-original="5 coisas que indicam que você vai ser rico.">5 coisas que indicam que você vai ser rico.</li>
+                            <li data-original="Sinais de que seu [PC] está com vírus.">Sinais de que seu [PC] está com vírus.</li>
+                            <li data-original="Coisas para fazer antes de dormir.">Coisas para fazer antes de dormir.</li>
+                            <li data-original="Lista de desejos para 2025.">Lista de desejos para 2025.</li>
+                            <li data-original="4 sinais de que você precisa demitir um cliente.">4 sinais de que você precisa demitir um cliente.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 44. O Isso ou Aquilo -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">44</span> O "Isso ou Aquilo"</div>
+                        <ul>
+                            <li data-original="Café ou Chá? O veredito da ciência.">Café ou Chá? O veredito da ciência.</li>
+                            <li data-original="[Produto A] ou [Produto B]: Qual comprar?">[Produto A] ou [Produto B]: Qual comprar?</li>
+                            <li data-original="iPhone 15 ou S24 Ultra?">iPhone 15 ou S24 Ultra?</li>
+                            <li data-original="Musculação ou Crossfit?">Musculação ou Crossfit?</li>
+                            <li data-original="Alugar ou Financiar imóvel?">Alugar ou Financiar imóvel?</li>
+                            <li data-original="Freelancer ou CLT? Vantagens e desvantagens.">Freelancer ou CLT? Vantagens e desvantagens.</li>
+                            <li data-original="Livro físico ou Kindle?">Livro físico ou Kindle?</li>
+                            <li data-original="Netflix ou Prime Video?">Netflix ou Prime Video?</li>
+                            <li data-original="Trabalhar de casa ou escritório?">Trabalhar de casa ou escritório?</li>
+                            <li data-original="Viajar de carro ou avião?">Viajar de carro ou avião?</li>
+                        </ul>
+                    </div>
+
+                    <!-- 45. A Pergunta para Engajar -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">45</span> A Pergunta para Engajar</div>
+                        <ul>
+                            <li data-original="Qual a sua opinião sobre [Polêmica]?">Qual a sua opinião sobre [Polêmica]?</li>
+                            <li data-original="Me ajude: Escolho A ou B?">Me ajude: Escolho A ou B?</li>
+                            <li data-original="Qual foi o melhor [Filme] do ano para você?">Qual foi o melhor [Filme] do ano para você?</li>
+                            <li data-original="Você prefere [Calor] ou [Frio]?">Você prefere [Calor] ou [Frio]?</li>
+                            <li data-original="Defina seu ano em uma palavra.">Defina seu ano em uma palavra.</li>
+                            <li data-original="Qual sua maior dificuldade em [X]?">Qual sua maior dificuldade em [X]?</li>
+                            <li data-original="Quem você levaria para uma ilha deserta?">Quem você levaria para uma ilha deserta?</li>
+                            <li data-original="Qual conselho você daria para seu eu de 10 anos?">Qual conselho você daria para seu eu de 10 anos?</li>
+                            <li data-original="Complete a frase: O dinheiro é...">Complete a frase: O dinheiro é...</li>
+                            <li data-original="De onde vocês estão me assistindo?">De onde vocês estão me assistindo?</li>
+                        </ul>
+                    </div>
+
+                    <!-- 46. A Citação/Frase -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">46</span> A Citação/Frase</div>
+                        <ul>
+                            <li data-original="A frase que mudou minha mentalidade.">A frase que mudou minha mentalidade.</li>
+                            <li data-original='"A disciplina é a ponte entre metas e realizações".'>"A disciplina é a ponte entre metas e realizações".</li>
+                            <li data-original="Uma citação para inspirar sua semana.">Uma citação para inspirar sua semana.</li>
+                            <li data-original="O que [Filósofo] quis dizer com isso?">O que [Filósofo] quis dizer com isso?</li>
+                            <li data-original="Frases motivacionais que na verdade são tóxicas.">Frases motivacionais que na verdade são tóxicas.</li>
+                            <li data-original="Minha frase favorita de [Livro].">Minha frase favorita de [Livro].</li>
+                            <li data-original='"Feito é melhor que perfeito" - Concorda?'>"Feito é melhor que perfeito" - Concorda?</li>
+                            <li data-original="Citações de filmes que levo para a vida.">Citações de filmes que levo para a vida.</li>
+                            <li data-original="A frase que repito todo dia de manhã.">A frase que repito todo dia de manhã.</li>
+                            <li data-original="Uma reflexão sobre esta frase de [Autor].">Uma reflexão sobre esta frase de [Autor].</li>
+                        </ul>
+                    </div>
+
+                    <!-- 47. O Desafio -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">47</span> O Desafio</div>
+                        <ul>
+                            <li data-original="Desafio de 7 dias para [Secar/Ler].">Desafio de 7 dias para [Secar/Ler].</li>
+                            <li data-original="Tente não rir com este vídeo.">Tente não rir com este vídeo.</li>
+                            <li data-original="Desafio: Faça isso por 30 dias.">Desafio: Faça isso por 30 dias.</li>
+                            <li data-original="Você consegue resolver este enigma?">Você consegue resolver este enigma?</li>
+                            <li data-original="Desafio de economia: Junte [Valor].">Desafio de economia: Junte [Valor].</li>
+                            <li data-original="Desafio do [Detox Digital].">Desafio do [Detox Digital].</li>
+                            <li data-original="Te desafio a comentar sem usar a letra A.">Te desafio a comentar sem usar a letra A.</li>
+                            <li data-original="Desafio de organização da casa.">Desafio de organização da casa.</li>
+                            <li data-original="Aceita o desafio de acordar às 5h?">Aceita o desafio de acordar às 5h?</li>
+                            <li data-original="Desafio de leitura: 1 livro por semana.">Desafio de leitura: 1 livro por semana.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 48. O POV -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">48</span> O "Pov" (Point of View)</div>
+                        <ul>
+                            <li data-original="POV: Você é um [Designer] em 2024.">POV: Você é um [Designer] em 2024.</li>
+                            <li data-original="POV: Seu chefe te chama na sexta à tarde.">POV: Seu chefe te chama na sexta à tarde.</li>
+                            <li data-original="POV: Você acabou de comprar [Carro].">POV: Você acabou de comprar [Carro].</li>
+                            <li data-original="POV: Tentando explicar [X] para meus pais.">POV: Tentando explicar [X] para meus pais.</li>
+                            <li data-original="POV: O cliente pediu alteração.">POV: O cliente pediu alteração.</li>
+                            <li data-original="POV: Você mora sozinho pela primeira vez.">POV: Você mora sozinho pela primeira vez.</li>
+                            <li data-original="POV: Dia de pagamento.">POV: Dia de pagamento.</li>
+                            <li data-original="POV: Quando o wi-fi cai na reunião.">POV: Quando o wi-fi cai na reunião.</li>
+                            <li data-original="POV: Você encontrou o amor da sua vida.">POV: Você encontrou o amor da sua vida.</li>
+                            <li data-original="POV: Estudando para o ENEM.">POV: Estudando para o ENEM.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 49. O Starter Pack -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">49</span> O "Starter Pack"</div>
+                        <ul>
+                            <li data-original="Starter Pack do [Empreendedor].">Starter Pack do [Empreendedor].</li>
+                            <li data-original="Kit de sobrevivência para [Mães].">Kit de sobrevivência para [Mães].</li>
+                            <li data-original="Starter Pack: Indo para a academia.">Starter Pack: Indo para a academia.</li>
+                            <li data-original="O que todo [Gamer] precisa ter.">O que todo [Gamer] precisa ter.</li>
+                            <li data-original="Starter Pack do Home Office.">Starter Pack do Home Office.</li>
+                            <li data-original="Kit iniciante para [Maquiagem].">Kit iniciante para [Maquiagem].</li>
+                            <li data-original="Starter Pack do [Universitário].">Starter Pack do [Universitário].</li>
+                            <li data-original="O kit essencial para sua viagem.">O kit essencial para sua viagem.</li>
+                            <li data-original="Starter Pack de quem ama café.">Starter Pack de quem ama café.</li>
+                            <li data-original="Kit básico para gravar vídeos.">Kit básico para gravar vídeos.</li>
+                        </ul>
+                    </div>
+
+                    <!-- 50. A Identificação -->
+                    <div class="card">
+                        <div class="category-title"><span class="category-number">50</span> A Identificação</div>
+                        <ul>
+                            <li data-original="Só quem é [Signo] vai entender.">Só quem é [Signo] vai entender.</li>
+                            <li data-original="Coisas que só acontecem com quem usa óculos.">Coisas que só acontecem com quem usa óculos.</li>
+                            <li data-original="Quem nunca fez [X] que atire a primeira pedra.">Quem nunca fez [X] que atire a primeira pedra.</li>
+                            <li data-original="Aquele momento em que você percebe [X].">Aquele momento em que você percebe [X].</li>
+                            <li data-original="Eu na vida real vs Eu no Instagram.">Eu na vida real vs Eu no Instagram.</li>
+                            <li data-original="Tipos de pessoas na [Festa/Trabalho].">Tipos de pessoas na [Festa/Trabalho].</li>
+                            <li data-original="Quando você tenta ser saudável e falha.">Quando você tenta ser saudável e falha.</li>
+                            <li data-original="Situações que todo [Profissional] passa.">Situações que todo [Profissional] passa.</li>
+                            <li data-original="A luta diária de quem tem [Cabelo Cacheado].">A luta diária de quem tem [Cabelo Cacheado].</li>
+                            <li data-original="Marque aquele amigo que é assim.">Marque aquele amigo que é assim.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- VIEW FAVORITOS -->
+        <div id="fav-view" class="container">
+            <h2 style="margin-bottom: 20px;">⭐ Seus Hooks Favoritos</h2>
+            <button class="nav-btn" style="background:#718096; margin-bottom:20px;" onclick="toggleFavView()">← Voltar para Todos</button>
+            <div class="card-grid" id="fav-grid">
+                <!-- Favoritos injetados aqui via JS -->
+            </div>
+            <div id="empty-fav" class="empty-state">
+                <h3>Você ainda não tem favoritos.</h3>
+                <p>Clique na estrela ao lado de um hook para salvá-lo aqui.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="toast">Copiado!</div>
+
+    <script>
+        // --- 1. STATE MANAGEMENT ---
+        const state = {
+            niche: '',
+            search: '',
+            favorites: JSON.parse(localStorage.getItem('hooksFavorites')) || [],
+            darkMode: localStorage.getItem('hooksTheme') === 'dark'
+        };
+
+        // --- 2. DOM ELEMENTS ---
+        const nicheInput = document.getElementById('nicheInput');
+        const searchInput = document.getElementById('searchInput');
+        const themeToggle = document.getElementById('themeToggle');
+        const favToggle = document.getElementById('favToggle');
+        const favCountSpan = document.getElementById('favCount');
+        const listItems = document.querySelectorAll('li');
+        const toast = document.getElementById('toast');
+        const mainView = document.getElementById('main-view');
+        const favView = document.getElementById('fav-view');
+        const mainNav = document.getElementById('mainNav');
+
+        // --- 3. INITIALIZATION ---
+        function init() {
+            // Setup List Items (Add content wrapper and star icon)
+            listItems.forEach((li, index) => {
+                const originalText = li.getAttribute('data-original');
+                li.innerHTML = `
+                    <span class="text-content">${originalText}</span>
+                    <span class="action-icon" title="Favoritar">★</span>
+                `;
+                li.setAttribute('data-id', index); // Unique ID for favs
+
+                // Click to Copy (Text Span)
+                li.querySelector('.text-content').addEventListener('click', () => copyToClipboard(li));
+                
+                // Click to Fav (Star)
+                li.querySelector('.action-icon').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFavorite(index, originalText);
+                });
+            });
+
+            // Restore Theme
+            if(state.darkMode) document.body.setAttribute('data-theme', 'dark');
+            updateFavCount();
+            
+            // Listeners
+            nicheInput.addEventListener('input', (e) => {
+                state.niche = e.target.value;
+                updateListText();
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                state.search = e.target.value.toLowerCase();
+                filterList();
+            });
+
+            themeToggle.addEventListener('click', toggleTheme);
+            favToggle.addEventListener('click', toggleFavView);
+        }
+
+        // --- 4. CORE FEATURES ---
+
+        // A. Dynamic Text Replacement (The "Killer Feature")
+        function updateListText() {
+            const niche = state.niche.trim();
+            
+            // Regex patterns for generic placeholders
+            const patterns = /\[(.*?)]/g; 
+
+            listItems.forEach(li => {
+                let text = li.getAttribute('data-original');
+                const span = li.querySelector('.text-content');
+
+                if (niche) {
+                    // Replace brackets with highlighted niche text
+                    // We handle generic [X], [Nicho], [Ação] by replacing them all with the niche input
+                    // Or we can just bold the replacement.
+                    text = text.replace(patterns, `<span class="filled-niche">${niche}</span>`);
+                } else {
+                    // Revert to original (kept in data attribute, but style brackets)
+                    text = text.replace(patterns, `<strong>[$1]</strong>`);
+                }
+                
+                span.innerHTML = text;
+            });
+            
+            // Update Favorites View if active
+            renderFavorites();
+        }
+
+        // B. Search Filter
+        function filterList() {
+            const term = state.search;
+            let foundCount = 0;
+
+            listItems.forEach(li => {
+                const text = li.innerText.toLowerCase();
+                const card = li.closest('.card');
+                
+                if (text.includes(term)) {
+                    li.classList.remove('hidden');
+                    foundCount++;
+                } else {
+                    li.classList.add('hidden');
+                }
+            });
+
+            // Optional: Hide empty cards
+            document.querySelectorAll('.card').forEach(card => {
+                const visibleLis = card.querySelectorAll('li:not(.hidden)');
+                if(visibleLis.length === 0) {
+                    card.classList.add('hidden');
+                } else {
+                    card.classList.remove('hidden');
+                }
+            });
+        }
+
+        // C. Favorites System
+        function toggleFavorite(id, text) {
+            const index = state.favorites.findIndex(f => f.id === id);
+            const li = document.querySelector(`li[data-id="${id}"]`);
+            const star = li.querySelector('.action-icon');
+
+            if (index === -1) {
+                // Add
+                state.favorites.push({ id, text });
+                star.classList.add('is-fav');
+                showToast("Adicionado aos Favoritos!");
+            } else {
+                // Remove
+                state.favorites.splice(index, 1);
+                star.classList.remove('is-fav');
+                showToast("Removido dos Favoritos");
+            }
+
+            localStorage.setItem('hooksFavorites', JSON.stringify(state.favorites));
+            updateFavCount();
+            if(favView.style.display === 'block') renderFavorites();
+        }
+
+        function updateFavCount() {
+            favCountSpan.innerText = state.favorites.length;
+            // Sync UI stars based on storage
+            listItems.forEach(li => {
+                const id = parseInt(li.getAttribute('data-id'));
+                const star = li.querySelector('.action-icon');
+                if(state.favorites.find(f => f.id === id)) {
+                    star.classList.add('is-fav');
+                } else {
+                    star.classList.remove('is-fav');
+                }
+            });
+        }
+
+        function toggleFavView() {
+            if (favView.style.display === 'none' || !favView.style.display) {
+                mainView.style.display = 'none';
+                mainNav.style.display = 'none';
+                favView.style.display = 'block';
+                favToggle.innerHTML = "🏠 Voltar para Home";
+                renderFavorites();
+            } else {
+                mainView.style.display = 'block';
+                mainNav.style.display = 'flex';
+                favView.style.display = 'none';
+                favToggle.innerHTML = `⭐ Favoritos (<span id="favCount">${state.favorites.length}</span>)`;
+            }
+        }
+
+        function renderFavorites() {
+            const grid = document.getElementById('fav-grid');
+            const empty = document.getElementById('empty-fav');
+            grid.innerHTML = '';
+
+            if (state.favorites.length === 0) {
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+
+            // Create a simple card for favs
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.borderTopColor = '#ecc94b';
+            
+            const ul = document.createElement('ul');
+
+            state.favorites.forEach(fav => {
+                const li = document.createElement('li');
+                // Apply niche logic to favs too
+                let displayText = fav.text;
+                if(state.niche) {
+                    displayText = displayText.replace(/\[(.*?)\]/g, `<span class="filled-niche">${state.niche}</span>`);
+                }
+
+                li.innerHTML = `
+                    <span class="text-content" onclick="copyText('${fav.text}')">${displayText}</span>
+                    <span class="action-icon is-fav" onclick="toggleFavorite(${fav.id}, '${fav.text}')">★</span>
+                `;
+                ul.appendChild(li);
+            });
+
+            card.appendChild(ul);
+            grid.appendChild(card);
+        }
+
+        // D. Utilities
+        function copyToClipboard(element) {
+            const text = element.querySelector('.text-content').innerText;
+            copyText(text);
+            
+            // Visual feedback
+            element.style.backgroundColor = "rgba(49, 130, 206, 0.2)";
+            setTimeout(() => { element.style.backgroundColor = ""; }, 300);
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Copiado!");
+            });
+        }
+
+        function showToast(msg) {
+            toast.innerText = msg;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function toggleTheme() {
+            state.darkMode = !state.darkMode;
+            if (state.darkMode) {
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('hooksTheme', 'dark');
+            } else {
+                document.body.removeAttribute('data-theme');
+                localStorage.setItem('hooksTheme', 'light');
+            }
+        }
+
+        // Initialize App
+        init();
+        // Run initial text format to bold brackets
+        updateListText(); 
+
+    </script>
+</body>
+</html>
