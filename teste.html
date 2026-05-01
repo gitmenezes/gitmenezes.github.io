@@ -2,89 +2,102 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Sniply Clone - Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Overlay Pro</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 400px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        #result-container { margin-top: 20px; display: none; }
-        #final-url { width: 100%; padding: 10px; background: #eef; border: 1px dashed #77a; font-size: 11px; word-break: break-all; }
-        .copy-btn { background: #28a745; margin-top: 5px; }
+        /* CSS PARA O GERADOR */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 90%; max-width: 450px; margin-top: 50px; }
+        h2 { color: #333; font-size: 20px; margin-bottom: 20px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        #result-area { margin-top: 20px; display: none; background: #e9ecef; padding: 15px; border-radius: 6px; border: 1px dashed #007bff; }
+        #final-link { width: 100%; font-size: 11px; color: #555; word-break: break-all; margin-bottom: 10px; display: block; }
+        
+        /* CSS PARA O MODO NOTÍCIA (SNIPLY) */
+        .snip-mode, .snip-mode body { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; }
+        #news-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        #ad-bar { 
+            position: fixed; bottom: 25px; left: 25px; width: 360px; 
+            background: white; z-index: 999999; display: flex; align-items: center; 
+            padding: 12px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border-left: 6px solid #28a745; animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn { from { transform: translateX(-110%); } to { transform: translateX(0); } }
+        #ad-bar img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; margin-right: 15px; }
+        .ad-text { flex: 1; margin-right: 10px; }
+        .ad-text p { margin: 0; font-size: 14px; font-weight: bold; color: #222; line-height: 1.2; }
+        .ad-btn { background: #28a745; color: white; text-decoration: none; padding: 10px 15px; border-radius: 6px; font-size: 13px; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="card" id="main-card">
-    <h2>Gerador de Link Pro</h2>
-    <input type="text" id="site" placeholder="Link da Notícia">
-    <input type="text" id="cta" placeholder="Texto da Oferta">
-    <input type="text" id="img" placeholder="Link da Imagem do Produto">
-    <input type="text" id="aff" placeholder="Seu Link de Afiliado">
-    <button onclick="generate()">Gerar Link Web</button>
+    <!-- INTERFACE DO GERADOR (Só aparece se não houver parâmetros na URL) -->
+    <div id="ui-generator" class="container">
+        <h2>🚀 Criador de Link Viral</h2>
+        <input type="text" id="url-site" placeholder="URL da Notícia (Link do G1, CNN, etc)">
+        <input type="text" id="msg-cta" placeholder="Sua frase de venda (Ex: Perca 5kg hoje!)">
+        <input type="text" id="url-img" placeholder="Link da imagem do produto (JPG/PNG)">
+        <input type="text" id="url-aff" placeholder="Seu link de afiliado">
+        <button onclick="buildLink()">GERAR MEU LINK WEB</button>
 
-    <div id="result-container">
-        <p>Seu link pronto para compartilhar:</p>
-        <textarea id="final-url" rows="4" readonly></textarea>
-        <button class="copy-btn" onclick="copy()">Copiar Link</button>
+        <div id="result-area">
+            <span id="final-link"></span>
+            <button onclick="copyLink()" style="background: #28a745;">COPIAR LINK</button>
+        </div>
     </div>
-</div>
 
-<script>
-    function generate() {
-        const data = {
-            s: document.getElementById('site').value,
-            t: document.getElementById('cta').value,
-            i: document.getElementById('img').value,
-            a: document.getElementById('aff').value
+    <script>
+        // VERIFICAÇÃO AUTOMÁTICA AO CARREGAR
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Se tiver o parâmetro 's', significa que alguém clicou no seu link gerado
+            if (params.has('s')) {
+                // Remove o gerador da tela
+                document.getElementById('ui-generator').remove();
+                document.documentElement.classList.add('snip-mode');
+
+                // Monta a estrutura da notícia com propaganda
+                const site = decodeURIComponent(params.get('s'));
+                const msg = decodeURIComponent(params.get('m'));
+                const img = decodeURIComponent(params.get('i'));
+                const aff = decodeURIComponent(params.get('a'));
+
+                document.body.innerHTML = `
+                    <div id="ad-bar">
+                        <img src="${img}">
+                        <div class="ad-text"><p>${msg}</p></div>
+                        <a href="${aff}" target="_blank" class="ad-btn">VER AGORA</a>
+                    </div>
+                    <iframe id="news-frame" src="${site}"></iframe>
+                `;
+            }
         };
 
-        // Aqui você usa a URL onde este arquivo HTML está hospedado online
-        // Se você não quer hospedar, você pode usar um serviço como o "GitHub Pages"
-        const baseUrl = window.location.href.split('?')[0]; 
-        
-        // Se estiver rodando local, ele avisa que precisa de um link web
-        if(baseUrl.startsWith('file:///')) {
-            alert("Atenção: Para o link funcionar em outros celulares/PCs, você precisa abrir este gerador a partir de um link https:// e não de um arquivo no seu C:/");
+        // FUNÇÃO PARA CRIAR O LINK
+        function buildLink() {
+            const s = encodeURIComponent(document.getElementById('url-site').value);
+            const m = encodeURIComponent(document.getElementById('msg-cta').value);
+            const i = encodeURIComponent(document.getElementById('url-img').value);
+            const a = encodeURIComponent(document.getElementById('url-aff').value);
+
+            if (!s || !m) { alert("Preencha ao menos o link e a mensagem!"); return; }
+
+            // Pega o endereço atual (onde você hospedou)
+            const base = window.location.href.split('?')[0];
+            const result = `${base}?s=${s}&m=${m}&i=${i}&a=${a}`;
+
+            document.getElementById('final-link').innerText = result;
+            document.getElementById('result-area').style.display = 'block';
         }
 
-        const query = `?s=${btoa(data.s)}&t=${btoa(data.t)}&i=${btoa(data.i)}&a=${btoa(data.a)}`;
-        const finalUrl = baseUrl + query;
-
-        document.getElementById('final-url').value = finalUrl;
-        document.getElementById('result-container').style.display = 'block';
-    }
-
-    function copy() {
-        const copyText = document.getElementById("final-url");
-        copyText.select();
-        document.execCommand("copy");
-        alert("Link copiado! Agora passe no Bitly para encurtar.");
-    }
-
-    // Lógica para exibir o conteúdo caso o link tenha parâmetros
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('s')) {
-            document.body.innerHTML = `
-                <style>
-                    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-                    iframe { width: 100%; height: 100%; border: none; }
-                    #overlay { position: fixed; bottom: 20px; left: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 15px; z-index: 9999; border-left: 5px solid #007bff; max-width: 350px; }
-                    #overlay img { width: 60px; height: 60px; border-radius: 5px; object-fit: cover; }
-                    #overlay a { text-decoration: none; background: #007bff; color: white; padding: 8px 12px; border-radius: 5px; font-size: 13px; font-weight: bold; }
-                </style>
-                <div id="overlay">
-                    <img src="${atob(urlParams.get('i'))}">
-                    <div>
-                        <p style="margin:0 0 5px; font-size:14px; font-weight:bold;">${atob(urlParams.get('t'))}</p>
-                        <a href="${atob(urlParams.get('a'))}" target="_blank">APROVEITAR</a>
-                    </div>
-                </div>
-                <iframe src="${atob(urlParams.get('s'))}"></iframe>
-            `;
+        function copyLink() {
+            const linkText = document.getElementById('final-link').innerText;
+            navigator.clipboard.writeText(linkText);
+            alert("Link copiado! Lembre-se: hospede este arquivo no Github ou Netlify para o link funcionar na web.");
         }
-    }
-</script>
+    </script>
 </body>
 </html>
