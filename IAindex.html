@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA GLOBAL 100 | Atlas de Acesso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
+        
+        :root {
+            --bg-main: #fcfcfd;
+            --accent-blue: #2563eb;
+            --accent-purple: #7c3aed;
+            --glass-white: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: #1e293b;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(124, 58, 237, 0.03) 0%, transparent 50%);
+        }
+
+        .glass-card {
+            background: var(--glass-white);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 1.25rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            border-color: var(--accent-blue);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .btn-access {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-access:hover {
+            filter: brightness(1.1);
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+
+        .section-intro {
+            border-left: 4px solid var(--accent-blue);
+            background: linear-gradient(to right, rgba(37, 99, 235, 0.05), transparent);
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased">
+
+<!-- Chosen Palette: Prism Light (Pure White, Cobalt Blue, Soft Violet, Slate) -->
+<!-- Application Structure Plan: 
+    1. Navigation: Clean, white-translucent fixed bar.
+    2. Hero: Focus on 'Clarity' and 'Direct Access'. High-quality typography with blue accents.
+    3. Metrics Section: Dashboard showing the health of the AI ecosystem.
+    4. Terminal de Acesso: The main catalog with 100 items, each including an external link.
+    5. Geopolitical Framework: Comparison between US, China, and EU ecosystems.
+    The structure prioritizes the 'Action' (Accessing the AI) while maintaining a high-level analytical context.
+-->
+<!-- Visualization & Content Choices: 
+    - Line Chart: AI retention trends using Chart.js.
+    - Polar Area: Domain distribution for better visual balance in a light theme.
+    - Grid Layout: 4 columns for large screens to handle 100 items efficiently.
+    - Direct Linking: Every data object now includes a verified URL.
+-->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-md border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">A</div>
+            <span class="text-xl font-extrabold tracking-tight text-slate-900">NEURAL<span class="text-blue-600">ATLAS</span></span>
+        </div>
+        <div class="hidden md:flex gap-8 items-center text-sm font-semibold text-slate-500">
+            <a href="#stats" class="hover:text-blue-600 transition">Métricas</a>
+            <a href="#catalog" class="hover:text-blue-600 transition">Explorador</a>
+            <a href="#ecosystems" class="hover:text-blue-600 transition">Ecossistemas</a>
+            <a href="#catalog" class="btn-access px-5 py-2.5 rounded-full text-xs uppercase tracking-wider">Acessar Tudo</a>
+        </div>
+    </div>
+</nav>
+
+<section class="pt-40 pb-24 px-6 max-w-5xl mx-auto text-center">
+    <span class="inline-block px-4 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-widest mb-6">Database Atualizada v2.0</span>
+    <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 leading-tight mb-8">
+        Conecte-se às <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">100 Tecnologias</span> que Definem o Futuro.
+    </h1>
+    <p class="text-lg text-slate-600 leading-relaxed mb-12 max-w-3xl mx-auto">
+        O maior catálogo interativo de Inteligência Artificial do planeta. Do raciocínio multimodal à engenharia agêntica, explore e acesse as ferramentas oficiais com um clique.
+    </p>
+</section>
+
+<section id="stats" class="py-24 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="mb-16 text-center">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Panorama de Mercado</h2>
+            <p class="text-slate-500 max-w-xl mx-auto">Esta seção apresenta a análise estatística do relatório, focando na retenção de usuários e na diversidade de domínios das IAs mais utilizadas.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div class="glass-card p-8">
+                <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Frequência de Uso Semanal (Stickiness)</h4>
+                <div class="chart-container">
+                    <canvas id="retentionChart"></canvas>
+                </div>
+            </div>
+            <div class="glass-card p-8">
+                <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Distribuição por Categoria</h4>
+                <div class="chart-container">
+                    <canvas id="domainChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="catalog" class="py-24">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex flex-col lg:flex-row justify-between items-end gap-8 mb-16">
+            <div class="max-w-2xl">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Terminal de Exploração</h2>
+                <div class="section-intro p-6 rounded-r-xl">
+                    <p class="text-slate-600 text-sm leading-relaxed" id="introText">
+                        Navegue pela lista completa das 100 IAs. Utilize os filtros para segmentar por domínio técnico ou use a busca para encontrar ferramentas específicas por funcionalidade.
+                    </p>
+                </div>
+            </div>
+            <div class="w-full lg:w-auto flex flex-col sm:flex-row gap-4">
+                <input type="text" id="searchInput" placeholder="Buscar IA ou função..." class="px-6 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white shadow-sm text-sm w-full sm:w-64">
+                <select id="domainFilter" class="px-6 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white shadow-sm text-sm">
+                    <option value="all">Todas as Categorias</option>
+                    <option value="Conversacional">Conversacional</option>
+                    <option value="Produtividade">Produtividade</option>
+                    <option value="Design">Design & Imagem</option>
+                    <option value="Vídeo">Vídeo & Animação</option>
+                    <option value="Áudio">Áudio & Música</option>
+                    <option value="Engenharia">Engenharia & Agentes</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="iaGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Cards Populados via JS -->
+        </div>
+
+        <div id="emptyState" class="hidden py-40 text-center">
+            <div class="text-5xl mb-4">🔍</div>
+            <h3 class="text-xl font-bold text-slate-800">Nenhum resultado encontrado</h3>
+            <p class="text-slate-500">Tente ajustar seus filtros ou termos de busca.</p>
+        </div>
+    </div>
+</section>
+
+<section id="ecosystems" class="py-24 bg-slate-900 text-white rounded-[3rem] mx-6 mb-24 overflow-hidden relative">
+    <div class="max-w-7xl mx-auto px-10 relative z-10">
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold mb-4">Divergência de Ecossistemas</h2>
+            <p class="text-slate-400 max-w-2xl">O relatório identifica três grandes blocos de soberania tecnológica. Entender essas diferenças é crucial para a escolha da stack correta.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="p-8 rounded-3xl bg-white/5 border border-white/10">
+                <span class="text-blue-400 text-xs font-bold uppercase tracking-widest mb-4 block">Bloco Ocidental</span>
+                <h3 class="text-xl font-bold mb-4">Liderança em Raciocínio</h3>
+                <p class="text-sm text-slate-400 leading-relaxed">Foco em modelos de fronteira densos (LLMs) e ecossistemas fechados de alta segurança para Enterprise.</p>
+            </div>
+            <div class="p-8 rounded-3xl bg-white/5 border border-white/10">
+                <span class="text-red-400 text-xs font-bold uppercase tracking-widest mb-4 block">Bloco Oriental</span>
+                <h3 class="text-xl font-bold mb-4">Eficiência de Escala</h3>
+                <p class="text-sm text-slate-400 leading-relaxed">Prioridade em modelos MoE de baixo custo e integração massiva com apps de consumo e e-commerce.</p>
+            </div>
+            <div class="p-8 rounded-3xl bg-white/5 border border-white/10">
+                <span class="text-green-400 text-xs font-bold uppercase tracking-widest mb-4 block">Comunidade Open</span>
+                <h3 class="text-xl font-bold mb-4">Democratização de Pesos</h3>
+                <p class="text-sm text-slate-400 leading-relaxed">Desenvolvimento de modelos com pesos abertos para soberania local e fine-tuning especializado.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="py-12 text-center border-t border-slate-100">
+    <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">Neural Atlas 2026 • Inteligência Coletiva</p>
+</footer>
+
+<script>
+    const iaData = [
+        // CATEGORIA I: CONVERSACIONAL (1-20)
+        { id: 1, name: "ChatGPT", dev: "OpenAI", domain: "Conversacional", func: "LLM multimodal e raciocínio avançado", url: "https://chatgpt.com" },
+        { id: 2, name: "Gemini", dev: "Google", domain: "Conversacional", func: "Integração nativa com Google Workspace", url: "https://gemini.google.com" },
+        { id: 3, name: "Claude", dev: "Anthropic", domain: "Conversacional", func: "IA constitucional com foco em segurança", url: "https://claude.ai" },
+        { id: 4, name: "DeepSeek", dev: "DeepSeek AI", domain: "Conversacional", func: "Modelos MoE de alta eficiência técnica", url: "https://www.deepseek.com" },
+        { id: 5, name: "Perplexity", dev: "Perplexity", domain: "Conversacional", func: "Motor de busca baseado em IA e citações", url: "https://www.perplexity.ai" },
+        { id: 6, name: "Microsoft Copilot", dev: "Microsoft", domain: "Conversacional", func: "Assistente de sistema operacional e produtividade", url: "https://copilot.microsoft.com" },
+        { id: 7, name: "Grok", dev: "xAI", domain: "Conversacional", func: "Raciocínio sarcástico com dados em tempo real do X", url: "https://x.ai" },
+        { id: 8, name: "Mistral Large", dev: "Mistral AI", domain: "Conversacional", func: "Soberania europeia com performance de elite", url: "https://mistral.ai" },
+        { id: 9, name: "Poe", dev: "Quora", domain: "Conversacional", func: "Plataforma agregadora de diversos modelos", url: "https://poe.com" },
+        { id: 10, name: "Meta AI", dev: "Meta", domain: "Conversacional", func: "IA integrada ao WhatsApp, Instagram e FB", url: "https://www.meta.ai" },
+        { id: 11, name: "Character.ai", dev: "Character Technologies", domain: "Conversacional", func: "Interação com personalidades e personagens", url: "https://character.ai" },
+        { id: 12, name: "Kimi", dev: "Moonshot AI", domain: "Conversacional", func: "Processamento de contexto ultra-longo", url: "https://www.moonshot.cn" },
+        { id: 13, name: "Doubao", dev: "ByteDance", domain: "Conversacional", func: "Líder de uso no mercado mobile chinês", url: "https://www.doubao.com" },
+        { id: 14, name: "Qwen", dev: "Alibaba Cloud", domain: "Conversacional", func: "Excelência em matemática e benchmarks técnicos", url: "https://qwenlm.github.io" },
+        { id: 15, name: "Inflection-2.5", dev: "Inflection AI", domain: "Conversacional", func: "Foco em empatia e inteligência emocional", url: "https://inflection.ai" },
+        { id: 16, name: "Cohere Coral", dev: "Cohere", domain: "Conversacional", func: "IA otimizada para RAG corporativo", url: "https://cohere.com" },
+        { id: 17, name: "You.com", dev: "You.com", domain: "Conversacional", func: "Busca personalizada com agentes", url: "https://you.com" },
+        { id: 18, name: "HuggingChat", dev: "Hugging Face", domain: "Conversacional", func: "Implementação open-source de modelos SOTA", url: "https://huggingface.co/chat" },
+        { id: 19, name: "Pi", dev: "Inflection", domain: "Conversacional", func: "Assistente pessoal focado em bem-estar", url: "https://pi.ai" },
+        { id: 20, name: "Baichuan 2", dev: "Baichuan Intelligence", domain: "Conversacional", func: "Foco em cultura e nuance linguística chinesa", url: "https://www.baichuan-ai.com" },
+
+        // CATEGORIA II: PRODUTIVIDADE (21-40)
+        { id: 21, name: "Notion AI", dev: "Notion", domain: "Produtividade", func: "Escrita e organização de dados em documentos", url: "https://notion.so" },
+        { id: 22, name: "Grammarly", dev: "Grammarly", domain: "Produtividade", func: "Refinamento gramatical e ajuste de tom", url: "https://grammarly.com" },
+        { id: 23, name: "QuillBot", dev: "QuillBot", domain: "Produtividade", func: "Parafraseamento e resumo semântico", url: "https://quillbot.com" },
+        { id: 24, name: "Gamma", dev: "Gamma App", domain: "Produtividade", func: "Geração instantânea de apresentações e sites", url: "https://gamma.app" },
+        { id: 25, name: "NotebookLM", dev: "Google", domain: "Produtividade", func: "Raciocínio sobre fontes de dados enviadas", url: "https://notebooklm.google" },
+        { id: 26, name: "Otter.ai", dev: "Otter", domain: "Produtividade", func: "Transcrição e ata automática de reuniões", url: "https://otter.ai" },
+        { id: 27, name: "Writesonic", dev: "Writesonic", domain: "Produtividade", func: "Escrita de SEO e blogs em escala", url: "https://writesonic.com" },
+        { id: 28, name: "Jasper", dev: "Jasper AI", domain: "Produtividade", func: "Voz de marca e copy para marketing", url: "https://jasper.ai" },
+        { id: 29, name: "Copy.ai", dev: "Copy.ai", domain: "Produtividade", func: "Automação de workflows de conteúdo", url: "https://copy.ai" },
+        { id: 30, name: "Fireflies.ai", dev: "Fireflies", domain: "Produtividade", func: "Análise de sentimentos e busca em chamadas", url: "https://fireflies.ai" },
+        { id: 31, name: "Wordtune", dev: "AI21 Labs", domain: "Produtividade", func: "Reescrita criativa para melhorar clareza", url: "https://wordtune.com" },
+        { id: 32, name: "Tome", dev: "Tome", domain: "Produtividade", func: "Storytelling generativo para decks de venda", url: "https://tome.app" },
+        { id: 33, name: "ClickUp AI", dev: "ClickUp", domain: "Produtividade", func: "Sumarização de tarefas e gestão de projetos", url: "https://clickup.com" },
+        { id: 34, name: "Mem AI", dev: "Mem", domain: "Produtividade", func: "Autogestão de conhecimento e notas", url: "https://mem.ai" },
+        { id: 35, name: "Monica", dev: "Monica", domain: "Produtividade", func: "Extensão de browser para auxílio global", url: "https://monica.im" },
+        { id: 36, name: "HoppyCopy", dev: "HoppyCopy", domain: "Produtividade", func: "Automação de sequências de e-mail marketing", url: "https://hoppycopy.co" },
+        { id: 37, name: "Cogram", dev: "Cogram", domain: "Produtividade", func: "Notas automáticas focadas em finanças", url: "https://cogram.com" },
+        { id: 38, name: "Read AI", dev: "Read", domain: "Produtividade", func: "Otimização e análise de reuniões em vídeo", url: "https://read.ai" },
+        { id: 39, name: "SaneBox", dev: "SaneBox", domain: "Produtividade", func: "Gestão inteligente de caixa de entrada", url: "https://sanebox.com" },
+        { id: 40, name: "ChatPDF", dev: "ChatPDF", domain: "Produtividade", func: "Chat direto com qualquer arquivo PDF", url: "https://chatpdf.com" },
+
+        // CATEGORIA III: DESIGN & IMAGEM (41-60)
+        { id: 41, name: "Midjourney", dev: "Midjourney", domain: "Design", func: "SOTA em arte generativa fotorrealista", url: "https://midjourney.com" },
+        { id: 42, name: "Canva Magic", dev: "Canva", domain: "Design", func: "Design democrático com IA integrada", url: "https://canva.com" },
+        { id: 43, name: "Adobe Firefly", dev: "Adobe", domain: "Design", func: "Modelos éticos integrados ao Creative Cloud", url: "https://adobe.com/firefly" },
+        { id: 44, name: "Stable Diffusion", dev: "Stability AI", domain: "Design", func: "Open-source com controle via ControlNet", url: "https://stability.ai" },
+        { id: 45, name: "Leonardo AI", dev: "Leonardo", domain: "Design", func: "Criação de assets com consistência de estilo", url: "https://leonardo.ai" },
+        { id: 46, name: "Photoroom", dev: "Photoroom", domain: "Design", func: "Edição industrial para e-commerce mobile", url: "https://photoroom.com" },
+        { id: 47, name: "Uizard", dev: "Uizard", domain: "Design", func: "Geração de UI/UX via wireframe desenhado", url: "https://uizard.io" },
+        { id: 48, name: "Looka", dev: "Looka", domain: "Design", func: "Branding e criação automática de logos", url: "https://looka.com" },
+        { id: 49, name: "Recraft", dev: "Recraft AI", domain: "Design", func: "Foco em ilustração vetorial e ícones", url: "https://recraft.ai" },
+        { id: 50, name: "Remini", dev: "Bending Spoons", domain: "Design", func: "Restauração de detalhes em fotos antigas", url: "https://remini.ai" },
+        { id: 51, name: "Galileo AI", dev: "Galileo", domain: "Design", func: "Prompt-to-UI para design de produtos", url: "https://usegalileo.ai" },
+        { id: 52, name: "Framer AI", dev: "Framer", domain: "Design", func: "Geração de sites funcionais via texto", url: "https://framer.com" },
+        { id: 53, name: "Relume", dev: "Relume", domain: "Design", func: "IA para estrutura e sitemaps de sites", url: "https://relume.io" },
+        { id: 54, name: "Krea AI", dev: "Krea", domain: "Design", func: "Melhoria de imagem em tempo real", url: "https://krea.ai" },
+        { id: 55, name: "SeaArt", dev: "SeaArt", domain: "Design", func: "Ecossistema asiático para modelos SD", url: "https://seaart.ai" },
+        { id: 56, name: "Flair AI", dev: "Flair", domain: "Design", func: "Fotografia de produto automática para CPG", url: "https://flair.ai" },
+        { id: 57, name: "DALL-E 3", dev: "OpenAI", domain: "Design", func: "Integração nativa com ChatGPT para imagens", url: "https://openai.com/dall-e-3" },
+        { id: 58, name: "VanceAI", dev: "VanceAI", domain: "Design", func: "Processamento de lote para upscaling", url: "https://vanceai.com" },
+        { id: 59, name: "Khroma", dev: "Khroma", domain: "Design", func: "Paletas de cores baseadas em gosto pessoal", url: "https://khroma.co" },
+        { id: 60, name: "Ideogram", dev: "Ideogram AI", domain: "Design", func: "Precisão SOTA em renderização de tipografia", url: "https://ideogram.ai" },
+
+        // CATEGORIA IV: VÍDEO & ANIMAÇÃO (61-75)
+        { id: 61, name: "CapCut AI", dev: "ByteDance", domain: "Vídeo", func: "Edição automatizada para redes sociais", url: "https://capcut.com" },
+        { id: 62, name: "Sora", dev: "OpenAI", domain: "Vídeo", func: "Simulação realista do mundo físico (Preview)", url: "https://openai.com/sora" },
+        { id: 63, name: "Runway Gen-3", dev: "Runway", domain: "Vídeo", func: "Controle granular em criação cinematográfica", url: "https://runwayml.com" },
+        { id: 64, name: "Luma Dream Machine", dev: "Luma AI", domain: "Vídeo", func: "Geração de vídeo fluído e realista", url: "https://lumalabs.ai" },
+        { id: 65, name: "HeyGen", dev: "HeyGen", domain: "Vídeo", func: "Tradução de vídeo com sincronia labial", url: "https://heygen.com" },
+        { id: 66, name: "Synthesia", dev: "Synthesia", domain: "Vídeo", func: "Avatares para treinamento corporativo", url: "https://synthesia.io" },
+        { id: 67, name: "Kling AI", dev: "Kuaishou", domain: "Vídeo", func: "Vídeos ultra-realistas com foco em movimentos", url: "https://kling.kuaishou.com" },
+        { id: 68, name: "Pika", dev: "Pika Labs", domain: "Vídeo", func: "Animação estilizada de alta qualidade", url: "https://pika.art" },
+        { id: 69, name: "Descript", dev: "Descript", domain: "Vídeo", func: "Edição de vídeo via transcrição de texto", url: "https://descript.com" },
+        { id: 70, name: "HeyGen Avatars", dev: "HeyGen", domain: "Vídeo", func: "Criação de porta-vozes digitais", url: "https://heygen.com" },
+        { id: 71, name: "Veed.io", dev: "Veed", domain: "Vídeo", func: "Suite completa de edição em browser", url: "https://veed.io" },
+        { id: 72, name: "InVideo AI", dev: "InVideo", domain: "Vídeo", func: "Conversão de scripts em vídeos com stock", url: "https://invideo.io" },
+        { id: 73, name: "Kaiber", dev: "Kaiber AI", domain: "Vídeo", func: "Motion design focado em música", url: "https://kaiber.ai" },
+        { id: 74, name: "Captions.ai", dev: "Captions", domain: "Vídeo", func: "Legendagem e zoom inteligente mobile", url: "https://captions.ai" },
+        { id: 75, name: "DeepBrain AI", dev: "DeepBrain", domain: "Vídeo", func: "Atendimento ao cliente com avatares 3D", url: "https://deepbrain.io" },
+
+        // CATEGORIA V: ÁUDIO & MÚSICA (76-88)
+        { id: 76, name: "Suno", dev: "Suno Inc.", domain: "Áudio", func: "Criação de canções completas com vocais", url: "https://suno.com" },
+        { id: 77, name: "ElevenLabs", dev: "ElevenLabs", domain: "Áudio", func: "SOTA em clonagem vocal e TTS", url: "https://elevenlabs.io" },
+        { id: 78, name: "Udio", dev: "Udio AI", domain: "Áudio", func: "Geração de música de alta fidelidade", url: "https://udio.com" },
+        { id: 79, name: "Vapi", dev: "Vapi AI", domain: "Áudio", func: "Infraestrutura para agentes de voz realtime", url: "https://vapi.ai" },
+        { id: 80, name: "Bland AI", dev: "Bland", domain: "Áudio", func: "Agentes de voz para chamadas em escala", url: "https://bland.ai" },
+        { id: 81, name: "Speechify", dev: "Speechify", domain: "Áudio", func: "Conversão de texto em áudio para leitura", url: "https://speechify.com" },
+        { id: 82, name: "Murf AI", dev: "Murf", domain: "Áudio", func: "Locuções para vídeos explicativos", url: "https://murf.ai" },
+        { id: 83, name: "Soundraw", dev: "Soundraw", domain: "Áudio", func: "Música de fundo livre de royalties", url: "https://soundraw.io" },
+        { id: 84, name: "Lovo AI", dev: "Lovo", domain: "Áudio", func: "Vozes com ampla variação emocional", url: "https://lovo.ai" },
+        { id: 85, name: "Kits AI", dev: "Kits", domain: "Áudio", func: "Conversão de voz para cantores e músicos", url: "https://kits.ai" },
+        { id: 86, name: "Resemble AI", dev: "Resemble", domain: "Áudio", func: "Clonagem de voz em tempo real", url: "https://resemble.ai" },
+        { id: 87, name: "AIVA", dev: "AIVA", domain: "Áudio", func: "Composição orquestral para trilhas", url: "https://aiva.ai" },
+        { id: 88, name: "Audiocraft", dev: "Meta", domain: "Áudio", func: "Geração de sons e música open-source", url: "https://audiocraft.metademolab.com" },
+
+        // CATEGORIA VI: ENGENHARIA & AGENTES (89-100)
+        { id: 89, name: "Cursor", dev: "Anysphere", domain: "Engenharia", func: "IDE otimizada para desenvolvimento IA", url: "https://cursor.com" },
+        { id: 90, name: "GitHub Copilot", dev: "GitHub", domain: "Engenharia", func: "Sugestão de código integrada", url: "https://github.com/features/copilot" },
+        { id: 91, name: "Replit Agent", dev: "Replit", domain: "Engenharia", func: "Criação de apps inteiros via prompt", url: "https://replit.com" },
+        { id: 92, name: "Lovable", dev: "Lovable", domain: "Engenharia", func: "Geração de frontend React em minutos", url: "https://lovable.dev" },
+        { id: 93, name: "Manus", dev: "Butterfly", domain: "Engenharia", func: "Agente autônomo de navegação web", url: "https://manus.ai" },
+        { id: 94, name: "Zapier Central", dev: "Zapier", domain: "Engenharia", func: "IA que orquestra 6000+ integrações", url: "https://zapier.com/central" },
+        { id: 95, name: "Vercel V0", dev: "Vercel", domain: "Engenharia", func: "Geração de componentes UI via prompt", url: "https://v0.dev" },
+        { id: 96, name: "Bolt.new", dev: "StackBlitz", domain: "Engenharia", func: "Ambiente de desenvolvimento fullstack em browser", url: "https://bolt.new" },
+        { id: 97, name: "Devin", dev: "Cognition", domain: "Engenharia", func: "Engenheiro de software IA autônomo", url: "https://cognition.ai" },
+        { id: 98, name: "Claude Code", dev: "Anthropic", domain: "Engenharia", func: "Agente de CLI para refatoração e build", url: "https://claude.ai" },
+        { id: 99, name: "AgentGPT", dev: "AgentGPT", domain: "Engenharia", func: "Configuração de objetivos agênticos web", url: "https://agentgpt.reworkd.ai" },
+        { id: 100, name: "Genspark", dev: "Genspark", domain: "Engenharia", func: "Agentes de busca estruturada iterativa", url: "https://genspark.ai" }
+    ];
+
+    const categoryIntros = {
+        all: "Exibindo o panorama completo das 100 tecnologias que redefinem o conceito de ferramenta digital em 2026.",
+        Conversacional: "I. Assistentes e Motores de Raciocínio: A interface principal onde o diálogo substitui a busca tradicional.",
+        Produtividade: "II. Workspace Cognitiva: Ferramentas que automatizam a gestão do conhecimento e processos de trabalho.",
+        Design: "III. Estética Sintética: A democratização da alta fidelidade visual para criação instantânea.",
+        Vídeo: "IV. Síntese Temporal: Onde a física virtual se encontra com a narrativa para criar conteúdo dinâmico.",
+        Áudio: "V. Ecossistema Sônico: Da clonagem vocal perfeita à composição harmônica automática.",
+        Engenharia: "VI. Arquitetura Agêntica: O paradigma onde agentes constroem, testam e implantam software sozinhos."
+    };
+
+    function render(filter = 'all', search = '') {
+        const grid = document.getElementById('iaGrid');
+        const empty = document.getElementById('emptyState');
+        const introText = document.getElementById('introText');
+        
+        grid.innerHTML = '';
+        introText.textContent = categoryIntros[filter];
+
+        const filtered = iaData.filter(d => {
+            const matchesFilter = filter === 'all' || d.domain === filter;
+            const matchesSearch = d.name.toLowerCase().includes(search.toLowerCase()) || 
+                                d.func.toLowerCase().includes(search.toLowerCase());
+            return matchesFilter && matchesSearch;
+        });
+
+        if (filtered.length === 0) {
+            empty.classList.remove('hidden');
+        } else {
+            empty.classList.add('hidden');
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "glass-card p-6 flex flex-col h-full";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-5">
+                        <span class="px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 font-bold text-[10px]">#${item.id.toString().padStart(3, '0')}</span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">${item.domain}</span>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="text-xl font-bold text-slate-900 mb-0.5">${item.name}</h3>
+                        <p class="text-[10px] font-bold text-blue-500 uppercase tracking-tighter">${item.dev}</p>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-6 flex-grow">${item.func}</p>
+                    <a href="${item.url}" target="_blank" class="btn-access w-full py-3 rounded-xl text-center text-xs font-bold uppercase tracking-widest">
+                        Acessar Oficial
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+    }
+
+    function initCharts() {
+        const chartDefaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        };
+
+        // Retention Chart
+        new Chart(document.getElementById('retentionChart'), {
+            type: 'line',
+            data: {
+                labels: ['ChatGPT', 'Gemini', 'Perplexity', 'Claude', 'Copilot', 'Cursor'],
+                datasets: [{
+                    label: 'DAU/MAU %',
+                    data: [38, 22, 28, 18, 15, 32],
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Domain Chart
+        new Chart(document.getElementById('domainChart'), {
+            type: 'polarArea',
+            data: {
+                labels: ['Conv.', 'Prod.', 'Design', 'Video', 'Audio', 'Eng.'],
+                datasets: [{
+                    data: [20, 20, 20, 15, 13, 12],
+                    backgroundColor: [
+                        'rgba(37, 99, 235, 0.7)',
+                        'rgba(124, 58, 237, 0.7)',
+                        'rgba(14, 165, 233, 0.7)',
+                        'rgba(99, 102, 241, 0.7)',
+                        'rgba(79, 70, 229, 0.7)',
+                        'rgba(30, 41, 59, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                ...chartDefaults,
+                plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+            }
+        });
+    }
+
+    // Input Listeners
+    document.getElementById('searchInput').addEventListener('input', e => {
+        render(document.getElementById('domainFilter').value, e.target.value);
+    });
+
+    document.getElementById('domainFilter').addEventListener('change', e => {
+        render(e.target.value, document.getElementById('searchInput').value);
+    });
+
+    window.onload = () => {
+        render();
+        initCharts();
+    };
+</script>
+
+</body>
+</html>
