@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador Personalizado TikTok</title>
+    <!-- Tailwind CSS para estilização rápida e moderna -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Detalhes visuais inspirados nas cores do TikTok */
+        .tiktok-shadow {
+            box-shadow: 4px 4px 0px #00f2fe, -4px -4px 0px #fe0979;
+        }
+        .tiktok-hover:hover {
+            box-shadow: 2px 2px 0px #00f2fe, -2px -2px 0px #fe0979;
+            transform: translate(2px, 2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
+        <!-- Cabeçalho -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Busca <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00f2fe] to-[#fe0979]">TikTok</span></h1>
+            <p class="text-gray-500 text-sm">Crie seu link de pesquisa customizado. Use espaços e hashtags livremente.</p>
+        </div>
+
+        <!-- Formulário -->
+        <form id="searchForm" class="space-y-5">
+            <div>
+                <label for="searchInput" class="block text-sm font-semibold text-gray-700 mb-2">
+                    O que você deseja pesquisar?
+                </label>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="w-full pl-4 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" 
+                        placeholder="Ex: 2026-7-6"
+                        autocomplete="off"
+                    >
+                </div>
+                <!-- Mensagem de erro (escondida por padrão) -->
+                <p id="errorMessage" class="text-red-500 text-xs font-medium mt-2 hidden transition-all">
+                    ⚠️ Por favor, digite algum termo para pesquisar.
+                </p>
+            </div>
+
+            <!-- Novo campo para Tags -->
+            <div>
+                <label for="tagInput" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Tags / Hashtags (Opcional)
+                </label>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="tagInput" 
+                        class="w-full pl-4 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black outline-none transition-all" 
+                        placeholder="Ex: fones drones (separadas por espaço)"
+                        autocomplete="off"
+                    >
+                </div>
+            </div>
+
+            <button 
+                type="submit" 
+                class="w-full bg-black text-white font-bold text-lg py-3 px-4 rounded-xl transition-all duration-200 tiktok-shadow tiktok-hover flex justify-center items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                Pesquisar no TikTok
+            </button>
+        </form>
+
+        <!-- Área de Preview do Link (Opcional, para o usuário ver como ficou) -->
+        <div class="mt-8 pt-6 border-t border-gray-100">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Preview do Link Gerado</h3>
+            <div class="bg-gray-100 rounded-lg p-3 overflow-x-auto">
+                <code id="previewLink" class="text-xs text-gray-600 whitespace-nowrap">
+                    https://www.tiktok.com/search?q=
+                </code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lógica de Funcionamento -->
+    <script>
+        const form = document.getElementById('searchForm');
+        const input = document.getElementById('searchInput');
+        const tagInput = document.getElementById('tagInput');
+        const errorMessage = document.getElementById('errorMessage');
+        const previewLink = document.getElementById('previewLink');
+        
+        // URL base do TikTok
+        const baseUrl = 'https://www.tiktok.com/search?q=';
+
+        // Função para construir a string final de pesquisa
+        function buildFullQuery() {
+            const query = input.value.trim();
+            const rawTags = tagInput.value.trim();
+            let tagsString = '';
+
+            if (rawTags) {
+                // Separa as tags por vírgula ou espaço
+                const tagsArray = rawTags.split(/[\s,]+/);
+                
+                // Remove espaços vazios e adiciona a '#' no início de cada tag (se já não tiver)
+                tagsString = tagsArray
+                    .filter(tag => tag.length > 0)
+                    .map(tag => tag.startsWith('#') ? tag : '#' + tag)
+                    .join(' '); // junta tudo com espaços
+                
+                // Adiciona um espaço antes das tags, caso exista texto na busca principal
+                if (query) {
+                    tagsString = ' ' + tagsString;
+                }
+            }
+
+            return query + tagsString;
+        }
+
+        // Atualiza a visualização do link em tempo real
+        function updatePreview() {
+            const fullQuery = buildFullQuery();
+            
+            if (fullQuery) {
+                // encodeURIComponent converte o espaço em %20 e o '#' gerado acima em %23 automaticamente
+                previewLink.textContent = baseUrl + encodeURIComponent(fullQuery);
+            } else {
+                previewLink.textContent = baseUrl;
+            }
+        }
+
+        // Fica de olho nos DOIS campos para atualizar o preview
+        input.addEventListener('input', updatePreview);
+        tagInput.addEventListener('input', updatePreview);
+
+        // Executa a ação ao clicar no botão "Pesquisar" ou apertar Enter
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            const fullQuery = buildFullQuery();
+
+            // Validação simples: se não tiver NADA preenchido, mostra o erro
+            if (!fullQuery) {
+                errorMessage.classList.remove('hidden');
+                input.classList.add('border-red-500', 'focus:ring-red-500');
+                return;
+            }
+
+            errorMessage.classList.add('hidden');
+            input.classList.remove('border-red-500', 'focus:ring-red-500');
+
+            // Gera a URL codificada com %20 para espaços e %23 para tags
+            const finalUrl = baseUrl + encodeURIComponent(fullQuery);
+
+            window.open(finalUrl, '_blank');
+        });
+    </script>
+</body>
+</html>
