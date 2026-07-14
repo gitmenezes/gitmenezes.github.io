@@ -1,0 +1,1004 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Prompts - Análise de Contexto</title>
+    <!-- Tailwind CSS para Estilização -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom scrollbar para manter a elegância do modo escuro */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        body { background-color: #020617; color: #cbd5e1; font-family: ui-sans-serif, system-ui, sans-serif; }
+        ::selection { background-color: rgba(99, 102, 241, 0.3); }
+    </style>
+</head>
+<body class="min-h-screen selection:bg-indigo-500/30">
+
+    <!-- Toast de Notificação -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-indigo-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none">
+        <i data-lucide="check" class="w-5 h-5"></i>
+        <span id="toast-msg" class="font-medium">Prompt copiado!</span>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800 p-4 lg:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 p-2 rounded-lg">
+                    <i data-lucide="zap" class="text-white w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Nexus Prompts</h1>
+                    <p class="text-xs text-indigo-400 font-medium">Framework de Análise de Contexto (600 Prompts)</p>
+                </div>
+            </div>
+            
+            <div class="relative w-full md:w-96">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4"></i>
+                <input 
+                    type="text" 
+                    id="search-input"
+                    placeholder="Buscar prompts por palavra-chave..." 
+                    class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-200 placeholder-slate-500"
+                >
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 p-4 lg:p-8">
+        
+        <!-- Sidebar -->
+        <aside class="w-full lg:w-72 flex flex-col gap-6 flex-shrink-0">
+            
+            <!-- Categorias -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+                <div class="flex items-center gap-2 text-slate-400 font-semibold uppercase tracking-wider text-xs mb-4 px-2">
+                    <i data-lucide="filter" class="w-3.5 h-3.5"></i> Categorias
+                </div>
+                <nav id="categories-container" class="flex flex-col gap-1">
+                    <!-- Gerado via JS -->
+                </nav>
+            </div>
+
+            <!-- Motor de Multiplicação -->
+            <div class="bg-slate-900 border border-indigo-900/50 rounded-2xl p-5 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
+                
+                <h3 class="text-white font-semibold mb-1 flex items-center gap-2">
+                    <i data-lucide="zap" class="text-indigo-400 w-4 h-4"></i>
+                    Motor Multiplicador
+                </h3>
+                <p class="text-xs text-slate-400 mb-4">
+                    Combine os prompts com estes modificadores para gerar mais de <strong id="combinations-count" class="text-indigo-300">10.000</strong> variáveis exclusivas.
+                </p>
+
+                <div class="space-y-4 relative z-10">
+                    <div>
+                        <label class="text-xs font-medium text-slate-300 mb-1.5 block">1. Definir Persona</label>
+                        <select id="persona-select" class="w-full bg-slate-950 border border-slate-700 text-slate-300 text-sm rounded-lg px-3 py-2 outline-none focus:border-indigo-500">
+                            <!-- Gerado via JS -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-medium text-slate-300 mb-1.5 block">2. Formato de Saída</label>
+                        <select id="format-select" class="w-full bg-slate-950 border border-slate-700 text-slate-300 text-sm rounded-lg px-3 py-2 outline-none focus:border-indigo-500">
+                            <!-- Gerado via JS -->
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Preview -->
+                <div id="preview-container" class="mt-4 p-3 bg-slate-950 rounded-lg border border-slate-800 border-dashed hidden">
+                    <span class="text-[10px] uppercase text-indigo-400 font-bold block mb-1">Preview da Estrutura:</span>
+                    <p class="text-xs text-slate-400 italic">
+                        <span id="preview-persona" class="text-green-400"></span>
+                        [Seu Prompt Escolhido]
+                        <span id="preview-format" class="text-orange-400"></span>
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Area -->
+        <main class="flex-1">
+            <div class="mb-6 flex justify-between items-end">
+                <div>
+                    <h2 id="active-category-title" class="text-xl font-bold text-white">Todos</h2>
+                    <p id="prompt-count" class="text-sm text-slate-500 mt-1">Carregando prompts...</p>
+                </div>
+            </div>
+
+            <div id="empty-state" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center justify-center">
+                <i data-lucide="search-x" class="text-slate-600 mb-4 w-12 h-12"></i>
+                <h3 class="text-lg font-semibold text-white mb-2">Nenhum prompt encontrado</h3>
+                <p class="text-slate-400 text-sm max-w-md">
+                    Tente ajustar sua busca ou mudar a categoria para encontrar o framework perfeito.
+                </p>
+            </div>
+
+            <div id="prompts-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Cards gerados via JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts de Lógica -->
+    <script>
+        // Configurações e Dados
+        const MODIFIERS = {
+            personas: [
+                { label: 'Nenhuma', value: '' },
+                { label: 'Consultor Sênior', value: 'Aja como um consultor estratégico sênior da McKinsey. ' },
+                { label: 'Cientista de Dados', value: 'Aja como um cientista de dados analítico e focado em evidências empíricas. ' },
+                { label: 'Filósofo Crítico', value: 'Aja como um filósofo crítico focado em epistemologia e lógica formal. ' },
+                { label: 'Especialista Didático', value: 'Aja como um professor universitário especialista em simplificar o complexo. ' }
+            ],
+            formats: [
+                { label: 'Padrão', value: '' },
+                { label: 'Tabela Markdown', value: ' Apresente o resultado final em uma tabela Markdown bem estruturada.' },
+                { label: 'Bullet Points', value: ' Estruture toda a resposta em bullet points concisos e diretos.' },
+                { label: 'Passo a Passo', value: ' Entregue a resposta como um guia passo a passo numerado.' },
+            ]
+        };
+
+        const CATEGORIES = [
+            { id: 'Todos', icon: 'book-open' },
+            { id: 'Síntese', icon: 'git-merge' },
+            { id: 'Estruturação', icon: 'layout' },
+            { id: 'Análise Crítica', icon: 'brain-circuit' },
+            { id: 'Comparação', icon: 'git-compare' },
+            { id: 'Aplicação', icon: 'target' },
+            { id: 'Didática', icon: 'file-text' },
+            { id: 'Epistemologia', icon: 'microscope' },
+            { id: 'Riscos e Futuro', icon: 'shield-alert' },
+            { id: 'Decisão e Problemas', icon: 'split-square-horizontal' },
+            { id: 'Auditoria e Viés', icon: 'scale' },
+            { id: 'Resumo em Áudio', icon: 'mic' }
+        ];
+
+        // DADOS REAIS EXTRAÍDOS (600 PROMPTS)
+        const PROMPTS = [
+            // Síntese (1-50)
+            { id: 1, category: 'Síntese', text: 'Crie uma síntese executiva destacando apenas o que é essencial para a tomada de decisão.' },
+            { id: 2, category: 'Síntese', text: 'Reduza o texto em 80%, mantendo a integridade do argumento central.' },
+            { id: 3, category: 'Síntese', text: 'Extraia os 3 principais insights deste documento e explique sua relevância.' },
+            { id: 4, category: 'Síntese', text: 'Condense as informações em um abstract no formato acadêmico.' },
+            { id: 5, category: 'Síntese', text: 'Escreva um parágrafo que capture a essência filosófica do texto.' },
+            { id: 6, category: 'Síntese', text: 'Liste as conclusões primárias e secundárias em bullet points.' },
+            { id: 7, category: 'Síntese', text: 'Resuma o conteúdo sob a perspectiva de um observador neutro.' },
+            { id: 8, category: 'Síntese', text: 'Transforme os dados complexos em uma narrativa simples e direta.' },
+            { id: 9, category: 'Síntese', text: 'Crie um "Elevator Pitch" de 30 segundos baseado neste contexto.' },
+            { id: 10, category: 'Síntese', text: 'Isole a tese principal e resuma as evidências que a suportam.' },
+            { id: 11, category: 'Síntese', text: 'Produza um resumo focado exclusivamente nos resultados alcançados.' },
+            { id: 12, category: 'Síntese', text: 'Escreva um briefing de uma página detalhando o cenário apresentado.' },
+            { id: 13, category: 'Síntese', text: 'Condense o histórico cronológico em 5 marcos fundamentais.' },
+            { id: 14, category: 'Síntese', text: 'Extraia os conceitos-chave e crie um mapa conceitual textual.' },
+            { id: 15, category: 'Síntese', text: 'Resuma os pontos de dor e as soluções propostas no material.' },
+            { id: 16, category: 'Síntese', text: 'Crie uma versão "TL;DR" (Muito longo, não li) para leitores apressados.' },
+            { id: 17, category: 'Síntese', text: 'Sintetize o argumento como se fosse uma manchete e subtítulo de jornal.' },
+            { id: 18, category: 'Síntese', text: 'Reduza cada capítulo/seção a uma única frase de impacto.' },
+            { id: 19, category: 'Síntese', text: 'Filtre as opiniões e liste apenas os fatos consolidados no texto.' },
+            { id: 20, category: 'Síntese', text: 'Combine as fontes em uma narrativa única, eliminando redundâncias.' },
+            { id: 21, category: 'Síntese', text: 'Resuma o impacto financeiro ou econômico descrito no documento.' },
+            { id: 22, category: 'Síntese', text: 'Crie uma síntese focada apenas nas mudanças comportamentais mencionadas.' },
+            { id: 23, category: 'Síntese', text: 'Condense as informações técnicas para um público leigo.' },
+            { id: 24, category: 'Síntese', text: 'Extraia a "moral da história" ou lição central do material.' },
+            { id: 25, category: 'Síntese', text: 'Sintetize o texto através da ótica de um gestor de projetos.' },
+            { id: 26, category: 'Síntese', text: 'Formule um resumo destacando os aspectos inovadores do conteúdo.' },
+            { id: 27, category: 'Síntese', text: 'Resuma as implicações legais ou regulatórias do contexto.' },
+            { id: 28, category: 'Síntese', text: 'Extraia o núcleo lógico do texto usando o mínimo de adjetivos possível.' },
+            { id: 29, category: 'Síntese', text: 'Condense o documento em uma lista de 10 mandamentos práticos.' },
+            { id: 30, category: 'Síntese', text: 'Resuma as limitações e barreiras descritas no material.' },
+            { id: 31, category: 'Síntese', text: 'Escreva um resumo focado no usuário final ou cliente.' },
+            { id: 32, category: 'Síntese', text: 'Sintetize a visão de futuro apresentada pelo autor.' },
+            { id: 33, category: 'Síntese', text: 'Condense os diálogos ou citações nas suas ideias principais.' },
+            { id: 34, category: 'Síntese', text: 'Resuma a estratégia de go-to-market em 3 frases.' },
+            { id: 35, category: 'Síntese', text: 'Extraia o perfil demográfico e psicográfico descrito.' },
+            { id: 36, category: 'Síntese', text: 'Crie um resumo que destaque as métricas de sucesso mencionadas.' },
+            { id: 37, category: 'Síntese', text: 'Sintetize os recursos necessários (tempo, dinheiro, pessoal) citados.' },
+            { id: 38, category: 'Síntese', text: 'Resuma a evolução histórica do tema abordado no documento.' },
+            { id: 39, category: 'Síntese', text: 'Condense a metodologia utilizada em um parágrafo claro.' },
+            { id: 40, category: 'Síntese', text: 'Resuma os argumentos contrários mencionados no próprio texto.' },
+            { id: 41, category: 'Síntese', text: 'Crie um overview executivo para o conselho de administração.' },
+            { id: 42, category: 'Síntese', text: 'Extraia as hipóteses levantadas e resuma como foram validadas.' },
+            { id: 43, category: 'Síntese', text: 'Sintetize o impacto social ou ambiental descrito.' },
+            { id: 44, category: 'Síntese', text: 'Condense a arquitetura de sistemas ou processos em texto simples.' },
+            { id: 45, category: 'Síntese', text: 'Resuma o tom e a intenção comunicativa do autor.' },
+            { id: 46, category: 'Síntese', text: 'Extraia as perguntas não respondidas deixadas no final do texto.' },
+            { id: 47, category: 'Síntese', text: 'Sintetize o texto usando a técnica da Pirâmide Invertida.' },
+            { id: 48, category: 'Síntese', text: 'Resuma o conteúdo com foco exclusivo na experiência do usuário.' },
+            { id: 49, category: 'Síntese', text: 'Condense os fatores motivacionais descritos no documento.' },
+            { id: 50, category: 'Síntese', text: 'Crie um resumo de contingência: o que fazer se as coisas derem errado.' },
+
+            // Estruturação (51-100)
+            { id: 51, category: 'Estruturação', text: 'Transforme este material em um framework operacional com princípios e etapas.' },
+            { id: 52, category: 'Estruturação', text: 'Reorganize os conceitos fundamentais em um modelo teórico coerente.' },
+            { id: 53, category: 'Estruturação', text: 'Desenvolva uma linha do tempo lógica da evolução das ideias no texto.' },
+            { id: 54, category: 'Estruturação', text: 'Estruture os argumentos em formato de árvore de decisão (se/então).' },
+            { id: 55, category: 'Estruturação', text: 'Crie um fluxograma descritivo dos processos mencionados.' },
+            { id: 56, category: 'Estruturação', text: 'Organize o conteúdo em um diagrama de Ishikawa (Espinha de Peixe).' },
+            { id: 57, category: 'Estruturação', text: 'Transforme o texto em uma matriz SWOT (Forças, Fraquezas, Oportunidades, Ameaças).' },
+            { id: 58, category: 'Estruturação', text: 'Estruture as informações utilizando o modelo 5W2H.' },
+            { id: 59, category: 'Estruturação', text: 'Categorize os dados fornecidos em esferas operacionais, táticas e estratégicas.' },
+            { id: 60, category: 'Estruturação', text: 'Crie uma taxonomia hierárquica para os termos usados no documento.' },
+            { id: 61, category: 'Estruturação', text: 'Transforme o contexto em um canvas de modelo de negócios.' },
+            { id: 62, category: 'Estruturação', text: 'Organize as ideias usando a estrutura OKR (Objetivos e Resultados-Chave).' },
+            { id: 63, category: 'Estruturação', text: 'Crie um mapa de stakeholders com base nas entidades citadas.' },
+            { id: 64, category: 'Estruturação', text: 'Estruture o conteúdo em um funil de conversão ou engajamento.' },
+            { id: 65, category: 'Estruturação', text: 'Transforme os desafios apresentados em uma Matriz de Priorização (Esforço x Impacto).' },
+            { id: 66, category: 'Estruturação', text: 'Reorganize o texto separando causa primária, secundária e sintomas.' },
+            { id: 67, category: 'Estruturação', text: 'Crie um roteiro de implementação (roadmap) baseado nas recomendações.' },
+            { id: 68, category: 'Estruturação', text: 'Estruture as ideias através do ciclo PDCA (Plan, Do, Check, Act).' },
+            { id: 69, category: 'Estruturação', text: 'Organize o conteúdo em camadas (infraestrutura, interface, usuário).' },
+            { id: 70, category: 'Estruturação', text: 'Mapeie a jornada do usuário/cliente descrita no texto.' },
+            { id: 71, category: 'Estruturação', text: 'Estruture os dados em um modelo de banco de dados relacional.' },
+            { id: 72, category: 'Estruturação', text: 'Transforme a narrativa em um script passo a passo.' },
+            { id: 73, category: 'Estruturação', text: 'Organize as competências exigidas em hard skills e soft skills.' },
+            { id: 74, category: 'Estruturação', text: 'Crie um sistema de pontuação (scoring) para as variáveis apresentadas.' },
+            { id: 75, category: 'Estruturação', text: 'Estruture os argumentos sob a ótica do Tripé da Sustentabilidade.' },
+            { id: 76, category: 'Estruturação', text: 'Organize as táticas mencionadas usando o framework AARRR.' },
+            { id: 77, category: 'Estruturação', text: 'Transforme os dados qualitativos em um sistema de métricas quantificáveis.' },
+            { id: 78, category: 'Estruturação', text: 'Crie um diagrama de Venn lógico com as principais vertentes do texto.' },
+            { id: 79, category: 'Estruturação', text: 'Estruture os riscos em uma matriz de probabilidade versus severidade.' },
+            { id: 80, category: 'Estruturação', text: 'Reorganize o conteúdo usando a Pirâmide de Maslow como metáfora.' },
+            { id: 81, category: 'Estruturação', text: 'Desenvolva uma estrutura de governança baseada nas diretrizes do texto.' },
+            { id: 82, category: 'Estruturação', text: 'Organize os fluxos de informação entre os departamentos citados.' },
+            { id: 83, category: 'Estruturação', text: 'Crie um plano de comunicação categorizado por público-alvo.' },
+            { id: 84, category: 'Estruturação', text: 'Estruture a narrativa usando a Jornada do Herói de Joseph Campbell.' },
+            { id: 85, category: 'Estruturação', text: 'Transforme o texto em uma lista de verificação (checklist) auditável.' },
+            { id: 86, category: 'Estruturação', text: 'Organize as variáveis de mercado usando as 5 Forças de Porter.' },
+            { id: 87, category: 'Estruturação', text: 'Crie um framework de design thinking (Empatizar, Definir, Idear, Prototipar, Testar).' },
+            { id: 88, category: 'Estruturação', text: 'Estruture o orçamento sugerido em categorias de despesas e investimentos.' },
+            { id: 89, category: 'Estruturação', text: 'Organize as objeções de vendas e crie um roteiro de contorno.' },
+            { id: 90, category: 'Estruturação', text: 'Transforme o material em um índice remissivo organizado por temas.' },
+            { id: 91, category: 'Estruturação', text: 'Crie uma estrutura de tópicos em múltiplos níveis (I, A, 1, a).' },
+            { id: 92, category: 'Estruturação', text: 'Estruture as políticas internas propostas em capítulos e artigos.' },
+            { id: 93, category: 'Estruturação', text: 'Organize os ciclos de feedback mencionados no ecossistema.' },
+            { id: 94, category: 'Estruturação', text: 'Mapeie a topologia da rede de contatos ou influências citada.' },
+            { id: 95, category: 'Estruturação', text: 'Crie um painel de controle (dashboard) conceitual com os KPIs do texto.' },
+            { id: 96, category: 'Estruturação', text: 'Estruture o conteúdo separando fatos verificáveis de especulações.' },
+            { id: 97, category: 'Estruturação', text: 'Organize os níveis de maturidade do processo apresentado.' },
+            { id: 98, category: 'Estruturação', text: 'Crie um plano de aula modular baseado nos conceitos do documento.' },
+            { id: 99, category: 'Estruturação', text: 'Estruture a cadeia de suprimentos ou valor implícita no texto.' },
+            { id: 100, category: 'Estruturação', text: 'Transforme as instruções em um algoritmo em pseudocódigo.' },
+
+            // Análise Crítica (101-150)
+            { id: 101, category: 'Análise Crítica', text: 'Identifique os pressupostos implícitos e avalie se são frágeis ou sólidos.' },
+            { id: 102, category: 'Análise Crítica', text: 'Gere um diagnóstico apontando inconsistências internas e falhas lógicas.' },
+            { id: 103, category: 'Análise Crítica', text: 'Avalie a robustez metodológica dos argumentos, classificando sua força.' },
+            { id: 104, category: 'Análise Crítica', text: 'Aja como advogado do diabo e refute a tese central ponto a ponto.' },
+            { id: 105, category: 'Análise Crítica', text: 'Aponte falácias lógicas cometidas pelo autor durante a argumentação.' },
+            { id: 106, category: 'Análise Crítica', text: 'Analise a validade das fontes e citações mencionadas no texto.' },
+            { id: 107, category: 'Análise Crítica', text: 'Identifique qual informação crucial foi omitida intencionalmente.' },
+            { id: 108, category: 'Análise Crítica', text: 'Avalie o viés ideológico ou comercial presente na narrativa.' },
+            { id: 109, category: 'Análise Crítica', text: 'Verifique se as conclusões decorrem logicamente das premissas.' },
+            { id: 110, category: 'Análise Crítica', text: 'Critique o material sob a perspectiva das minorias afetadas.' },
+            { id: 111, category: 'Análise Crítica', text: 'Analise se o tamanho da amostra (se houver) justifica a generalização.' },
+            { id: 112, category: 'Análise Crítica', text: 'Questione a definição dos termos-chave: eles são ambíguos?' },
+            { id: 113, category: 'Análise Crítica', text: 'Avalie a exequibilidade prática das soluções teóricas propostas.' },
+            { id: 114, category: 'Análise Crítica', text: 'Aponte contradições entre os capítulos iniciais e a conclusão.' },
+            { id: 115, category: 'Análise Crítica', text: 'Analise se o autor confunde correlação com causalidade.' },
+            { id: 116, category: 'Análise Crítica', text: 'Critique o uso de linguagem apelativa em detrimento de fatos.' },
+            { id: 117, category: 'Análise Crítica', text: 'Avalie a pertinência temporal do documento: ele já está obsoleto?' },
+            { id: 118, category: 'Análise Crítica', text: 'Analise a simetria de poder entre os agentes descritos.' },
+            { id: 119, category: 'Análise Crítica', text: 'Verifique se existem soluções alternativas mais eficientes que foram ignoradas.' },
+            { id: 120, category: 'Análise Crítica', text: 'Critique o design da pesquisa ou método de coleta de dados.' },
+            { id: 121, category: 'Análise Crítica', text: 'Avalie se os KPIs propostos medem sucesso ou são apenas métricas de vaidade.' },
+            { id: 122, category: 'Análise Crítica', text: 'Analise o tom de urgência: é justificado ou alarmista?' },
+            { id: 123, category: 'Análise Crítica', text: 'Critique as metáforas usadas: elas esclarecem ou distorcem a realidade?' },
+            { id: 124, category: 'Análise Crítica', text: 'Aponte se o autor responde à pergunta central ou desvia do assunto.' },
+            { id: 125, category: 'Análise Crítica', text: 'Avalie a proporcionalidade entre o problema apresentado e o custo da solução.' },
+            { id: 126, category: 'Análise Crítica', text: 'Analise como fatores macroeconômicos externos poderiam anular a tese.' },
+            { id: 127, category: 'Análise Crítica', text: 'Verifique o grau de subjetividade nas afirmações classificadas como fatos.' },
+            { id: 128, category: 'Análise Crítica', text: 'Critique a divisão de responsabilidades proposta no fluxo operacional.' },
+            { id: 129, category: 'Análise Crítica', text: 'Avalie a resiliência do modelo proposto frente a choques inesperados.' },
+            { id: 130, category: 'Análise Crítica', text: 'Analise se as evidências empíricas são anedóticas ou sistêmicas.' },
+            { id: 131, category: 'Análise Crítica', text: 'Aponte os "pontos cegos" de quem elaborou este material.' },
+            { id: 132, category: 'Análise Crítica', text: 'Questione a escala de tempo considerada para alcançar os resultados.' },
+            { id: 133, category: 'Análise Crítica', text: 'Avalie o grau de conformidade das propostas com a ética universal.' },
+            { id: 134, category: 'Análise Crítica', text: 'Analise se o problema foi enquadrado corretamente ou se há um sintoma sendo tratado como causa.' },
+            { id: 135, category: 'Análise Crítica', text: 'Critique o uso de estatísticas: os números foram manipulados para provar o ponto?' },
+            { id: 136, category: 'Análise Crítica', text: 'Avalie a sustentabilidade financeira do projeto a longo prazo.' },
+            { id: 137, category: 'Análise Crítica', text: 'Analise se o contexto sofre de "pensamento de grupo" (groupthink).' },
+            { id: 138, category: 'Análise Crítica', text: 'Verifique se as promessas de entrega são realistas ou infladas.' },
+            { id: 139, category: 'Análise Crítica', text: 'Critique a profundidade do conteúdo: é inovador ou chove no molhado?' },
+            { id: 140, category: 'Análise Crítica', text: 'Avalie as consequências de segunda ordem das ações sugeridas.' },
+            { id: 141, category: 'Análise Crítica', text: 'Analise o impacto cultural da implementação destas ideias.' },
+            { id: 142, category: 'Análise Crítica', text: 'Questione o critério de sucesso: ele beneficia todos os stakeholders?' },
+            { id: 143, category: 'Análise Crítica', text: 'Aponte onde o texto recorre a autoridades dúbias para ganhar credibilidade.' },
+            { id: 144, category: 'Análise Crítica', text: 'Avalie se a comunicação falha em ser inclusiva.' },
+            { id: 145, category: 'Análise Crítica', text: 'Analise o grau de risco jurídico implícito nas sugestões.' },
+            { id: 146, category: 'Análise Crítica', text: 'Critique a dependência de tecnologias não comprovadas no modelo.' },
+            { id: 147, category: 'Análise Crítica', text: 'Avalie a escalabilidade geográfica das práticas recomendadas.' },
+            { id: 148, category: 'Análise Crítica', text: 'Analise as limitações cognitivas que o texto ignora ao propor mudanças.' },
+            { id: 149, category: 'Análise Crítica', text: 'Questione se o autor possui o "skin in the game" necessário para opinar.' },
+            { id: 150, category: 'Análise Crítica', text: 'Gere um relatório de auditoria independente sobre as alegações feitas.' },
+
+            // Comparação (151-200)
+            { id: 151, category: 'Comparação', text: 'Construa uma matriz evidenciando convergências e divergências nos documentos.' },
+            { id: 152, category: 'Comparação', text: 'Compare a teoria apresentada com o senso comum predominante.' },
+            { id: 153, category: 'Comparação', text: 'Contraste as soluções propostas neste texto com as de seus concorrentes diretos.' },
+            { id: 154, category: 'Comparação', text: 'Crie uma tabela comparando os cenários otimista, realista e pessimista.' },
+            { id: 155, category: 'Comparação', text: 'Compare as abordagens qualitativas e quantitativas extraídas do material.' },
+            { id: 156, category: 'Comparação', text: 'Diferencie os objetivos de curto prazo e de longo prazo apresentados.' },
+            { id: 157, category: 'Comparação', text: 'Contraste o comportamento do público-alvo antes e depois da intervenção.' },
+            { id: 158, category: 'Comparação', text: 'Compare os custos de agir versus os custos da inação segundo o texto.' },
+            { id: 159, category: 'Comparação', text: 'Construa um paralelo entre este modelo e um sistema biológico.' },
+            { id: 160, category: 'Comparação', text: 'Diferencie o que o autor diz fazer do que as evidências mostram que ele faz.' },
+            { id: 161, category: 'Comparação', text: 'Compare as obrigações legais com as expectativas éticas no contexto.' },
+            { id: 162, category: 'Comparação', text: 'Contraste os riscos internos com as ameaças externas descritas.' },
+            { id: 163, category: 'Comparação', text: 'Compare as hard skills e soft skills necessárias para executar as tarefas.' },
+            { id: 164, category: 'Comparação', text: 'Construa um quadro comparando as gerações (X, Y, Z) na ótica do texto.' },
+            { id: 165, category: 'Comparação', text: 'Diferencie os incentivos financeiros dos incentivos emocionais apresentados.' },
+            { id: 166, category: 'Comparação', text: 'Compare a eficácia da abordagem top-down com a bottom-up no material.' },
+            { id: 167, category: 'Comparação', text: 'Contraste o valor tangível percebido com o valor intangível criado.' },
+            { id: 168, category: 'Comparação', text: 'Compare as estratégias defensivas e ofensivas propostas pelo autor.' },
+            { id: 169, category: 'Comparação', text: 'Diferencie a infraestrutura legada da infraestrutura futura necessária.' },
+            { id: 170, category: 'Comparação', text: 'Compare as culturas organizacionais de duas empresas citadas.' },
+            { id: 171, category: 'Comparação', text: 'Construa uma matriz comparando esforço técnico e percepção do cliente.' },
+            { id: 172, category: 'Comparação', text: 'Contraste o ponto de vista da liderança com o da operação na narrativa.' },
+            { id: 173, category: 'Comparação', text: 'Compare os canais de aquisição ou comunicação citados em termos de ROI.' },
+            { id: 174, category: 'Comparação', text: 'Diferencie a inovação incremental da inovação disruptiva no documento.' },
+            { id: 175, category: 'Comparação', text: 'Compare os métodos ágeis e tradicionais (waterfall) subjacentes às ideias.' },
+            { id: 176, category: 'Comparação', text: 'Contraste a teoria apresentada no texto com a realidade prática do mercado latino.' },
+            { id: 177, category: 'Comparação', text: 'Compare a velocidade de implementação com a precisão dos resultados esperados.' },
+            { id: 178, category: 'Comparação', text: 'Diferencie a experiência do usuário experiente da do novato segundo as regras.' },
+            { id: 179, category: 'Comparação', text: 'Compare os efeitos de rede locais com os globais abordados.' },
+            { id: 180, category: 'Comparação', text: 'Contraste as métricas de vaidade com as métricas acionáveis do painel.' },
+            { id: 181, category: 'Comparação', text: 'Compare a escalabilidade horizontal com a vertical no modelo técnico.' },
+            { id: 182, category: 'Comparação', text: 'Diferencie o compliance regulatório da gestão de risco estratégico.' },
+            { id: 183, category: 'Comparação', text: 'Compare o investimento em marketing de marca com o de performance.' },
+            { id: 184, category: 'Comparação', text: 'Contraste a governança centralizada com a descentralizada sugerida.' },
+            { id: 185, category: 'Comparação', text: 'Compare o impacto do erro humano versus a falha algorítmica no processo.' },
+            { id: 186, category: 'Comparação', text: 'Diferencie a retenção passiva da fidelização ativa tratadas no texto.' },
+            { id: 187, category: 'Comparação', text: 'Compare as táticas de persuasão emocional e racional usadas pelo autor.' },
+            { id: 188, category: 'Comparação', text: 'Contraste a visão do fornecedor com a do comprador neste ecossistema.' },
+            { id: 189, category: 'Comparação', text: 'Compare as vulnerabilidades do ambiente físico versus o ambiente digital.' },
+            { id: 190, category: 'Comparação', text: 'Diferencie liderança transacional de liderança transformacional nas atitudes.' },
+            { id: 191, category: 'Comparação', text: 'Compare os limites éticos traçados com os praticados no setor de tecnologia.' },
+            { id: 192, category: 'Comparação', text: 'Contraste a eficácia do trabalho síncrono e assíncrono propostos.' },
+            { id: 193, category: 'Comparação', text: 'Compare o modelo de receita recorrente com vendas pontuais.' },
+            { id: 194, category: 'Comparação', text: 'Diferencie resiliência (suportar o choque) de antifragilidade (crescer com ele).' },
+            { id: 195, category: 'Comparação', text: 'Compare as expectativas criadas pelo marketing com a entrega do produto real.' },
+            { id: 196, category: 'Comparação', text: 'Contraste a teoria do valor-trabalho com a percepção subjetiva de valor aqui.' },
+            { id: 197, category: 'Comparação', text: 'Compare o uso da inteligência artificial versus processos manuais descritos.' },
+            { id: 198, category: 'Comparação', text: 'Diferencie estratégia corporativa de estratégia competitiva no plano.' },
+            { id: 199, category: 'Comparação', text: 'Compare a pegada de carbono ou impacto ambiental das opções listadas.' },
+            { id: 200, category: 'Comparação', text: 'Contraste as consequências da omissão com os riscos da proatividade imediata.' },
+
+            // Aplicação (201-250)
+            { id: 201, category: 'Aplicação', text: 'Converta o conteúdo em um conjunto de heurísticas práticas para o dia a dia.' },
+            { id: 202, category: 'Aplicação', text: 'Transforme o texto em um protocolo de boas práticas com regras claras.' },
+            { id: 203, category: 'Aplicação', text: 'Crie um plano de ação de 90 dias baseado nas conclusões primárias.' },
+            { id: 204, category: 'Aplicação', text: 'Escreva um roteiro de onboard para um novo funcionário absorver isso.' },
+            { id: 205, category: 'Aplicação', text: 'Formule um questionário de diagnóstico para empresas aplicarem esse conceito.' },
+            { id: 206, category: 'Aplicação', text: 'Transforme as teorias em 5 hábitos diários para um líder.' },
+            { id: 207, category: 'Aplicação', text: 'Crie um manual de resolução rápida de problemas (troubleshooting).' },
+            { id: 208, category: 'Aplicação', text: 'Proponha 3 formas de testar a tese principal gastando quase nenhum dinheiro.' },
+            { id: 209, category: 'Aplicação', text: 'Extraia princípios universais e aplique-os na gestão de um hospital.' },
+            { id: 210, category: 'Aplicação', text: 'Escreva um modelo de e-mail frio para vender esta ideia a um investidor.' },
+            { id: 211, category: 'Aplicação', text: 'Desenvolva uma cartilha de treinamento focada em segurança do trabalho.' },
+            { id: 212, category: 'Aplicação', text: 'Transforme o conteúdo em um checklist de aprovação de orçamento.' },
+            { id: 213, category: 'Aplicação', text: 'Crie um modelo de pauta para a primeira reunião de kick-off do projeto.' },
+            { id: 214, category: 'Aplicação', text: 'Elabore scripts de resposta para o SAC lidar com as objeções listadas.' },
+            { id: 215, category: 'Aplicação', text: 'Transforme a estratégia em uma campanha de marketing de 3 fases.' },
+            { id: 216, category: 'Aplicação', text: 'Crie um sistema de recompensas para quem adotar as práticas sugeridas.' },
+            { id: 217, category: 'Aplicação', text: 'Escreva um prompt de IA para automatizar a tarefa descrita no texto.' },
+            { id: 218, category: 'Aplicação', text: 'Converta as ideias em um regulamento interno de conduta ética.' },
+            { id: 219, category: 'Aplicação', text: 'Desenvolva um plano de gamificação para incentivar o uso do sistema.' },
+            { id: 220, category: 'Aplicação', text: 'Transforme as restrições apontadas em regras de compliance no código.' },
+            { id: 221, category: 'Aplicação', text: 'Crie um guia de sobrevivência corporativa baseado neste cenário.' },
+            { id: 222, category: 'Aplicação', text: 'Formule 5 perguntas para fazer em uma entrevista de emprego buscando esse perfil.' },
+            { id: 223, category: 'Aplicação', text: 'Escreva o descritivo de vaga (Job Description) ideal para executar isso.' },
+            { id: 224, category: 'Aplicação', text: 'Transforme o conceito num briefing para uma agência de publicidade.' },
+            { id: 225, category: 'Aplicação', text: 'Crie um cronograma de manutenção preventiva baseado nas vulnerabilidades.' },
+            { id: 226, category: 'Aplicação', text: 'Desenvolva um plano de aula interativa para alunos do ensino médio.' },
+            { id: 227, category: 'Aplicação', text: 'Converta as métricas em um formulário de avaliação de desempenho 360 graus.' },
+            { id: 228, category: 'Aplicação', text: 'Escreva uma carta de demissão ou transição baseada na mudança de cenário.' },
+            { id: 229, category: 'Aplicação', text: 'Transforme os dados em especificações técnicas para desenvolvimento de software.' },
+            { id: 230, category: 'Aplicação', text: 'Crie um manual de uso para consumidores leigos resolverem bugs comuns.' },
+            { id: 231, category: 'Aplicação', text: 'Desenvolva um contrato de prestação de serviço com as premissas citadas.' },
+            { id: 232, category: 'Aplicação', text: 'Converta a inovação proposta em um pedido de patente fictício.' },
+            { id: 233, category: 'Aplicação', text: 'Formule um plano de contenção de crise de imagem em mídias sociais.' },
+            { id: 234, category: 'Aplicação', text: 'Crie um passo a passo para fazer a auditoria interna desses processos.' },
+            { id: 235, category: 'Aplicação', text: 'Transforme as orientações em um pop-up de alerta de software (UX writing).' },
+            { id: 236, category: 'Aplicação', text: 'Escreva um roteiro de mediação de conflitos focado nas tensões descritas.' },
+            { id: 237, category: 'Aplicação', text: 'Desenvolva um plano de sucessão de liderança considerando as novas regras.' },
+            { id: 238, category: 'Aplicação', text: 'Converta as ideias num plano diretor de urbanismo ou de layout de fábrica.' },
+            { id: 239, category: 'Aplicação', text: 'Crie um guia de migração passo a passo de um sistema antigo para o novo.' },
+            { id: 240, category: 'Aplicação', text: 'Escreva a política de privacidade e proteção de dados requerida pelo contexto.' },
+            { id: 241, category: 'Aplicação', text: 'Transforme a lógica num sistema de cinturões (estilo judô) para nivelar parceiros.' },
+            { id: 242, category: 'Aplicação', text: 'Desenvolva uma matriz de aprovação de crédito baseada nas premissas.' },
+            { id: 243, category: 'Aplicação', text: 'Converta as hipóteses num plano de testes A/B prático para e-commerce.' },
+            { id: 244, category: 'Aplicação', text: 'Crie uma estratégia de precificação dinâmica (pricing) para o modelo.' },
+            { id: 245, category: 'Aplicação', text: 'Escreva um protocolo de desmobilização de equipes ao fim do projeto.' },
+            { id: 246, category: 'Aplicação', text: 'Transforme as ameaças em um plano de segurança patrimonial e cibernética.' },
+            { id: 247, category: 'Aplicação', text: 'Desenvolva um roteiro de vendas B2B focado nas dores listadas.' },
+            { id: 248, category: 'Aplicação', text: 'Converta a análise em um plano estratégico de relações públicas (PR).' },
+            { id: 249, category: 'Aplicação', text: 'Crie um manual de ergonomia ou bem-estar focado nos gargalos humanos.' },
+            { id: 250, category: 'Aplicação', text: 'Escreva um guia de franquia contendo os padrões inegociáveis para replicar o sucesso.' },
+
+            // Didática (251-300)
+            { id: 251, category: 'Didática', text: 'Reescreva como um manual técnico para especialistas, com alta precisão conceitual.' },
+            { id: 252, category: 'Didática', text: 'Reformule como uma aula magistral, com demonstrações e exercícios práticos.' },
+            { id: 253, category: 'Didática', text: 'Reescreva o conteúdo no formato de artigo científico formal (IMRAD).' },
+            { id: 254, category: 'Didática', text: 'Crie um glossário técnico completo com definições e exemplos contextualizados.' },
+            { id: 255, category: 'Didática', text: 'Transforme o texto em uma história infantil que explique a mesma moral.' },
+            { id: 256, category: 'Didática', text: 'Reescreva o documento como se fosse uma série de threads no Twitter/X.' },
+            { id: 257, category: 'Didática', text: 'Adapte o discurso para um CEO conservador preocupado com o orçamento.' },
+            { id: 258, category: 'Didática', text: 'Transforme o conteúdo num diálogo socrático entre mestre e aprendiz.' },
+            { id: 259, category: 'Didática', text: 'Reescreva a narrativa sob a ótica de um historiador no ano 2100.' },
+            { id: 260, category: 'Didática', text: 'Converta o texto numa apresentação de slides visual (indicando o visual e o roteiro).' },
+            { id: 261, category: 'Didática', text: 'Escreva como um artigo de opinião irônico de uma revista de negócios.' },
+            { id: 262, category: 'Didática', text: 'Transforme o contexto num roteiro de podcast estilo bate-papo descontraído.' },
+            { id: 263, category: 'Didática', text: 'Adapte a linguagem para desenvolvedores de software backend usando jargões.' },
+            { id: 264, category: 'Didática', text: 'Crie flashcards de estudo (pergunta na frente, resposta atrás) para retenção.' },
+            { id: 265, category: 'Didática', text: 'Reescreva o texto no estilo de escrita enxuto e incisivo de Ernest Hemingway.' },
+            { id: 266, category: 'Didática', text: 'Transforme a estratégia numa analogia esportiva (futebol ou basquete).' },
+            { id: 267, category: 'Didática', text: 'Adapte o argumento como um sermão inspiracional para motivar as massas.' },
+            { id: 268, category: 'Didática', text: 'Crie uma peça de teatro de um ato onde os personagens são os conceitos.' },
+            { id: 269, category: 'Didática', text: 'Reescreva as regras como se fossem as leis de um RPG de mesa.' },
+            { id: 270, category: 'Didática', text: 'Converta o material numa entrevista ping-pong para uma revista de inovação.' },
+            { id: 271, category: 'Didática', text: 'Escreva o conteúdo como um estudo de caso da Harvard Business School.' },
+            { id: 272, category: 'Didática', text: 'Transforme a tese num poema épico celebrando a vitória sobre o problema.' },
+            { id: 273, category: 'Didática', text: 'Adapte o texto para o jargão de Wall Street focado em lucros e dividendos.' },
+            { id: 274, category: 'Didática', text: 'Crie um FAQ respondendo as maiores dúvidas de leigos.' },
+            { id: 275, category: 'Didática', text: 'Reescreva o documento como uma fábula de Esopo com animais antropomorfizados.' },
+            { id: 276, category: 'Didática', text: 'Transforme a análise numa receita de culinária (ingredientes, modo de preparo).' },
+            { id: 277, category: 'Didática', text: 'Adapte o tom para extrema formalidade burocrática, como um decreto governamental.' },
+            { id: 278, category: 'Didática', text: 'Crie um roteiro de vídeo para o Tik Tok focado em prender a atenção nos 3 primeiros segundos.' },
+            { id: 279, category: 'Didática', text: 'Reescreva o material na forma de um diário pessoal do criador da ideia.' },
+            { id: 280, category: 'Didática', text: 'Converta o conteúdo em um formato de carta aberta à sociedade.' },
+            { id: 281, category: 'Didática', text: 'Escreva como um manifesto revolucionário convocando a quebra do status quo.' },
+            { id: 282, category: 'Didática', text: 'Transforme o texto numa bula de remédio (indicações, contraindicações).' },
+            { id: 283, category: 'Didática', text: 'Adapte a narrativa para um roteiro de ficção científica cyberpunk.' },
+            { id: 284, category: 'Didática', text: 'Crie um infográfico textual, indicando exatamente onde entram gráficos e ícones.' },
+            { id: 285, category: 'Didática', text: 'Reescreva as diretrizes como provérbios milenares asiáticos (estilo Sun Tzu).' },
+            { id: 286, category: 'Didática', text: 'Transforme o relatório num cordel brasileiro rítmico e popular.' },
+            { id: 287, category: 'Didática', text: 'Adapte a linguagem para um grupo focal de adolescentes da geração Alpha.' },
+            { id: 288, category: 'Didática', text: 'Crie um teste de personalidade para ver em qual perfil o leitor se encaixa.' },
+            { id: 289, category: 'Didática', text: 'Reescreva o documento simulando a tradução de um papiro egípcio antigo.' },
+            { id: 290, category: 'Didática', text: 'Converta o conteúdo numa resenha crítica de livro literário.' },
+            { id: 291, category: 'Didática', text: 'Escreva como um guia de turismo explorando as "paisagens" do texto.' },
+            { id: 292, category: 'Didática', text: 'Transforme a explicação numa charada ou enigma com resposta oculta.' },
+            { id: 293, category: 'Didática', text: 'Adapte o tom para uma carta de aconselhamento amigável a um sobrinho.' },
+            { id: 294, category: 'Didática', text: 'Crie um roteiro de documentário investigativo com narração em off dramática.' },
+            { id: 295, category: 'Didática', text: 'Reescreva o material utilizando estritamente a linguagem neutra corporativa.' },
+            { id: 296, category: 'Didática', text: 'Transforme os dados em um relatório meteorológico ("ventos de mudança").' },
+            { id: 297, category: 'Didática', text: 'Adapte a narrativa para um manual de instruções do IKEA (curto, simples).' },
+            { id: 298, category: 'Didática', text: 'Crie uma pregação de coach quântico recheada de pseudociência (para humor).' },
+            { id: 299, category: 'Didática', text: 'Reescreva o documento como um memorando interceptado de um serviço de espionagem.' },
+            { id: 300, category: 'Didática', text: 'Converta as políticas numa letra de música rap abordando as dores das ruas.' },
+
+            // Epistemologia (301-350)
+            { id: 301, category: 'Epistemologia', text: 'Produza uma crítica epistemológica: quais teorias sustentam essas afirmações?' },
+            { id: 302, category: 'Epistemologia', text: 'Elabore perguntas de alto nível que um avaliador acadêmico faria sobre a validade teórica.' },
+            { id: 303, category: 'Epistemologia', text: 'Aplique os "5 Porquês" na tese central para revelar a crença raiz do autor.' },
+            { id: 304, category: 'Epistemologia', text: 'Analise o texto sob a lente do construtivismo social versus realismo pragmático.' },
+            { id: 305, category: 'Epistemologia', text: 'Identifique se o autor utiliza raciocínio dedutivo, indutivo ou abdutivo.' },
+            { id: 306, category: 'Epistemologia', text: 'Questione o limite da verdade no texto: onde o conhecimento vira dogma?' },
+            { id: 307, category: 'Epistemologia', text: 'Analise o viés eurocêntrico ou ocidental presente na construção do argumento.' },
+            { id: 308, category: 'Epistemologia', text: 'Avalie a contribuição ontológica: este texto cria novas categorias de realidade?' },
+            { id: 309, category: 'Epistemologia', text: 'Critique a visão de mundo mecanicista versus orgânica proposta no modelo.' },
+            { id: 310, category: 'Epistemologia', text: 'Desconstrua a narrativa usando princípios da teoria crítica e do poder foucaultiano.' },
+            { id: 311, category: 'Epistemologia', text: 'Analise se a visão antropológica adotada pressupõe humanos bons ou maus por natureza.' },
+            { id: 312, category: 'Epistemologia', text: 'Questione a separação entre sujeito e objeto na metodologia proposta.' },
+            { id: 313, category: 'Epistemologia', text: 'Avalie o grau de determinismo tecnológico implícito na visão de futuro.' },
+            { id: 314, category: 'Epistemologia', text: 'Analise a dialética do texto: onde estão a tese, a antítese e a síntese?' },
+            { id: 315, category: 'Epistemologia', text: 'Identifique a ética utilitarista, deontológica ou de virtudes que guia a decisão.' },
+            { id: 316, category: 'Epistemologia', text: 'Critique o viés de sobrevivência: o texto foca só nos que venceram e omite as falhas?' },
+            { id: 317, category: 'Epistemologia', text: 'Analise o niilismo ou o otimismo cósmico que perpassa o encerramento do documento.' },
+            { id: 318, category: 'Epistemologia', text: 'Questione a validade das analogias biológicas usadas para explicar sistemas complexos.' },
+            { id: 319, category: 'Epistemologia', text: 'Avalie o empirismo do autor: as conclusões confiam demais na percepção sensorial?' },
+            { id: 320, category: 'Epistemologia', text: 'Desconstrua as categorias binárias (bom/mau, novo/velho) impostas pelo texto.' },
+            { id: 321, category: 'Epistemologia', text: 'Analise como o conceito de "tempo" e "progresso" é moldado nesta narrativa.' },
+            { id: 322, category: 'Epistemologia', text: 'Questione se a racionalidade apresentada é universal ou culturalmente restrita.' },
+            { id: 323, category: 'Epistemologia', text: 'Avalie a estética do conhecimento: a ideia vence porque é verdadeira ou elegante?' },
+            { id: 324, category: 'Epistemologia', text: 'Analise a influência do materialismo histórico nas motivações apresentadas.' },
+            { id: 325, category: 'Epistemologia', text: 'Identifique a semiótica oculta: quais símbolos de poder são subvertidos ou reforçados?' },
+            { id: 326, category: 'Epistemologia', text: 'Critique a ilusão de controle presente nos frameworks operacionais detalhados.' },
+            { id: 327, category: 'Epistemologia', text: 'Analise se o texto sofre do viés de confirmação coletivo da bolha do autor.' },
+            { id: 328, category: 'Epistemologia', text: 'Questione a definição de "natureza humana" que justifica as políticas do documento.' },
+            { id: 329, category: 'Epistemologia', text: 'Avalie o peso da aleatoriedade no processo: o autor subestima o fator sorte?' },
+            { id: 330, category: 'Epistemologia', text: 'Desconstrua o conceito de "sucesso" adotado: para quem essa vitória faz sentido?' },
+            { id: 331, category: 'Epistemologia', text: 'Analise a alienação do trabalho: as propostas distanciam o criador da sua obra?' },
+            { id: 332, category: 'Epistemologia', text: 'Questione a teleologia do texto: ele assume que a história marcha para um propósito final?' },
+            { id: 333, category: 'Epistemologia', text: 'Avalie a validade das profecias autorrealizáveis implantadas na narrativa.' },
+            { id: 334, category: 'Epistemologia', text: 'Analise se o autor adota um reducionismo excessivo para lidar com a complexidade.' },
+            { id: 335, category: 'Epistemologia', text: 'Identifique as correntes de pensamento estoicas ou hedonistas nas entrelinhas.' },
+            { id: 336, category: 'Epistemologia', text: 'Critique a glamourização do sofrimento corporativo (hustle culture) no texto.' },
+            { id: 337, category: 'Epistemologia', text: 'Analise como o conhecimento tácito é silenciado em favor do conhecimento explícito.' },
+            { id: 338, category: 'Epistemologia', text: 'Questione a dependência do método científico para validar experiências subjetivas.' },
+            { id: 339, category: 'Epistemologia', text: 'Avalie se a narrativa incorre na falácia naturalista (se é natural, é bom).' },
+            { id: 340, category: 'Epistemologia', text: 'Desconstrua a hierarquia epistêmica: quem tem a voz de autoridade e por quê?' },
+            { id: 341, category: 'Epistemologia', text: 'Analise o relativismo moral: as soluções abrem brechas para ações questionáveis?' },
+            { id: 342, category: 'Epistemologia', text: 'Questione o uso do "Deus Ex Machina" tecnológico para resolver problemas enraizados.' },
+            { id: 343, category: 'Epistemologia', text: 'Avalie a tensão entre livre-arbítrio e sistemas algorítmicos preditivos descritos.' },
+            { id: 344, category: 'Epistemologia', text: 'Analise as raízes liberais ou marxistas da visão econômica sugerida.' },
+            { id: 345, category: 'Epistemologia', text: 'Identifique a apropriação cultural de termos e conceitos na teoria proposta.' },
+            { id: 346, category: 'Epistemologia', text: 'Critique a normalização do estado de exceção nas medidas de emergência citadas.' },
+            { id: 347, category: 'Epistemologia', text: 'Analise o impacto da fenomenologia: como a experiência vivenciada altera o modelo?' },
+            { id: 348, category: 'Epistemologia', text: 'Questione o limite da linguagem para expressar as emoções descritas no caso.' },
+            { id: 349, category: 'Epistemologia', text: 'Avalie a falácia da complexidade (se é complicado, deve estar certo) na arquitetura.' },
+            { id: 350, category: 'Epistemologia', text: 'Desconstrua a ideia de "fim da história" aplicada a essa evolução técnica específica.' },
+
+            // Riscos e Futuro (351-400)
+            { id: 351, category: 'Riscos e Futuro', text: 'Desenvolva um mapa de riscos teóricos e práticos indicando impactos e mitigadores.' },
+            { id: 352, category: 'Riscos e Futuro', text: 'Crie 3 cenários de projeção futura (Daqui 1, 5 e 10 anos) baseados na tese.' },
+            { id: 353, category: 'Riscos e Futuro', text: 'Elabore um plano de contingência caso a principal premissa se prove falsa.' },
+            { id: 354, category: 'Riscos e Futuro', text: 'Identifique o Cisne Negro (evento imprevisível de alto impacto) que pode destruir esse modelo.' },
+            { id: 355, category: 'Riscos e Futuro', text: 'Analise a vulnerabilidade sistêmica utilizando o conceito de Efeito Dominó.' },
+            { id: 356, category: 'Riscos e Futuro', text: 'Avalie o risco reputacional e de marca associado à adoção integral desta ideia.' },
+            { id: 357, category: 'Riscos e Futuro', text: 'Projete a saturação de mercado: o que ocorre quando todos começarem a fazer isso?' },
+            { id: 358, category: 'Riscos e Futuro', text: 'Faça a análise "Pre-mortem": assuma que o projeto falhou daqui a 1 ano e liste os motivos.' },
+            { id: 359, category: 'Riscos e Futuro', text: 'Identifique riscos de obsolescência programada ou tecnológica embutidos.' },
+            { id: 360, category: 'Riscos e Futuro', text: 'Mapeie as potenciais mudanças legislativas que poderiam tornar essa prática ilegal.' },
+            { id: 361, category: 'Riscos e Futuro', text: 'Analise a fragilidade da cadeia de suprimentos dependente destas novas regras.' },
+            { id: 362, category: 'Riscos e Futuro', text: 'Crie um radar de tendências derivado do texto (curto, médio e longo prazo).' },
+            { id: 363, category: 'Riscos e Futuro', text: 'Avalie os riscos ambientais e de mudanças climáticas que afetam o cenário.' },
+            { id: 364, category: 'Riscos e Futuro', text: 'Identifique potenciais vazamentos de dados ou brechas de segurança no modelo.' },
+            { id: 365, category: 'Riscos e Futuro', text: 'Projete a retaliação dos concorrentes diante da adoção dessa nova estratégia.' },
+            { id: 366, category: 'Riscos e Futuro', text: 'Analise o risco cambial ou inflacionário sobre as premissas financeiras.' },
+            { id: 367, category: 'Riscos e Futuro', text: 'Mapeie a possibilidade de revolta ou sindicalização dos funcionários afetados.' },
+            { id: 368, category: 'Riscos e Futuro', text: 'Avalie o risco de canibalização de produtos internos existentes.' },
+            { id: 369, category: 'Riscos e Futuro', text: 'Identifique vulnerabilidades geográficas ou geopolíticas atreladas à operação.' },
+            { id: 370, category: 'Riscos e Futuro', text: 'Crie um mapa de calor de riscos (Probabilidade Alta/Baixa x Impacto Alto/Baixo).' },
+            { id: 371, category: 'Riscos e Futuro', text: 'Projete as mudanças de comportamento do consumidor pós-implantação.' },
+            { id: 372, category: 'Riscos e Futuro', text: 'Analise o impacto de uma pandemia hipotética sobre as rotinas estabelecidas.' },
+            { id: 373, category: 'Riscos e Futuro', text: 'Avalie o risco de violação de patentes e propriedade intelectual de terceiros.' },
+            { id: 374, category: 'Riscos e Futuro', text: 'Mapeie a dependência de Key-Persons (funcionários insubstituíveis) e proponha mitigação.' },
+            { id: 375, category: 'Riscos e Futuro', text: 'Identifique riscos de saúde ocupacional (física e mental) causados pelas metas.' },
+            { id: 376, category: 'Riscos e Futuro', text: 'Projete o impacto do esgotamento (burnout) no núcleo de liderança desse projeto.' },
+            { id: 377, category: 'Riscos e Futuro', text: 'Analise como um ataque de hackers paralisaria o modelo proposto.' },
+            { id: 378, category: 'Riscos e Futuro', text: 'Avalie o risco de boicote por grupos ativistas sociais ou ambientais.' },
+            { id: 379, category: 'Riscos e Futuro', text: 'Mapeie a perda de memória institucional com a alta rotatividade gerada pelo sistema.' },
+            { id: 380, category: 'Riscos e Futuro', text: 'Identifique armadilhas tributárias que a expansão geográfica acarretaria.' },
+            { id: 381, category: 'Riscos e Futuro', text: 'Projete a curva de adoção tecnológica (inovadores, maioria inicial, retardatários).' },
+            { id: 382, category: 'Riscos e Futuro', text: 'Analise as fricções criadas no momento de escalar (growth pains) a operação.' },
+            { id: 383, category: 'Riscos e Futuro', text: 'Avalie o impacto de escândalos políticos locais na execução desse contrato.' },
+            { id: 384, category: 'Riscos e Futuro', text: 'Mapeie os gargalos que impediriam o pivotamento ágil para um Plano B.' },
+            { id: 385, category: 'Riscos e Futuro', text: 'Identifique o ponto de estrangulamento financeiro (burn rate vs runway).' },
+            { id: 386, category: 'Riscos e Futuro', text: 'Projete como a computação quântica poderia tornar esse modelo obsoleto.' },
+            { id: 387, category: 'Riscos e Futuro', text: 'Analise as restrições de infraestrutura pública no sucesso do projeto.' },
+            { id: 388, category: 'Riscos e Futuro', text: 'Avalie a vulnerabilidade a fake news e campanhas de desinformação rivais.' },
+            { id: 389, category: 'Riscos e Futuro', text: 'Mapeie o custo de oportunidade (o que deixamos de ganhar ao escolher esse caminho).' },
+            { id: 390, category: 'Riscos e Futuro', text: 'Identifique o risco de complacência (a equipe achar que já venceu cedo demais).' },
+            { id: 391, category: 'Riscos e Futuro', text: 'Projete a migração de clientes se a qualidade cair em 10% durante a transição.' },
+            { id: 392, category: 'Riscos e Futuro', text: 'Analise os riscos psicológicos de apostar todo o capital em uma única tecnologia legada.' },
+            { id: 393, category: 'Riscos e Futuro', text: 'Avalie a exposição cambial para compra de insumos necessários ao modelo.' },
+            { id: 394, category: 'Riscos e Futuro', text: 'Mapeie os conflitos de agência (interesses do gestor diferentes dos interesses da empresa).' },
+            { id: 395, category: 'Riscos e Futuro', text: 'Identifique as barreiras de saída (quão caro e difícil será desistir desse projeto).' },
+            { id: 396, category: 'Riscos e Futuro', text: 'Projete o envelhecimento demográfico e como ele esvazia a base de clientes do texto.' },
+            { id: 397, category: 'Riscos e Futuro', text: 'Analise o impacto de embargos comerciais internacionais na viabilidade da ideia.' },
+            { id: 398, category: 'Riscos e Futuro', text: 'Avalie o risco de excesso de customização encarecer irremediavelmente a operação.' },
+            { id: 399, category: 'Riscos e Futuro', text: 'Mapeie o grau de exposição ao humor de algoritmos de Big Techs (Google, Meta).' },
+            { id: 400, category: 'Riscos e Futuro', text: 'Identifique se a matriz energética assumida é sustentável para suportar o plano macro.' },
+
+            // Decisão e Problemas (401-450)
+            { id: 401, category: 'Decisão e Problemas', text: 'Formule um comitê virtual (ex: Elon Musk, Maquiavel) e peça a opinião de cada um.' },
+            { id: 402, category: 'Decisão e Problemas', text: 'Aplique a Regra 80/20 (Pareto) e identifique os 20% de esforços que geram 80% do resultado.' },
+            { id: 403, category: 'Decisão e Problemas', text: 'Transforme as incertezas em um jogo probabilístico com pontuações (Teoria dos Jogos).' },
+            { id: 404, category: 'Decisão e Problemas', text: 'Extraia o dilema central e proponha uma Terceira Via que fuja da polarização apresentada.' },
+            { id: 405, category: 'Decisão e Problemas', text: 'Desenhe uma Matriz de Eisenhower (Urgente x Importante) para as ações descritas.' },
+            { id: 406, category: 'Decisão e Problemas', text: 'Aplique o pensamento de Primeiros Princípios: destrua as convenções e reconstrua a solução.' },
+            { id: 407, category: 'Decisão e Problemas', text: 'Crie um diagrama de trade-offs (escolhas excludentes) que o líder deve assumir.' },
+            { id: 408, category: 'Decisão e Problemas', text: 'Utilize a técnica do "Pensamento Inverso": como garantiríamos que tudo daria errado?' },
+            { id: 409, category: 'Decisão e Problemas', text: 'Identifique a Restrição Principal (Teoria de Goldratt) e foque em rompê-la.' },
+            { id: 410, category: 'Decisão e Problemas', text: 'Mapeie a janela de oportunidade (Timing): agir agora, aguardar ou recuar?' },
+            { id: 411, category: 'Decisão e Problemas', text: 'Crie uma lista de "Red Flags" (sinais de alerta) que devem parar o processo imediatamente.' },
+            { id: 412, category: 'Decisão e Problemas', text: 'Formule um critério de desempate lógico para as soluções conflitantes no texto.' },
+            { id: 413, category: 'Decisão e Problemas', text: 'Avalie a decisão sob a Ótica do Arrependimento Mínimo.' },
+            { id: 414, category: 'Decisão e Problemas', text: 'Aplique o método SCAMPER (Substituir, Combinar, Adaptar, Modificar, etc.) ao produto.' },
+            { id: 415, category: 'Decisão e Problemas', text: 'Defina o "Mínimo Produto Viável" (MVP) das ideias para começar amanhã sem orçamento.' },
+            { id: 416, category: 'Decisão e Problemas', text: 'Use a navalha de Occam: qual é a explicação ou solução mais simples com menos variáveis?' },
+            { id: 417, category: 'Decisão e Problemas', text: 'Aplique a navalha de Hanlon: onde há incompetência sendo confundida com malícia?' },
+            { id: 418, category: 'Decisão e Problemas', text: 'Crie um mapa de priorização MoSCOW (Must have, Should have, Could have, Won\'t have).' },
+            { id: 419, category: 'Decisão e Problemas', text: 'Formule cenários usando a técnica "E se...?" (What if?) alterando variáveis macroeconômicas.' },
+            { id: 420, category: 'Decisão e Problemas', text: 'Reduza o problema complexo em sub-problemas gerenciáveis de 1 semana de duração.' },
+            { id: 421, category: 'Decisão e Problemas', text: 'Elabore um sistema de votação ponderada para o conselho decidir entre as rotas.' },
+            { id: 422, category: 'Decisão e Problemas', text: 'Identifique oportunidades de "Low Hanging Fruits" (ganhos rápidos e fáceis) no projeto.' },
+            { id: 423, category: 'Decisão e Problemas', text: 'Avalie as opções pelo filtro do Retorno sobre o Tempo Investido (ROTI).' },
+            { id: 424, category: 'Decisão e Problemas', text: 'Crie um "Botão de Pânico": quais as instruções exatas de cancelamento emergencial seguro?' },
+            { id: 425, category: 'Decisão e Problemas', text: 'Aplique os 6 Chapéus do Pensamento de Edward de Bono na análise das propostas.' },
+            { id: 426, category: 'Decisão e Problemas', text: 'Calcule mentalmente o Valor Esperado (Probabilidade x Retorno) das hipóteses apresentadas.' },
+            { id: 427, category: 'Decisão e Problemas', text: 'Identifique qual seria a solução "Força Bruta" e qual seria a "Solução Elegante".' },
+            { id: 428, category: 'Decisão e Problemas', text: 'Proponha como transformar o maior problema relatado na principal vantagem competitiva.' },
+            { id: 429, category: 'Decisão e Problemas', text: 'Avalie a decisão sob a ótica de Vantagem Competitiva Injusta (Unfair Advantage).' },
+            { id: 430, category: 'Decisão e Problemas', text: 'Crie uma estrutura de testes descentralizados para validar as teorias em paralelo.' },
+            { id: 431, category: 'Decisão e Problemas', text: 'Aplique a matriz MAC para evitar redundâncias na ação.' },
+            { id: 432, category: 'Decisão e Problemas', text: 'Defina o escopo negativo: liste exaustivamente tudo o que a equipe NÃO deve fazer.' },
+            { id: 433, category: 'Decisão e Problemas', text: 'Formule um plano de "Cavalo de Troia": como infiltrar a solução sem gerar resistência.' },
+            { id: 434, category: 'Decisão e Problemas', text: 'Avalie a alocação de recursos sob o princípio da Lei de Parkinson.' },
+            { id: 435, category: 'Decisão e Problemas', text: 'Use a técnica dos 5 Sensos (5S) para limpar os desperdícios teóricos e operacionais.' },
+            { id: 436, category: 'Decisão e Problemas', text: 'Proponha a eliminação do "homem do meio" (middleman): como descentralizar essa cadeia?' },
+            { id: 437, category: 'Decisão e Problemas', text: 'Identifique onde a automatização é estritamente necessária e onde o toque humano é vital.' },
+            { id: 438, category: 'Decisão e Problemas', text: 'Crie um comitê de ética hipotético e relate o que ele aprovaria ou vetaria.' },
+            { id: 439, category: 'Decisão e Problemas', text: 'Aplique o Efeito Lindy: assuma que quanto mais velha a tecnologia, mais durará.' },
+            { id: 440, category: 'Decisão e Problemas', text: 'Defina limites claros de perda máxima aceitável (Stop Loss) para as iniciativas.' },
+            { id: 441, category: 'Decisão e Problemas', text: 'Formule táticas de guerrilha corporativa (baixo orçamento, alto impacto) para resolver isso.' },
+            { id: 442, category: 'Decisão e Problemas', text: 'Avalie as decisões sob a Lei de Murphy e proteja-as.' },
+            { id: 443, category: 'Decisão e Problemas', text: 'Proponha a estratégia do "Oceano Azul": como criar um novo mercado em vez de competir.' },
+            { id: 444, category: 'Decisão e Problemas', text: 'Identifique os Custos Irrecuperáveis (Sunk Costs) e impeça que influenciem o futuro.' },
+            { id: 445, category: 'Decisão e Problemas', text: 'Crie um mapa de simulação sistêmica (onde mexer na variável A infla o problema B).' },
+            { id: 446, category: 'Decisão e Problemas', text: 'Aplique a técnica de ancoragem: mude o ponto de referência inicial para alterar a percepção.' },
+            { id: 447, category: 'Decisão e Problemas', text: 'Proponha um modelo de "franchising" das soluções internas para outras filiais.' },
+            { id: 448, category: 'Decisão e Problemas', text: 'Avalie a resiliência da decisão contra os viéses de recência e de disponibilidade.' },
+            { id: 449, category: 'Decisão e Problemas', text: 'Crie uma matriz de delegação (quem faz, quem aprova, consultado, informado - RACI).' },
+            { id: 450, category: 'Decisão e Problemas', text: 'Formule um acordo de nível de serviço (SLA) para a entrega das promessas do documento.' },
+
+            // Auditoria e Viés (451-500)
+            { id: 451, category: 'Auditoria e Viés', text: 'Analise o texto e aponte vieses cognitivos (ex: Efeito Dunning-Kruger, Efeito Halo).' },
+            { id: 452, category: 'Auditoria e Viés', text: 'Isole as métricas de vaidade e as substitua por métricas de retenção e lucro real.' },
+            { id: 453, category: 'Auditoria e Viés', text: 'Audite a fonte primária de dados: de onde vieram os números e há conflito de interesse?' },
+            { id: 454, category: 'Auditoria e Viés', text: 'Avalie a conformidade das regras sugeridas com as leis gerais de proteção de dados (LGPD).' },
+            { id: 455, category: 'Auditoria e Viés', text: 'Identifique o viés de ancoragem histórica que impede o autor de ver inovações modernas.' },
+            { id: 456, category: 'Auditoria e Viés', text: 'Realize uma análise de sentimento quantitativa do texto: ele é hostil ou passivo?' },
+            { id: 457, category: 'Auditoria e Viés', text: 'Verifique se o material respeita diretrizes de acessibilidade e diversidade cognitiva.' },
+            { id: 458, category: 'Auditoria e Viés', text: 'Audite as referências cruzadas: o autor cita pessoas do próprio grupo para inflar credibilidade?' },
+            { id: 459, category: 'Auditoria e Viés', text: 'Identifique jargões corporativos vazios e os traduza para ações reais.' },
+            { id: 460, category: 'Auditoria e Viés', text: 'Analise a falácia de custo afundado embutida na insistência da continuação do projeto.' },
+            { id: 461, category: 'Auditoria e Viés', text: 'Avalie se a pesquisa de mercado sofre de viés de autosseleção dos participantes.' },
+            { id: 462, category: 'Auditoria e Viés', text: 'Audite a arquitetura de informação: a hierarquia esconde os problemas na página 50?' },
+            { id: 463, category: 'Auditoria e Viés', text: 'Identifique a síndrome do "Não foi inventado aqui" (NIH) nas rejeições a ideias externas.' },
+            { id: 464, category: 'Auditoria e Viés', text: 'Verifique a assimetria de informações: o que o autor sabe que o leitor comum ignora?' },
+            { id: 465, category: 'Auditoria e Viés', text: 'Avalie o viés de otimismo irrealista na estipulação dos cronogramas e orçamentos.' },
+            { id: 466, category: 'Auditoria e Viés', text: 'Audite as margens de erro apresentadas ou omissas nas afirmações absolutas.' },
+            { id: 467, category: 'Auditoria e Viés', text: 'Identifique a falácia do espantalho (distorcer a opinião do rival para atacá-la melhor).' },
+            { id: 468, category: 'Auditoria e Viés', text: 'Analise o uso de gatilhos mentais (escassez, autoridade) como ferramenta de manipulação.' },
+            { id: 469, category: 'Auditoria e Viés', text: 'Verifique se as hipóteses testadas eram falsificáveis (critério de Popper).' },
+            { id: 470, category: 'Auditoria e Viés', text: 'Avalie o impacto da dissonância cognitiva nas justificativas éticas descritas.' },
+            { id: 471, category: 'Auditoria e Viés', text: 'Audite a equidade de gênero e racial nos exemplos, imagens ou lideranças citadas.' },
+            { id: 472, category: 'Auditoria e Viés', text: 'Identifique o viés de falso consenso (achar que todos concordam com sua norma moral).' },
+            { id: 473, category: 'Auditoria e Viés', text: 'Analise a heurística de disponibilidade: foca-se em um perigo raro por ser midiático?' },
+            { id: 474, category: 'Auditoria e Viés', text: 'Verifique a presença de "Greenwashing" (falso marketing ecológico) nas promessas.' },
+            { id: 475, category: 'Auditoria e Viés', text: 'Avalie a contabilidade criativa ou métricas manipuladas para atingir as metas propostas.' },
+            { id: 476, category: 'Auditoria e Viés', text: 'Audite os indicadores ESG (Ambiental, Social, Governança) declarados versus práticas reais.' },
+            { id: 477, category: 'Auditoria e Viés', text: 'Identifique o viés de retrospectiva (o autor agindo como se soubesse o resultado o tempo todo).' },
+            { id: 478, category: 'Auditoria e Viés', text: 'Analise a coerência entre a missão, a visão e os valores corporativos e a ação proposta.' },
+            { id: 479, category: 'Auditoria e Viés', text: 'Verifique a transparência da estrutura acionária ou poder real nas entrelinhas do documento.' },
+            { id: 480, category: 'Auditoria e Viés', text: 'Avalie se a narrativa se apoia no efeito "Bandwagon" (Maria vai com as outras) para aprovação.' },
+            { id: 481, category: 'Auditoria e Viés', text: 'Audite os contratos implícitos: quem ganha o crédito pela vitória e quem leva a culpa pela falha?' },
+            { id: 482, category: 'Auditoria e Viés', text: 'Identifique a cegueira intencional de lideranças frente a condutas criminosas no setor.' },
+            { id: 483, category: 'Auditoria e Viés', text: 'Analise o texto contra as diretrizes internacionais da ISO correspondentes à área de atuação.' },
+            { id: 484, category: 'Auditoria e Viés', text: 'Verifique a existência de conflitos entre a política de remuneração variável e o compliance de risco.' },
+            { id: 485, category: 'Auditoria e Viés', text: 'Avalie se a diversidade mencionada é estrutural ou apenas performática para Relações Públicas.' },
+            { id: 486, category: 'Auditoria e Viés', text: 'Audite o impacto da miopia de marketing: a empresa foca no produto ou na necessidade do cliente?' },
+            { id: 487, category: 'Auditoria e Viés', text: 'Identifique o Efeito Hawthorne (pessoas mudando o comportamento porque estão sendo observadas).' },
+            { id: 488, category: 'Auditoria e Viés', text: 'Analise o grau de entropia e desorganização camuflado por jargões excessivamente complexos.' },
+            { id: 489, category: 'Auditoria e Viés', text: 'Verifique se as penalidades propostas para quebras de regras afetam proporcionalmente todos os níveis.' },
+            { id: 490, category: 'Auditoria e Viés', text: 'Avalie a ilusão de agrupamento: padrões aleatórios estão sendo lidos como causalidade estratégica?' },
+            { id: 491, category: 'Auditoria e Viés', text: 'Audite os algoritmos mencionados: existe viés racial, de gênero ou socioeconômico no treinamento?' },
+            { id: 492, category: 'Auditoria e Viés', text: 'Identifique a falácia da ladeira escorregadia nas suposições de desastre final sem base lógica.' },
+            { id: 493, category: 'Auditoria e Viés', text: 'Analise a resistência passivo-agressiva institucional codificada na linguagem dos relatórios.' },
+            { id: 494, category: 'Auditoria e Viés', text: 'Verifique se as promessas de "Zero Impacto" não apenas transferem a poluição/custo para terceiros.' },
+            { id: 495, category: 'Auditoria e Viés', text: 'Avalie a falácia da composição (inferir que algo é verdadeiro para o todo porque é para uma parte).' },
+            { id: 496, category: 'Auditoria e Viés', text: 'Audite o ciclo de vida do dado: como a privacidade do usuário é violada sem consentimento.' },
+            { id: 497, category: 'Auditoria e Viés', text: 'Identifique a armadilha do foco na concorrência: a empresa reage aos oponentes em vez de liderar o setor.' },
+            { id: 498, category: 'Auditoria e Viés', text: 'Analise se o documento foi formatado deliberadamente para dificultar a leitura de termos desfavoráveis.' },
+            { id: 499, category: 'Auditoria e Viés', text: 'Verifique a viabilidade técnica real das metas propostas contra os limites físicos da engenharia atual.' },
+            { id: 500, category: 'Auditoria e Viés', text: 'Audite a tese com a prova de "Skin in the game": o autor perde algo pessoalmente se o conselho falhar?' },
+
+            // Resumo em Áudio (501-600)
+            { id: 501, category: 'Resumo em Áudio', text: 'Roteirize um resumo de 3 minutos no estilo de um podcast "Daily", focando apenas no insight principal.' },
+            { id: 502, category: 'Resumo em Áudio', text: 'Crie um script com dois apresentadores debatendo os prós e contras deste documento de forma dinâmica.' },
+            { id: 503, category: 'Resumo em Áudio', text: 'Transforme a síntese executiva em um briefing de voz de 60 segundos para ser enviado via WhatsApp a um CEO.' },
+            { id: 504, category: 'Resumo em Áudio', text: 'Escreva o roteiro de uma "pílula de conhecimento" de 2 minutos com pausas marcadas para efeitos sonoros.' },
+            { id: 505, category: 'Resumo em Áudio', text: 'Adapte o conteúdo para um boletim de rádio de notícias urgentes, com tom de alerta e manchete de impacto.' },
+            { id: 506, category: 'Resumo em Áudio', text: 'Converta a análise de dados em um monólogo em áudio focado em contar a história por trás dos números.' },
+            { id: 507, category: 'Resumo em Áudio', text: 'Crie um roteiro de audiolivro para a introdução deste tema, indicando o tom de voz e o ritmo do narrador.' },
+            { id: 508, category: 'Resumo em Áudio', text: 'Estruture uma entrevista simulada em áudio, onde um repórter cético faz perguntas difíceis ao autor da ideia.' },
+            { id: 509, category: 'Resumo em Áudio', text: 'Redija um resumo para assistentes de voz (Alexa/Siri), usando frases curtas, diretas e de fácil escuta.' },
+            { id: 510, category: 'Resumo em Áudio', text: 'Transforme o texto em uma meditação guiada ou áudio de foco, usando a cadência para reduzir a ansiedade do tema.' },
+            { id: 511, category: 'Resumo em Áudio', text: 'Crie um script de podcast narrativo (estilo storytelling), usando o problema central como o mistério do episódio.' },
+            { id: 512, category: 'Resumo em Áudio', text: 'Roteirize um "drops" de áudio focado apenas na linha do tempo e na evolução histórica do documento.' },
+            { id: 513, category: 'Resumo em Áudio', text: 'Escreva um briefing militar ou tático em áudio: direto ao ponto, enumerando alvos, riscos e ordens de ação.' },
+            { id: 514, category: 'Resumo em Áudio', text: 'Converta o conteúdo em um monólogo de humor ácido no formato de comentário de rádio matinal.' },
+            { id: 515, category: 'Resumo em Áudio', text: 'Crie um roteiro de áudio focado em acessibilidade, detalhando conceitos visuais do texto para ouvintes cegos.' },
+            { id: 516, category: 'Resumo em Áudio', text: 'Transforme as políticas do documento em um anúncio de rádio institucional amigável de 30 segundos.' },
+            { id: 517, category: 'Resumo em Áudio', text: 'Elabore um script para uma mensagem de correio de voz corporativa justificando a mudança de rota do projeto.' },
+            { id: 518, category: 'Resumo em Áudio', text: 'Crie um roteiro de áudio para treinamento de equipe (onboarding) que possa ser ouvido no trânsito.' },
+            { id: 519, category: 'Resumo em Áudio', text: 'Estruture um debate em áudio no formato "mesa redonda" com três vozes distintas defendendo teses opostas.' },
+            { id: 520, category: 'Resumo em Áudio', text: 'Roteirize um áudio motivacional épico utilizando os desafios descritos no texto como base para superação.' },
+            { id: 521, category: 'Resumo em Áudio', text: 'Transforme as heurísticas em uma série de 5 dicas rápidas de áudio para tocar antes de reuniões.' },
+            { id: 522, category: 'Resumo em Áudio', text: 'Crie um script documental em áudio, incluindo sugestões de trilha sonora (tensa, alegre, reflexiva) por bloco.' },
+            { id: 523, category: 'Resumo em Áudio', text: 'Escreva um roteiro de podcast infantil que explique este conceito complexo usando metáforas sonoras (ex: sons de animais).' },
+            { id: 524, category: 'Resumo em Áudio', text: 'Converta o relatório financeiro em um resumo em áudio focado apenas nas projeções de lucros e perdas.' },
+            { id: 525, category: 'Resumo em Áudio', text: 'Crie um áudio de "Pre-mortem": uma gravação fúnebre do futuro explicando por que a estratégia falhou.' },
+            { id: 526, category: 'Resumo em Áudio', text: 'Roteirize um quadro de perguntas e respostas (Q&A) de rádio respondendo às 3 dúvidas mais óbvias sobre o texto.' },
+            { id: 527, category: 'Resumo em Áudio', text: 'Transforme a auditoria de viés em um áudio investigativo (estilo "true crime") desvendando as falhas do autor.' },
+            { id: 528, category: 'Resumo em Áudio', text: 'Crie o roteiro de uma vinheta de abertura e encerramento de podcast baseada neste contexto.' },
+            { id: 529, category: 'Resumo em Áudio', text: 'Escreva um script de áudio no qual o narrador fala em primeira pessoa como se fosse o sistema/produto ganhando vida.' },
+            { id: 530, category: 'Resumo em Áudio', text: 'Converta o passo a passo técnico em um roteiro de áudio-guia interativo (ex: "pressione pause e faça X").' },
+            { id: 531, category: 'Resumo em Áudio', text: 'Elabore um roteiro para um áudio vazado (estilo escuta telefônica) que revela a verdadeira intenção do documento.' },
+            { id: 532, category: 'Resumo em Áudio', text: 'Crie um script de comentário esportivo narrando a competição de mercado descrita no texto.' },
+            { id: 533, category: 'Resumo em Áudio', text: 'Transforme a comparação de ferramentas/teorias em um roteiro de "batalha de rimas" ou duelo verbal.' },
+            { id: 534, category: 'Resumo em Áudio', text: 'Roteirize um boletim de saúde e segurança no trabalho baseado nos riscos mencionados, focado no sistema de som de uma fábrica.' },
+            { id: 535, category: 'Resumo em Áudio', text: 'Crie um resumo em áudio de 5 minutos desenhado especificamente para pessoas com TDAH (dinâmico, trocas rápidas de estímulo).' },
+            { id: 536, category: 'Resumo em Áudio', text: 'Escreva o roteiro de um sermão religioso ou filosófico focado nas implicações éticas do contexto apresentado.' },
+            { id: 537, category: 'Resumo em Áudio', text: 'Converta o material num alerta de emergência de sistema de som público (sirene, instrução clara, evacuação teórica).' },
+            { id: 538, category: 'Resumo em Áudio', text: 'Crie um script de podcast focado no nicho ASMR, explicando o documento com pausas suaves, sussurros e foco no relaxamento.' },
+            { id: 539, category: 'Resumo em Áudio', text: 'Roteirize uma crônica de rádio poética sobre o impacto sociológico destas mudanças na vida do cidadão comum.' },
+            { id: 540, category: 'Resumo em Áudio', text: 'Transforme a síntese num roteiro de rádio-novela da década de 1950, dramatizando as tensões do documento.' },
+            { id: 541, category: 'Resumo em Áudio', text: 'Escreva um roteiro de pitch de vendas em áudio (telemarketing refinado) tentando vender a tese do texto ao ouvinte.' },
+            { id: 542, category: 'Resumo em Áudio', text: 'Crie um áudio de integração cultural (culture code) para ser o primeiro contato de um funcionário com a empresa.' },
+            { id: 543, category: 'Resumo em Áudio', text: 'Estruture um script de "react" em áudio, onde um especialista ouve trechos do texto e reage instantaneamente.' },
+            { id: 544, category: 'Resumo em Áudio', text: 'Converta os 5 principais erros apontados no texto em um quadro de "Piores Práticas" de um programa humorístico.' },
+            { id: 545, category: 'Resumo em Áudio', text: 'Roteirize um resumo focado na linguagem de investidores (pitch deck em áudio) focando em tração e unit economics.' },
+            { id: 546, category: 'Resumo em Áudio', text: 'Crie um script simulando o diário de bordo em áudio de um capitão ou pesquisador descobrindo estas informações.' },
+            { id: 547, category: 'Resumo em Áudio', text: 'Transforme os dados quantitativos num formato de "placar sonoro", onde números viram escalas musicais ascendentes ou descendentes.' },
+            { id: 548, category: 'Resumo em Áudio', text: 'Escreva o roteiro de uma ligação de retenção de clientes do SAC, usando os argumentos do texto para evitar o cancelamento.' },
+            { id: 549, category: 'Resumo em Áudio', text: 'Crie um áudio manifesto: vozes alternadas declarando as novas regras de conduta sugeridas no material.' },
+            { id: 550, category: 'Resumo em Áudio', text: 'Roteirize um programa de rádio noturno íntimo, onde o locutor reflete sobre as partes mais filosóficas do texto.' },
+            { id: 551, category: 'Resumo em Áudio', text: 'Converta a matriz SWOT do documento em um debate tático de áudio entre um otimista e um pessimista.' },
+            { id: 552, category: 'Resumo em Áudio', text: 'Crie um roteiro de áudio para uma exposição em museu (audio tour), guiando o ouvinte pelos "salões" das ideias do texto.' },
+            { id: 553, category: 'Resumo em Áudio', text: 'Escreva um briefing focado apenas na semântica: explique as palavras difíceis do texto como um dicionário em áudio.' },
+            { id: 554, category: 'Resumo em Áudio', text: 'Transforme a linha do tempo num "Flashback sonoro", usando datas, distorções de áudio e narração cronológica.' },
+            { id: 555, category: 'Resumo em Áudio', text: 'Roteirize um discurso político de palanque utilizando as promessas e soluções apresentadas no contexto.' },
+            { id: 556, category: 'Resumo em Áudio', text: 'Crie um script de podcast "Deep Dive", passando os primeiros 2 minutos apenas conceituando a dor, e o restante a solução.' },
+            { id: 557, category: 'Resumo em Áudio', text: 'Estruture o conteúdo num áudio de "Mensagem à Nação", assumindo tom de autoridade governamental anunciando mudanças.' },
+            { id: 558, category: 'Resumo em Áudio', text: 'Converta a avaliação de riscos num script de torre de controle aéreo orientando um piloto na tempestade.' },
+            { id: 559, category: 'Resumo em Áudio', text: 'Crie um roteiro de comédia stand-up em áudio, fazendo piada com os jargões e contradições do material fornecido.' },
+            { id: 560, category: 'Resumo em Áudio', text: 'Escreva um script de áudio-drama onde a premissa central falhou e os personagens precisam sobreviver ao colapso.' },
+            { id: 561, category: 'Resumo em Áudio', text: 'Transforme o documento num monólogo de vilão de cinema, revelando seu plano genial baseado nessas teses.' },
+            { id: 562, category: 'Resumo em Áudio', text: 'Roteirize uma aula de idioma baseada no texto, onde o locutor repete os conceitos-chave com traduções e exemplos.' },
+            { id: 563, category: 'Resumo em Áudio', text: 'Crie um áudio de "Caixa Preta": os últimos 3 minutos antes da falência da ideia relatando os erros operacionais.' },
+            { id: 564, category: 'Resumo em Áudio', text: 'Escreva o script de um trailer de cinema narrando a jornada épica apresentada no texto (com voz grave institucional).' },
+            { id: 565, category: 'Resumo em Áudio', text: 'Converta o diagnóstico crítico num laudo médico em áudio, dissecando os sintomas organizacionais do paciente.' },
+            { id: 566, category: 'Resumo em Áudio', text: 'Crie um roteiro focado em "Gamificação em áudio", onde o ouvinte deve escolher a próxima ação baseada nas opções do texto.' },
+            { id: 567, category: 'Resumo em Áudio', text: 'Estruture a análise epistemológica como um debate de rádio acadêmico, com citações teóricas e linguagem culta.' },
+            { id: 568, category: 'Resumo em Áudio', text: 'Roteirize uma "Roda de Terapia" em áudio, onde as diferentes vertentes do texto conversam sobre suas frustrações.' },
+            { id: 569, category: 'Resumo em Áudio', text: 'Transforme a síntese num canto de torcida ou jingle publicitário que gruda na cabeça e ensina o princípio básico.' },
+            { id: 570, category: 'Resumo em Áudio', text: 'Escreva o roteiro de um programa infantil de bonecos (estilo Muppets) onde um boneco não entende a teoria e o outro explica.' },
+            { id: 571, category: 'Resumo em Áudio', text: 'Crie um briefing espacial (Comando Estelar), reportando as descobertas deste documento como se fosse de um novo planeta.' },
+            { id: 572, category: 'Resumo em Áudio', text: 'Converta as objeções listadas num programa de rádio de "Call-in", onde ouvintes fictícios ligam revoltados e o host argumenta.' },
+            { id: 573, category: 'Resumo em Áudio', text: 'Roteirize um áudio de hipnose ou reprogramação mental repetindo sutilmente os dogmas e KPIs do contexto.' },
+            { id: 574, category: 'Resumo em Áudio', text: 'Crie um script de juízo final, com o âncora do telejornal anunciando as consequências das ações do documento batendo à porta.' },
+            { id: 575, category: 'Resumo em Áudio', text: 'Estruture o conteúdo como uma confissão íntima em áudio (fita cassete encontrada) revelando a verdade sobre a teoria.' },
+            { id: 576, category: 'Resumo em Áudio', text: 'Transforme a estrutura do plano de ação numa contagem regressiva tensa em áudio (T-minus 10, 9...).' },
+            { id: 577, category: 'Resumo em Áudio', text: 'Escreva um roteiro de áudio para sala de espera de consultório, educando o público sobre o tema de forma suave e contínua.' },
+            { id: 578, category: 'Resumo em Áudio', text: 'Converta o material num "Roast" (fritada) em áudio, onde diferentes locutores ridicularizam as falhas do documento.' },
+            { id: 579, category: 'Resumo em Áudio', text: 'Crie um áudio de "Teoria da Conspiração", ligando os pontos do texto de forma paranóica e reveladora.' },
+            { id: 580, category: 'Resumo em Áudio', text: 'Roteirize a análise comparativa como se fosse a narração das pesagens antes de uma luta de boxe entre duas teses.' },
+            { id: 581, category: 'Resumo em Áudio', text: 'Transforme a gestão de riscos num roteiro de briefing de espião (estilo Missão Impossível), avisando sobre os perigos da missão.' },
+            { id: 582, category: 'Resumo em Áudio', text: 'Crie um script de podcast focado em neurociência, explicando audivelmente como essas informações afetam o cérebro humano.' },
+            { id: 583, category: 'Resumo em Áudio', text: 'Escreva um roteiro de rádio policial (frequência de rádio) descrevendo o problema do texto como um crime em andamento.' },
+            { id: 584, category: 'Resumo em Áudio', text: 'Converta as inovações propostas num formato de "Carta do Futuro", lida por uma voz robótica avançada.' },
+            { id: 585, category: 'Resumo em Áudio', text: 'Roteirize um resumo em áudio sem usar palavras com a letra "A", forçando uma reestruturação criativa e vocabulário técnico.' },
+            { id: 586, category: 'Resumo em Áudio', text: 'Crie um áudio imitando um leilão de gado ou obras de arte para vender as ideias do texto pelo maior lance.' },
+            { id: 587, category: 'Resumo em Áudio', text: 'Estruture a síntese como uma instrução de voo dada por comissários de bordo (com protocolos e saídas de emergência).' },
+            { id: 588, category: 'Resumo em Áudio', text: 'Transforme o texto numa previsão do tempo astrológica, cruzando os conceitos com leitura de mapas astrais humorística.' },
+            { id: 589, category: 'Resumo em Áudio', text: 'Escreva um script de um tribunal em áudio, com promotor, defesa e juiz julgando a viabilidade da tese principal.' },
+            { id: 590, category: 'Resumo em Áudio', text: 'Converta as heurísticas num áudio de GPS de carro (ex: "Em 100 metros, evite o risco de viés cognitivo à direita").' },
+            { id: 591, category: 'Resumo em Áudio', text: 'Crie um roteiro em áudio de unboxing cego: o locutor está abrindo mentalmente o conceito e descrevendo o que sente.' },
+            { id: 592, category: 'Resumo em Áudio', text: 'Roteirize uma fofoca corporativa de rádio-corredor sussurrada, espalhando as novidades estratégicas como se fossem segredos.' },
+            { id: 593, category: 'Resumo em Áudio', text: 'Transforme o texto num formato de sermão de rua apocalíptico com megafone alertando sobre as mudanças.' },
+            { id: 594, category: 'Resumo em Áudio', text: 'Escreva um áudio de diário de quarentena, relatando como o isolamento impactou as teses e resultados do documento.' },
+            { id: 595, category: 'Resumo em Áudio', text: 'Crie um roteiro simulando os bastidores (microfone aberto acidentalmente) da diretoria discutindo essas regras.' },
+            { id: 596, category: 'Resumo em Áudio', text: 'Converta os gargalos do projeto em um áudio de mecânico explicando o que está quebrado no motor da empresa.' },
+            { id: 597, category: 'Resumo em Áudio', text: 'Roteirize um podcast de cultura pop fazendo um crossover entre este tema denso e o universo da Marvel ou Star Wars.' },
+            { id: 598, category: 'Resumo em Áudio', text: 'Transforme a síntese executiva num rap improvisado (freestyle) marcando os BPMs (batidas por minuto) ideais para a leitura.' },
+            { id: 599, category: 'Resumo em Áudio', text: 'Crie o roteiro de uma mensagem de rádio captada do Titanic afundando, relatando as falhas sequenciais do projeto.' },
+            { id: 600, category: 'Resumo em Áudio', text: 'Redija o "Canto do Cisne": o último áudio oficial do criador da ideia se despedindo de seu legado de forma poética.' }
+        ];
+
+        // Estado Global
+        let activeCategory = 'Todos';
+        let searchQuery = '';
+        let selectedPersona = MODIFIERS.personas[0].value;
+        let selectedFormat = MODIFIERS.formats[0].value;
+
+        // Elementos DOM
+        const categoriesContainer = document.getElementById('categories-container');
+        const promptsGrid = document.getElementById('prompts-grid');
+        const emptyState = document.getElementById('empty-state');
+        const promptCount = document.getElementById('prompt-count');
+        const activeCategoryTitle = document.getElementById('active-category-title');
+        const searchInput = document.getElementById('search-input');
+        const personaSelect = document.getElementById('persona-select');
+        const formatSelect = document.getElementById('format-select');
+        const toast = document.getElementById('toast');
+        const combinationsCountEl = document.getElementById('combinations-count');
+
+        // Inicialização
+        function init() {
+            renderFilters();
+            renderPrompts();
+            setupEventListeners();
+            
+            // Quantidade de combinações matemáticas (500 prompts * personas * formatos)
+            const totalCombos = PROMPTS.length * MODIFIERS.personas.length * MODIFIERS.formats.length;
+            combinationsCountEl.textContent = totalCombos.toLocaleString('pt-BR');
+            
+            // Renderiza icones lucide da página
+            lucide.createIcons();
+        }
+
+        // Renderiza Selects e Menu Lateral
+        function renderFilters() {
+            // Personas
+            personaSelect.innerHTML = MODIFIERS.personas.map(p => 
+                `<option value="${p.value}">${p.label}</option>`
+            ).join('');
+
+            // Formatos
+            formatSelect.innerHTML = MODIFIERS.formats.map(f => 
+                `<option value="${f.value}">${f.label}</option>`
+            ).join('');
+
+            // Categorias
+            renderCategoriesMenu();
+        }
+
+        function renderCategoriesMenu() {
+            categoriesContainer.innerHTML = CATEGORIES.map(category => {
+                const isActive = activeCategory === category.id;
+                const activeClass = isActive ? 'bg-indigo-600/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200';
+                const iconClass = isActive ? 'text-indigo-500' : 'text-slate-500';
+                
+                return `
+                    <button onclick="setCategory('${category.id}')" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${activeClass}">
+                        <i data-lucide="${category.icon}" class="w-[18px] h-[18px] ${iconClass}"></i>
+                        ${category.id}
+                    </button>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        // Renderização dos Prompts Filtrados
+        function renderPrompts() {
+            const filtered = PROMPTS.filter(prompt => {
+                const matchCategory = activeCategory === 'Todos' || prompt.category === activeCategory;
+                const matchSearch = prompt.text.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                    prompt.category.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchCategory && matchSearch;
+            });
+
+            activeCategoryTitle.textContent = activeCategory;
+            promptCount.textContent = `Mostrando ${filtered.length} prompts baseados nos filtros.`;
+
+            if (filtered.length === 0) {
+                promptsGrid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                promptsGrid.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                
+                promptsGrid.innerHTML = filtered.map(prompt => `
+                    <div class="group bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-5 transition-all duration-300 flex flex-col h-full relative overflow-hidden">
+                        
+                        <div class="absolute top-3 right-4 opacity-10 text-slate-500 text-4xl font-black italic select-none pointer-events-none">
+                            #${prompt.id}
+                        </div>
+
+                        <div class="flex-1 relative z-10">
+                            <span class="inline-block px-2.5 py-1 bg-slate-800 text-slate-300 rounded-md text-[11px] font-medium mb-3 border border-slate-700">
+                                ${prompt.category}
+                            </span>
+                            <p class="text-sm text-slate-200 leading-relaxed font-medium mb-2">
+                                ${prompt.text}
+                            </p>
+                        </div>
+                        
+                        <div class="mt-5 flex items-center justify-between pt-4 border-t border-slate-800/50 relative z-10">
+                            <button onclick="handleCopy(${prompt.id}, \`${prompt.text.replace(/`/g, '\\`')}\`)" class="flex items-center justify-center gap-2 w-full bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-200" id="btn-copy-${prompt.id}">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Copiar Prompt
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                lucide.createIcons({ root: promptsGrid });
+            }
+        }
+
+        // Lógica de Eventos
+        function setupEventListeners() {
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                renderPrompts();
+            });
+
+            personaSelect.addEventListener('change', (e) => {
+                selectedPersona = e.target.value;
+                updatePreview();
+            });
+
+            formatSelect.addEventListener('change', (e) => {
+                selectedFormat = e.target.value;
+                updatePreview();
+            });
+        }
+
+        function setCategory(id) {
+            activeCategory = id;
+            renderCategoriesMenu();
+            renderPrompts();
+        }
+
+        function updatePreview() {
+            const previewContainer = document.getElementById('preview-container');
+            const previewPersona = document.getElementById('preview-persona');
+            const previewFormat = document.getElementById('preview-format');
+            
+            if (selectedPersona || selectedFormat) {
+                previewContainer.classList.remove('hidden');
+                
+                // Pega os rótulos ativos
+                const personaLabel = personaSelect.options[personaSelect.selectedIndex].text;
+                const formatLabel = formatSelect.options[formatSelect.selectedIndex].text;
+                
+                previewPersona.textContent = selectedPersona ? `[${personaLabel}] ` : '';
+                previewFormat.textContent = selectedFormat ? ` [${formatLabel}]` : '';
+            } else {
+                previewContainer.classList.add('hidden');
+            }
+        }
+
+        // Lógica de Cópia e Fallback
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            let success = false;
+            try {
+                success = document.execCommand('copy');
+            } catch (err) {
+                console.error('Fallback falhou', err);
+            }
+            document.body.removeChild(textArea);
+            return success;
+        }
+
+        function handleCopy(id, baseText) {
+            const finalPrompt = `${selectedPersona}${baseText}${selectedFormat}`;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(finalPrompt).then(() => {
+                    showSuccess(id);
+                }).catch(err => {
+                    if (fallbackCopyTextToClipboard(finalPrompt)) showSuccess(id);
+                });
+            } else {
+                if (fallbackCopyTextToClipboard(finalPrompt)) showSuccess(id);
+            }
+        }
+
+        function showSuccess(id) {
+            // Update button UI temporarily
+            const btn = document.getElementById(`btn-copy-${id}`);
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Copiado!`;
+            btn.classList.add('bg-indigo-600', 'text-white');
+            lucide.createIcons({ root: btn });
+            
+            // Show toast
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                lucide.createIcons({ root: btn });
+                
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 2000);
+        }
+
+        // Inicia a aplicação
+        init();
+    </script>
+</body>
+</html>
